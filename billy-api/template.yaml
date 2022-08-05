@@ -1,0 +1,101 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  bill-api
+
+  Billy API for expenses.
+
+Globals:
+  Function:
+    Timeout: 30
+Parameters:
+  Env:
+    Type: String
+    Description: Environment.
+
+Resources:
+  BillyApi:
+    Type: AWS::Serverless::Api
+    Cors: "'*'"
+    Properties:
+      StageName: Dev
+      Auth:
+        AddDefaultAuthorizerToCorsPreflight: False
+        DefaultAuthorizer: BillyCognitoAuth
+        Authorizers:
+          BillyCognitoAuth:
+            UserPoolArn: !Sub "{{resolve:ssm:/${Env}/user_pool_arn:1}}"
+
+  BillyApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Environment:
+        Variables:
+          region: !Sub "{{resolve:ssm:/${Env}/region:1}}"
+          data_bucket: !Sub "{{resolve:ssm:/${Env}/data_bucket:1}}"
+          cognito_domain: !Sub "{{resolve:ssm:/${Env}/cognito_domain:1}}"
+          cognito_user_pool_id: !Sub "{{resolve:ssm:/${Env}/cognito_user_pool_id:1}}"
+          cognito_client_id: !Sub "{{resolve:ssm:/${Env}/cognito_client_id:1}}"
+          cognito_redirect_uri: !Sub "{{resolve:ssm:/${Env}/cognito_redirect_uri:1}}"
+      CodeUri: app/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      MemorySize: 1024
+      Architectures:
+        - x86_64
+      Policies:
+        - Statement:
+            - Sid: S3ReadData
+              Effect: Allow
+              Action:
+                - s3:Get*
+                - s3:List*
+              Resource: !Sub 'arn:aws:s3:::{{resolve:ssm:/${Env}/data_bucket:1}}/*'
+      Events:
+        BillySearch:
+          Type: Api
+          Properties:
+            Path: /billy/bank_statements/search
+            Method: get
+            RestApiId: !Ref BillyApi
+
+        BillyAuthTokenCognito:
+          Type: Api
+          Properties:
+            Auth:
+              Authorizer: 'NONE'
+            Path: /billy/auth/token/cognito
+            Method: get
+            RestApiId: !Ref BillyApi
+
+        BillyAuthSigninCognito:
+          Type: Api
+          Properties:
+            Auth:
+              Authorizer: 'NONE'
+            Path: /billy/auth/sign_in/cognito
+            Method: get
+            RestApiId: !Ref BillyApi
+
+        BillyCors:
+          Type: Api
+          Properties:
+            Auth:
+              Authorizer: 'NONE'
+            Path: /{billy+}
+            Method: options
+            RestApiId: !Ref BillyApi
+
+        BillyStatsExpensesPerMonth:
+          Type: Api
+          Properties:
+            Path: /billy/stats/expenses_per_month
+            Method: get
+            RestApiId: !Ref BillyApi
+
+        BillyStatsExpensesPerMonthAndCategory:
+          Type: Api
+          Properties:
+            Path: /billy/stats/expenses_per_month_and_category
+            Method: get
+            RestApiId: !Ref BillyApi

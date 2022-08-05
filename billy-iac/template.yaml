@@ -1,0 +1,214 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  bill
+
+  Billy app stack.
+Parameters:
+  Env:
+    Type: String
+    Description: Environment.
+  DDBTableName:
+    Type: String
+    Description: Cognito user pool.
+
+  CognitoUserPoolName:
+    Type: String
+    Description: Cognito user pool.
+
+  CognitoUserPoolClientName:
+    Type: String
+    Description: Cognito user pool client.
+
+  RootDomainName:
+    Type: String
+    Description: UI static website bucket.
+  UIDomainName:
+    Type: String
+    Description: UI static website bucket.
+  UIBucketName:
+    Type: String
+    Description: UI static website bucket.
+
+  AcmCertificateArn:
+    Type: String
+    Description: UI certificate
+    Default: arn:aws:acm:eu-central-1:103050589342:certificate/88b9fe05-e32d-457b-985f-b7f89cf1bc7b
+
+Mappings:
+  RegionMap:
+    eu-central-1:
+      S3hostedzoneID: Z21DNDUVLTQW6Q
+      websiteendpoint: s3-website.eu-central-1.amazonaws.com
+
+Resources:
+  UIBucket:
+    Type: 'AWS::S3::Bucket'
+    DeletionPolicy: Retain
+    Properties:
+      BucketName: !Ref UIBucketName
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      LoggingConfiguration:
+        DestinationBucketName: !Ref LoggingBucket
+        LogFilePrefix: s3-access-logs
+      VersioningConfiguration:
+        Status: Enabled
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: 'AES256'
+  BucketPolicy:
+    Type: 'AWS::S3::BucketPolicy'
+    Properties:
+      PolicyDocument:
+        Id: !Sub "BillyUIPolicy-${Env"
+        Version: 2012-10-17
+        Statement:
+          - Sid: PolicyForCloudFrontPrivateContent
+            Effect: Allow
+            Principal:
+              CanonicalUser: !GetAtt CFOriginAccessIdentity.S3CanonicalUserId
+            Action: 's3:GetObject*'
+            Resource: !Join
+              - ''
+              - - 'arn:aws:s3:::'
+                - !Ref UIBucket
+                - /*
+      Bucket: !Ref UIBucket
+  LoggingBucket:
+    #checkov:skip=CKV_AWS_18: "This bucket is private and only for storing logs"
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: !Sub '${UIBucketName}-logs'
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      AccessControl: LogDeliveryWrite
+      VersioningConfiguration:
+        Status: Enabled
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: 'AES256'
+    DeletionPolicy: Delete
+
+  CFDistribution:
+    #checkov:skip=CKV_AWS_68: "For demo purposes and to reduce cost, no WAF is configured"
+    Type: 'AWS::CloudFront::Distribution'
+    DependsOn:
+      - CFOriginAccessIdentity
+    Properties:
+      DistributionConfig:
+        Origins:
+          - DomainName: !GetAtt UIBucket.RegionalDomainName
+            Id: myS3Origin
+            S3OriginConfig:
+              OriginAccessIdentity: !Sub "origin-access-identity/cloudfront/${CFOriginAccessIdentity}"
+        Enabled: 'true'
+        DefaultRootObject: index.html
+        DefaultCacheBehavior:
+          AllowedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+          TargetOriginId: myS3Origin
+          CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6 # CachingOptimized
+          OriginRequestPolicyId: 88a5eaf4-2fd4-4709-b370-b4c650ea3fcf # CORS-S3Origin
+          ViewerProtocolPolicy: redirect-to-https
+        PriceClass: PriceClass_All
+        Logging:
+          Bucket: !GetAtt LoggingBucket.RegionalDomainName
+          Prefix: 'cloudfront-access-logs'
+
+    # The Amazon CloudFront origin access identity
+  CFOriginAccessIdentity:
+    Type: 'AWS::CloudFront::CloudFrontOriginAccessIdentity'
+    DependsOn:
+      - UIBucket
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: !Sub 'access-identity-billy-ui'
+
+  DDBTable:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Delete
+
+    Properties:
+      TableName: !Sub "${DDBTableName}"
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: "pk"
+          AttributeType: "S"
+        - AttributeName: "sk"
+          AttributeType: "S"
+        - AttributeName: "gsi1_pk"
+          AttributeType: "S"
+        - AttributeName: "gsi1_sk"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "pk"
+          KeyType: "HASH"
+        - AttributeName: "sk"
+          KeyType: "RANGE"
+      GlobalSecondaryIndexes:
+        - IndexName: "gsi1"
+          KeySchema:
+            - AttributeName: "gsi1_pk"
+              KeyType: "HASH"
+            - AttributeName: "gsi1_sk"
+              KeyType: "RANGE"
+          Projection:
+            ProjectionType: "ALL"
+      Tags:
+        - Key: App
+          Value: billy
+        - Key: Env
+          Value: !Ref Env
+
+  CognitoUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+
+      UserPoolName: !Ref CognitoUserPoolName
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+          RequireLowercase: false
+          RequireNumbers: true
+          RequireSymbols: true
+          RequireUppercase: false
+          TemporaryPasswordValidityDays: 7
+      EmailVerificationSubject: "Your Verification Code"
+      EmailVerificationMessage: "Please use the following code: {####}"
+      UsernameAttributes:
+        - email
+      Schema:
+        - AttributeDataType: String
+          Name: email
+          Required: false
+      UsernameConfiguration:
+        CaseSensitive: False
+
+  UserPoolDomain:
+    Type: AWS::Cognito::UserPoolDomain
+    Properties:
+      UserPoolId: !Ref CognitoUserPool
+      Domain: !Sub "${Env}-billy-adolha"
+
+  CognitoUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      UserPoolId: !Ref CognitoUserPool
+      ClientName: !Ref CognitoUserPoolClientName
+      GenerateSecret: false
+      ExplicitAuthFlows:
+        - ALLOW_USER_PASSWORD_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+      CallbackURLs:
+        - http://localhost:8000/login

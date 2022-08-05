@@ -1,0 +1,33 @@
+version = 0.1
+[default]
+[default.deploy]
+[default.package]
+s3_bucket = "aws-sam-cli-managed-billy-adolha"
+s3_prefix = "api/deps"
+region = "eu-central-1"
+
+[dev.deploy.parameters]
+stack_name = "billy-api-dev"
+s3_bucket = "aws-sam-cli-managed-billy-adolha"
+s3_prefix = "api/dev"
+region = "eu-central-1"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"
+disable_rollback = true
+parameter_overrides = [
+    "Env=\"dev\""
+    ]
+image_repositories = []
+
+[prod.deploy.parameters]
+stack_name = "billy-api-prod"
+s3_bucket = "aws-sam-cli-managed-billy-adolha"
+s3_prefix = "api/prod"
+region = "eu-central-1"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"
+disable_rollback = true
+parameter_overrides = [
+    "Env=\"prod\""
+    ]
+image_repositories = []
