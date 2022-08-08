@@ -13,4 +13,4 @@ phases:
       - ls
       - ls $CODEBUILD_SRC_DIR
       - cd $CODEBUILD_SRC_DIR/billy-api
-      - pytest -s -vvv tests/
+      - pytest -s -vvv tests/ --rootdir=app/
