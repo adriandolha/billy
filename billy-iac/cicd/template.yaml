@@ -183,6 +183,7 @@ Resources:
                   - "codebuild:BatchGetBuilds"
                 Resource:
                   - !GetAtt BuildProject.Arn
+                  - !GetAtt UnitTestsProject.Arn
   CodeBuildPolicy:
     Type: AWS::IAM::Policy
     Properties:

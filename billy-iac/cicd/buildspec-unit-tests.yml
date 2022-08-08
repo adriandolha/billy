@@ -1,12 +1,12 @@
 version: 0.2
 phases:
+  install:
+    commands:
+    - echo $CODEBUILD_SRC_DIR
+    - ls $CODEBUILD_SRC_DIR
+    - cd billy-api
+    - pip3 intall -r requirements.txt
   build:
-    install:
-      commands:
-      - echo $CODEBUILD_SRC_DIR
-      - ls $CODEBUILD_SRC_DIR
-      - cd billy-api
-      - pip3 intall -r requirements.txt
     commands:
       - echo $CODEBUILD_SRC_DIR
       - ls $CODEBUILD_SRC_DIR
