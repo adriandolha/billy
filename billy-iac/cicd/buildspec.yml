@@ -4,6 +4,6 @@ phases:
     commands:
       - echo $CODEBUILD_SRC_DIR
       - ls $CODEBUILD_SRC_DIR
-      - cd billy-iac
+      - cd $PROJECT_PATH
       - sam build
-      - sam deploy --config-env dev --no-confirm-changeset --no-fail-on-empty-changeset
+      - sam deploy --config-env $ENV --no-confirm-changeset --no-fail-on-empty-changeset

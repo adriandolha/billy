@@ -60,6 +60,10 @@ Resources:
         EnvironmentVariables:
           - Name: PACKAGE_BUCKET
             Value: !Ref Artifacts
+          - Name: PROJECT_PATH
+            Value: billy-iac
+          - Name: ENV
+            Value: dev
   BuildProjectRole:
     Type: AWS::IAM::Role
     Properties:
