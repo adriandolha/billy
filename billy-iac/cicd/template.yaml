@@ -236,3 +236,7 @@ Resources:
               - cloudformation:*
             Effect: Allow
             Resource: '*'
+          - Action:
+              - ssm:*
+            Effect: Allow
+            Resource: '*'
