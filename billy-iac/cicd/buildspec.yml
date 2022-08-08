@@ -2,7 +2,8 @@ version: 0.2
 phases:
   install:
     commands:
-      - yum -y install nodejs npm
+      - curl –sL https://rpm.nodesource.com/setup_10.x | bash -
+      - yum install –y nodejs
   build:
     commands:
       - echo $CODEBUILD_SRC_DIR
