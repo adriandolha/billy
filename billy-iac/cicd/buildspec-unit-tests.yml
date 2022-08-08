@@ -5,7 +5,7 @@ phases:
     - echo $CODEBUILD_SRC_DIR
     - ls $CODEBUILD_SRC_DIR
     - cd billy-api
-    - pip3 intall -r requirements.txt
+    - pip3 install -r requirements.txt
   build:
     commands:
       - echo $CODEBUILD_SRC_DIR
