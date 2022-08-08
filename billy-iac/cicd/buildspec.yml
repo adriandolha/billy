@@ -2,8 +2,8 @@ version: 0.2
 phases:
   build:
     commands:
-      - echo $HOME
-      - ls $HOME
+      - echo $CODEBUILD_SRC_DIR
+      - ls $CODEBUILD_SRC_DIR
       - cd billy-iac
       - sam build
       - sam deploy --config-env dev --no-confirm-changeset --no-fail-on-empty-changeset

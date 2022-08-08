@@ -164,9 +164,19 @@ Resources:
               - s3:GetObjectVersion
             Effect: Allow
             Resource:
-              - !Sub arn:${AWS::Partition}:s3:::${Artifacts}/*
+              - !Sub arn:${AWS::Partition}:s3:::*
           - Action:
               - s3:ListBucket
             Effect: Allow
             Resource:
-              - !Sub arn:${AWS::Partition}:s3:::${Artifacts}
+              - !Sub arn:${AWS::Partition}:s3:::*
+          - Action:
+              - serverlessrepo:GetApplication
+              - serverlessrepo:CreateCloudFormationTemplate
+              - serverlessrepo:GetCloudFormationTemplate
+            Effect: Allow
+            Resource: '*'
+          - Action:
+              - cloudformation:*
+            Effect: Allow
+            Resource: '*'
