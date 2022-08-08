@@ -39,6 +39,7 @@ def id_token(config_valid):
         AuthParameters={"USERNAME": config_valid['cognito_user'],
                         "PASSWORD": config_valid['cognito_user_password']},
     )
+    LOGGER.debug(response)
     id_token = response["AuthenticationResult"]["IdToken"]
     print(f'Cognito id token {id_token}')
     return id_token
