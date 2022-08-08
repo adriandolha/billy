@@ -7,3 +7,6 @@ phases:
       - cd $PROJECT_PATH
       - sam build
       - sam deploy --config-env $ENV --no-confirm-changeset --no-fail-on-empty-changeset
+      - cd $CODEBUILD_SRC_DIR/billy-api
+      - sam build
+      - sam deploy --config-env $ENV --no-confirm-changeset --no-fail-on-empty-changeset
