@@ -1,6 +1,8 @@
 version: 0.2
 phases:
   install:
+    runtime-versions:
+      python: 3.9
     commands:
     - echo $CODEBUILD_SRC_DIR
     - ls $CODEBUILD_SRC_DIR
