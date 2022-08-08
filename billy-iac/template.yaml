@@ -188,10 +188,15 @@ Resources:
       EmailVerificationMessage: "Please use the following code: {####}"
       UsernameAttributes:
         - email
+        - username
       Schema:
         - AttributeDataType: String
           Name: email
           Required: false
+      Schema:
+        - AttributeDataType: String
+          Name: username
+          Required: true
       UsernameConfiguration:
         CaseSensitive: False
 
@@ -212,3 +217,14 @@ Resources:
         - ALLOW_REFRESH_TOKEN_AUTH
       CallbackURLs:
         - http://localhost:8000/login
+      SupportedIdentityProviders:
+        - COGNITO
+      AllowedOAuthScopes:
+        - email
+        - openid
+        - phone
+        - profile
+      AllowedOAuthFlowsUserPoolClient: true
+      AllowedOAuthFlows:
+        - client_credentials
+        - code
