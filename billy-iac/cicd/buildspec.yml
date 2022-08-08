@@ -2,7 +2,7 @@ version: 0.2
 phases:
   install:
     commands:
-      - apt-get install -y npm
+      - apt install npm
   build:
     commands:
       - echo $CODEBUILD_SRC_DIR

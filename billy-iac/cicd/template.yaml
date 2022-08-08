@@ -12,7 +12,7 @@ Resources:
       ServiceRole: !GetAtt BuildProjectRole.Arn
       Source:
         Type: CODEPIPELINE
-        BuildSpec: "billy-iac/cicd/buildspec-unit-tests.yml"
+        BuildSpec: "billy-iac/cicd/buildspec-pytest.yml"
       Artifacts:
         Type: CODEPIPELINE
       Cache:
@@ -27,6 +27,47 @@ Resources:
         EnvironmentVariables:
           - Name: PACKAGE_BUCKET
             Value: !Ref Artifacts
+          - Name: PROJECT_PATH
+            Value: billy-api
+          - Name: TESTS_PATH
+            Value: ../tests/
+          - Name: region
+            Value: !Sub "{{resolve:ssm:/dev/region:1}}"
+          - Name: data_bucket
+            Value: !Sub "{{resolve:ssm:/dev/data_bucket:1}}"
+          - Name: cognito_domain
+            Value: !Sub "{{resolve:ssm:/dev/cognito_domain:1}}"
+          - Name: cognito_user_pool_id
+            Value: !Sub "{{resolve:ssm:/dev/cognito_user_pool_id:1}}"
+          - Name: cognito_client_id
+            Value: !Sub "{{resolve:ssm:/dev/cognito_client_id:1}}"
+          - Name: cognito_redirect_uri
+            Value: !Sub "{{resolve:ssm:/dev/cognito_redirect_uri:1}}"
+  IntegrationTestsProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      ServiceRole: !GetAtt BuildProjectRole.Arn
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: "billy-iac/cicd/buildspec-pytest.yml"
+      Artifacts:
+        Type: CODEPIPELINE
+      Cache:
+        Type: LOCAL
+        Modes:
+          - LOCAL_DOCKER_LAYER_CACHE
+          - LOCAL_SOURCE_CACHE
+      Environment:
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/standard:5.0
+        Type: LINUX_CONTAINER
+        EnvironmentVariables:
+          - Name: PACKAGE_BUCKET
+            Value: !Ref Artifacts
+          - Name: PROJECT_PATH
+            Value: billy-api
+          - Name: TESTS_PATH
+            Value: ../integration_tests/
           - Name: region
             Value: !Sub "{{resolve:ssm:/dev/region:1}}"
           - Name: data_bucket
@@ -141,9 +182,9 @@ Resources:
               InputArtifacts:
                 - Name: SourceArtifact
 
-        - Name: Infrastructure
+        - Name: DeployDev
           Actions:
-            - Name: Infrastructure
+            - Name: DeployDev
               ActionTypeId:
                 Category: Build
                 Owner: AWS
@@ -155,6 +196,20 @@ Resources:
                 - Name: SourceArtifact
               OutputArtifacts:
                 - Name: BuildArtifact
+        - Name: IntegrationTests
+          Actions:
+            - Name: IntegrationTests
+              ActionTypeId:
+                Category: Test
+                Owner: AWS
+                Provider: CodeBuild
+                Version: '1'
+              Configuration:
+                ProjectName: !Ref IntegrationTestsProject
+                PrimarySource: SourceArtifact
+              InputArtifacts:
+                - Name: SourceArtifact
+
   PipelineRole:
     Type: AWS::IAM::Role
     Properties:

@@ -15,6 +15,6 @@ phases:
       - echo $(pwd)
       - ls
       - ls $CODEBUILD_SRC_DIR
-      - cd $CODEBUILD_SRC_DIR/billy-api/app
+      - cd $CODEBUILD_SRC_DIR/$PROJECT_PATH/app
       - ls
-      - python -m pytest ../tests/
+      - python -m pytest $TESTS_PATH
