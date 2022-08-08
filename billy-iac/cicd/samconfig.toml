@@ -8,7 +8,7 @@ s3_prefix = "cicd"
 region = "eu-central-1"
 confirm_changeset = true
 capabilities = "CAPABILITY_IAM"
-disable_rollback = true
+disable_rollback = false
 parameter_overrides = [
     ]
 image_repositories = []

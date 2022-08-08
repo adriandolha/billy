@@ -2,5 +2,8 @@ version: 0.2
 phases:
   build:
     commands:
+      - echo $HOME
+      - ls $HOME
+      - cd billy-iac
       - sam build
       - sam deploy --config-env dev --no-confirm-changeset --no-fail-on-empty-changeset
