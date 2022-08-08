@@ -2,7 +2,7 @@ version: 0.2
 phases:
   install:
     commands:
-      - curl –sL https://rpm.nodesource.com/setup_17.x | bash -
+      - curl –sL https://rpm.nodesource.com/setup_18.x | bash -
       - yum -y install nodejs
   build:
     commands:
