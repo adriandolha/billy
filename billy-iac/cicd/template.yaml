@@ -32,17 +32,17 @@ Resources:
           - Name: TESTS_PATH
             Value: ../tests/
           - Name: region
-            Value: !Sub "{{resolve:ssm:/dev/region:1}}"
+            Value: !Sub "{{resolve:ssm:/dev/region}}"
           - Name: data_bucket
-            Value: !Sub "{{resolve:ssm:/dev/data_bucket:1}}"
+            Value: !Sub "{{resolve:ssm:/dev/data_bucket}}"
           - Name: cognito_domain
-            Value: !Sub "{{resolve:ssm:/dev/cognito_domain:1}}"
+            Value: !Sub "{{resolve:ssm:/dev/cognito_domain}}"
           - Name: cognito_user_pool_id
-            Value: !Sub "{{resolve:ssm:/dev/cognito_user_pool_id:1}}"
+            Value: !Sub "{{resolve:ssm:/dev/cognito_user_pool_id}}"
           - Name: cognito_client_id
-            Value: !Sub "{{resolve:ssm:/dev/cognito_client_id:1}}"
+            Value: !Sub "{{resolve:ssm:/dev/cognito_client_id}}"
           - Name: cognito_redirect_uri
-            Value: !Sub "{{resolve:ssm:/dev/cognito_redirect_uri:1}}"
+            Value: !Sub "{{resolve:ssm:/dev/cognito_redirect_uri}}"
   IntegrationTestsProject:
     Type: AWS::CodeBuild::Project
     Properties:
@@ -69,17 +69,17 @@ Resources:
           - Name: TESTS_PATH
             Value: ../integration_tests/
           - Name: region
-            Value: !Sub "{{resolve:ssm:/dev/region:1}}"
+            Value: !Sub "{{resolve:ssm:/dev/region}}"
           - Name: data_bucket
-            Value: !Sub "{{resolve:ssm:/dev/data_bucket:1}}"
+            Value: !Sub "{{resolve:ssm:/dev/data_bucket}}"
           - Name: cognito_domain
-            Value: !Sub "{{resolve:ssm:/dev/cognito_domain:1}}"
+            Value: !Sub "{{resolve:ssm:/dev/cognito_domain}}"
           - Name: cognito_user_pool_id
-            Value: !Sub "{{resolve:ssm:/dev/cognito_user_pool_id:1}}"
+            Value: !Sub "{{resolve:ssm:/dev/cognito_user_pool_id}}"
           - Name: cognito_client_id
-            Value: !Sub "{{resolve:ssm:/dev/cognito_client_id:1}}"
+            Value: !Sub "{{resolve:ssm:/dev/cognito_client_id}}"
           - Name: cognito_redirect_uri
-            Value: !Sub "{{resolve:ssm:/dev/cognito_redirect_uri:1}}"
+            Value: !Sub "{{resolve:ssm:/dev/cognito_redirect_uri}}"
   BuildProject:
     Type: AWS::CodeBuild::Project
     Properties:
@@ -293,5 +293,9 @@ Resources:
             Resource: '*'
           - Action:
               - ssm:*
+            Effect: Allow
+            Resource: '*'
+          - Action:
+              - iam:*
             Effect: Allow
             Resource: '*'
