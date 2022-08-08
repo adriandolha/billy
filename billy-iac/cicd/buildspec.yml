@@ -2,7 +2,7 @@ version: 0.2
 phases:
   install:
     commands:
-      - curl –sL https://rpm.nodesource.com/setup_18.x | bash -
+      - curl –sL https://rpm.nodesource.com/setup_17.x | bash -
       - yum -y install nodejs
   build:
     commands:
@@ -12,7 +12,7 @@ phases:
       - npm install
       - npm run build
       - aws s3 sync build s3://www.dev.billy.adolha.com
-      - cd $PROJECT_PATH
+      - cd $CODEBUILD_SRC_DIR/billy-iac
       - sam build
       - sam deploy --config-env $ENV --no-confirm-changeset --no-fail-on-empty-changeset
       - cd $CODEBUILD_SRC_DIR/billy-api
