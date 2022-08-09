@@ -1,9 +1,11 @@
 version: 0.2
 phases:
   install:
+    runtime-versions:
+      python: 3.9
+      nodejs: 14
     commands:
-      - curl –sL https://rpm.nodesource.com/setup_17.x | bash -
-      - yum -y install nodejs
+      - pip3 install aws-sam-cli
   build:
     commands:
       - echo $CODEBUILD_SRC_DIR
@@ -18,3 +20,9 @@ phases:
       - cd $CODEBUILD_SRC_DIR/billy-api
       - sam build
       - sam deploy --config-env $ENV --no-confirm-changeset --no-fail-on-empty-changeset
+cache:
+  paths:
+    - '/root/.pip/**/*'
+    - '/root/.pip3/**/*'
+    - '/root/.npm/**/*'
+   
