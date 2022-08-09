@@ -18,3 +18,8 @@ phases:
       - cd $CODEBUILD_SRC_DIR/$PROJECT_PATH/app
       - ls
       - python -m pytest $TESTS_PATH
+cache:
+  paths:
+    - '/root/.pip/**/*'
+    - '/root/.pip3/**/*'
+    - '/root/.npm/**/*'
