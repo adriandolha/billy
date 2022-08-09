@@ -24,7 +24,7 @@ Resources:
         DefaultAuthorizer: BillyCognitoAuth
         Authorizers:
           BillyCognitoAuth:
-            UserPoolArn: !Sub "{{resolve:ssm:/${Env}/user_pool_arn:1}}"
+            UserPoolArn: !Sub "{{resolve:ssm:/${Env}/user_pool_arn}}"
 
   BillyApiFunction:
     Type: AWS::Serverless::Function
@@ -50,7 +50,7 @@ Resources:
               Action:
                 - s3:Get*
                 - s3:List*
-              Resource: !Sub 'arn:aws:s3:::{{resolve:ssm:/${Env}/data_bucket:1}}/*'
+              Resource: !Sub 'arn:aws:s3:::{{resolve:ssm:/${Env}/data_bucket}}/*'
       Events:
         BillySearch:
           Type: Api
