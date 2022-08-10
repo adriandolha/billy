@@ -6,7 +6,7 @@ phases:
       nodejs: 14
   build:
     commands:
-      - echo $CODEBUILD_SRC_DIR
+      - echo $CODEBUILD_SRC_DIR/billy-ui
       - ls $CODEBUILD_SRC_DIR
       - ls $CODEBUILD_SRC_DIR/billy-ui
       - cd billy-ui
