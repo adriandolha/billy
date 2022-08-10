@@ -24,4 +24,8 @@ cache:
     - '/root/.cache/pip3/**/*'
     - '/root/.npm/**/*'
     - 'billy-ui/node_modules/**/*'
+artifacts:
+  files:
+    - 'billy-ui/node_modules/**/*'
+    - 'billy-ui/build/**/*'
    
