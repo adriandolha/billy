@@ -8,6 +8,7 @@ phases:
     commands:
       - echo $CODEBUILD_SRC_DIR
       - ls $CODEBUILD_SRC_DIR
+      - ls $CODEBUILD_SRC_DIR/billy-ui
       - cd billy-ui
       - npm install --prefer-offline --no-audit
       - npm run build
@@ -26,6 +27,4 @@ cache:
     - 'billy-ui/node_modules/**/*'
 artifacts:
   files:
-    - 'billy-ui/node_modules/**/*'
-    - 'billy-ui/build/**/*'
-   
+    - '**/*'
