@@ -4,8 +4,6 @@ phases:
     runtime-versions:
       python: 3.9
       nodejs: 14
-    commands:
-      - pip3 install aws-sam-cli
   build:
     commands:
       - echo $CODEBUILD_SRC_DIR
@@ -22,7 +20,8 @@ phases:
       - sam deploy --config-env $ENV --no-confirm-changeset --no-fail-on-empty-changeset
 cache:
   paths:
-    - '/root/.pip/**/*'
-    - '/root/.pip3/**/*'
+    - '/root/.cache/pip/**/*'
+    - '/root/.cache/pip3/**/*'
     - '/root/.npm/**/*'
+    - 'billy-ui/node_modules/**/*'
    
