@@ -3,18 +3,17 @@ phases:
   install:
     runtime-versions:
       python: 3.9
-    commands:
-      - pip3 install aws-sam-cli
   build:
     commands:
       - echo $CODEBUILD_SRC_DIR
       - ls $CODEBUILD_SRC_DIR
       - ls $CODEBUILD_SRC_DIR/billy-ui
+      - cd billy-ui
+      - npm run build
+      - aws s3 sync build s3://www.billy.adolha.com
       - cd $CODEBUILD_SRC_DIR/billy-iac
-      - sam build
       - sam deploy --config-env $ENV --no-confirm-changeset --no-fail-on-empty-changeset
       - cd $CODEBUILD_SRC_DIR/billy-api
-      - sam build
       - sam deploy --config-env $ENV --no-confirm-changeset --no-fail-on-empty-changeset
 cache:
   paths:
