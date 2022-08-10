@@ -3,6 +3,7 @@ phases:
   install:
     runtime-versions:
       python: 3.9
+      nodejs: 14
   build:
     commands:
       - echo $CODEBUILD_SRC_DIR
@@ -19,4 +20,7 @@ cache:
   paths:
     - '/root/.pip/**/*'
     - '/root/.pip3/**/*'
-
+    - '/root/.cache/pip/**/*'
+    - '/root/.cache/pip3/**/*'
+    - '/root/.npm/**/*'
+    - 'billy-ui/node_modules/**/*'
