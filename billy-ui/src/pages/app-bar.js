@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
 
 const drawerWidth = 240;
 
-const API_URL = 'http://localhost:3000'
+import { API_URL } from "../pages/config";
 
 function AppBarMenu({ }) {
 
