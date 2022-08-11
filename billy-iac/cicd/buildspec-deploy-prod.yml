@@ -11,8 +11,6 @@ phases:
       - ls $CODEBUILD_SRC_DIR/billy-ui
       - ls billy-api
       - cd billy-ui
-      - ls node_modules
-      - npm run build
       - aws s3 sync build s3://www.billy.adolha.com
       - cd $CODEBUILD_SRC_DIR/billy-iac
       - sam deploy --config-env $ENV --no-confirm-changeset --no-fail-on-empty-changeset
