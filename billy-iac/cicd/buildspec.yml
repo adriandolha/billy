@@ -25,7 +25,6 @@ cache:
   paths:
     - '/root/.cache/pip/**/*'
     - '/root/.cache/pip3/**/*'
-    - '/root/.npm/**/*'
 artifacts:
   files:
     - '**/*'
