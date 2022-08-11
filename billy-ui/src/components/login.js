@@ -4,8 +4,7 @@ import { useNavigate } from 'react-router';
 
 import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
-
-const API_URL = 'http://localhost:3000'
+import { API_URL } from "../pages/config";
 
 function Login({ }) {
     const navigate = useNavigate()
