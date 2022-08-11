@@ -3,10 +3,8 @@ import { Toolbar, Link, AppBar, Button } from '@mui/material';
 import { useNavigate } from 'react-router';
 import AuthService from '../services/auth-service'
 import { useState, useEffect } from 'react';
-
-const drawerWidth = 240;
-
 import { API_URL } from "../pages/config";
+const drawerWidth = 240;
 
 function AppBarMenu({ }) {
 
