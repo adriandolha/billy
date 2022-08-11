@@ -19,6 +19,8 @@ phases:
       - cd $CODEBUILD_SRC_DIR/billy-api
       - sam build
       - sam deploy --config-env $ENV --no-confirm-changeset --no-fail-on-empty-changeset
+      - ls $CODEBUILD_SRC_DIR/billy-iac
+      - ls $CODEBUILD_SRC_DIR/billy-api
 cache:
   paths:
     - '/root/.cache/pip/**/*'
