@@ -227,7 +227,7 @@ Resources:
         - ALLOW_REFRESH_TOKEN_AUTH
       CallbackURLs:
         - http://localhost:8000/login
-        - !Ref ApiUrl
+        - !Sub "https://${UIBucketName}/login"
       SupportedIdentityProviders:
         - COGNITO
       AllowedOAuthScopes:

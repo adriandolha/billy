@@ -337,25 +337,11 @@ Resources:
               - serverlessrepo:GetApplication
               - serverlessrepo:CreateCloudFormationTemplate
               - serverlessrepo:GetCloudFormationTemplate
-            Effect: Allow
-            Resource: '*'
-          - Action:
               - cloudformation:*
-            Effect: Allow
-            Resource: '*'
-          - Action:
+              - cloudfront:*
               - ssm:*
-            Effect: Allow
-            Resource: '*'
-          - Action:
               - iam:*
-            Effect: Allow
-            Resource: '*'
-          - Action:
               - lambda:*
-            Effect: Allow
-            Resource: '*'
-          - Action:
               - cognito-idp:*
             Effect: Allow
             Resource: '*'
