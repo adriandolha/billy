@@ -355,3 +355,7 @@ Resources:
               - lambda:*
             Effect: Allow
             Resource: '*'
+          - Action:
+              - cognito-idp:*
+            Effect: Allow
+            Resource: '*'

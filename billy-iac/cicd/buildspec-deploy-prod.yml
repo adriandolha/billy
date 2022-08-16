@@ -7,7 +7,6 @@ phases:
   build:
     commands:
       - echo $CODEBUILD_SRC_DIR
-      - ls -R $CODEBUILD_SRC_DIR
       - ls $CODEBUILD_SRC_DIR/billy-ui
       - ls billy-api
       - cd billy-ui
