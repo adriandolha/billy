@@ -2,6 +2,8 @@ import json
 import requests
 
 
+# Bank statements integration tests
+
 class TestBankStatementsApi:
     def test_bank_statement_search_valid(self, config_valid, id_token, api_url):
         response = requests.get(f'{api_url}/bank_statements/search?query=glovo&offset=0&limit=10', headers={

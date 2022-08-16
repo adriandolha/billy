@@ -8,6 +8,9 @@ Parameters:
   Env:
     Type: String
     Description: Environment.
+  ApiUrl:
+    Type: String
+    Description: Api Gateway url.
   DDBTableName:
     Type: String
     Description: Cognito user pool.
@@ -23,9 +26,11 @@ Parameters:
   RootDomainName:
     Type: String
     Description: UI static website bucket.
+
   UIDomainName:
     Type: String
     Description: UI static website bucket.
+
   UIBucketName:
     Type: String
     Description: UI static website bucket.
@@ -33,7 +38,6 @@ Parameters:
   AcmCertificateArn:
     Type: String
     Description: UI certificate
-    Default: arn:aws:acm:eu-central-1:103050589342:certificate/88b9fe05-e32d-457b-985f-b7f89cf1bc7b
 
 Mappings:
   RegionMap:
@@ -125,6 +129,16 @@ Resources:
         Logging:
           Bucket: !GetAtt LoggingBucket.RegionalDomainName
           Prefix: 'cloudfront-access-logs'
+        ViewerCertificate:
+          AcmCertificateArn: !Ref AcmCertificateArn
+          SslSupportMethod: sni-only
+        Aliases:
+          - !Sub "${UIBucketName}"
+        CustomErrorResponses:
+          - ErrorCachingMinTTL: 3600
+            ErrorCode: 403
+            ResponseCode: 200
+            ResponsePagePath: '/index.html'
 
     # The Amazon CloudFront origin access identity
   CFOriginAccessIdentity:
@@ -213,6 +227,7 @@ Resources:
         - ALLOW_REFRESH_TOKEN_AUTH
       CallbackURLs:
         - http://localhost:8000/login
+        - !Ref ApiUrl
       SupportedIdentityProviders:
         - COGNITO
       AllowedOAuthScopes:
@@ -223,3 +238,16 @@ Resources:
       AllowedOAuthFlowsUserPoolClient: true
       AllowedOAuthFlows:
         - code
+  MyDNS:
+    Type: AWS::Route53::RecordSetGroup
+    Properties:
+      HostedZoneName: !Sub
+        - ${Domain}.
+        - Domain: !Ref RootDomainName
+      Comment: Zone apex alias.
+      RecordSets:
+        - Name: !Ref UIBucketName
+          Type: A
+          AliasTarget:
+            HostedZoneId: Z2FDTNDATAQYW2
+            DNSName: !GetAtt CFDistribution.DomainName

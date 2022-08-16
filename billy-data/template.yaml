@@ -1,0 +1,38 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  bill-api
+
+  Billy API for expenses.
+
+Globals:
+  Function:
+    Timeout: 30
+Parameters:
+  Env:
+    Type: String
+    Description: Environment.
+
+Resources:
+
+  BillyDataFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Environment:
+        Variables:
+          region: !Sub "{{resolve:ssm:/${Env}/region}}"
+          data_bucket: !Sub "{{resolve:ssm:/${Env}/data_bucket}}"
+      CodeUri: app/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      MemorySize: 1024
+      Architectures:
+        - x86_64
+      Policies:
+        - Statement:
+            - Sid: S3ReadData
+              Effect: Allow
+              Action:
+                - s3:Get*
+                - s3:List*
+              Resource: !Sub 'arn:aws:s3:::{{resolve:ssm:/${Env}/data_bucket}}/*'

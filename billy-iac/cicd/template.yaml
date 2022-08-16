@@ -82,6 +82,12 @@ Resources:
             Value: !Sub "{{resolve:ssm:/dev/cognito_client_id}}"
           - Name: cognito_redirect_uri
             Value: !Sub "{{resolve:ssm:/dev/cognito_redirect_uri}}"
+          - Name: cognito_user
+            Value: !Sub "{{resolve:ssm:/dev/cognito_user}}"
+          - Name: api_url
+            Value: !Sub "{{resolve:ssm:/dev/api_url}}"
+          - Name: cognito_user_password
+            Value: !Sub "{{resolve:ssm:/dev/cognito_user_password}}"
   BuildProject:
     Type: AWS::CodeBuild::Project
     Properties:

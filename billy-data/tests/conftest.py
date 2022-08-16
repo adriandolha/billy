@@ -1,6 +1,7 @@
 import logging
+import json
 import os
-import categories_conftest
+from categories_conftest import *
 import pytest
 from mock import mock, MagicMock
 import pandas as pd
@@ -12,8 +13,16 @@ LOGGER = logging.getLogger('billy')
 
 @pytest.fixture()
 def config_valid():
-    import json
-    config_file = f"{os.path.expanduser('~')}/.cloud-projects/billy-local-integration.json"
+    config = {
+        'yahoo_user': 'yahoo_user',
+        'yahoo_password': 'yahoo_password',
+        'yahoo_host': 'yahoo_host',
+        'yahoo_port': '100',
+        'data_bucket': 'test.bucket',
+        'card_statement_pdf_password': 'pwd',
+    }
+    # config_file = f"{os.path.expanduser('~')}/.cloud-projects/billy-local-integration.json"
+    config_file = f"{os.path.expanduser('~')}/config.json"
     print(f'Config file is {config_file}')
     if os.path.exists(config_file):
         with open(config_file, "r") as _file:
@@ -21,6 +30,8 @@ def config_valid():
             for k, v in _config.items():
                 os.environ[k] = str(v)
     else:
+        for k in config.keys():
+            os.environ[k] = config[k]
         _config = os.environ
     os.environ['prometheus_metrics'] = 'False'
     print('Config...')
@@ -87,7 +98,7 @@ def pd_read_json():
 
 
 @pytest.fixture()
-def bank_statement_df_valid(pd_read_csv):
+def bank_statement_df_valid(pd_read_csv, categories):
     df = pd.DataFrame([
         ['Extras de cont Star Gold', '', ''],
         ['01 APR 2022 - 30 APR 2022', '', ''],
@@ -128,7 +139,7 @@ def bank_statement_df_valid(pd_read_csv):
 
 
 @pytest.fixture()
-def bank_statement_local_date(pd_read_csv):
+def bank_statement_local_date(pd_read_csv, categories):
     df = pd.DataFrame([
         ['Extras de cont Star Gold', '', ''],
         ['01 APR 2022 - 30 APR 2022', '', ''],
@@ -150,7 +161,7 @@ def bank_statement_local_date(pd_read_csv):
 
 
 @pytest.fixture()
-def bank_statement_missing_statements(pd_read_csv):
+def bank_statement_missing_statements(pd_read_csv, categories):
     df = pd.DataFrame([
         ['Extras de cont Star Gold', '', ''],
         ['01 APR 2022 - 30 APR 2022', '', ''],
@@ -181,7 +192,7 @@ def bank_statement_missing_statements(pd_read_csv):
 
 
 @pytest.fixture()
-def bank_statement_requested_valid(pd_read_csv):
+def bank_statement_requested_valid(pd_read_csv, categories):
     df = pd.DataFrame([
         ['EXTRAS CONT Numarul: 7', '', 'din 01/07/2021 - 31/07/2021'],
         ['Cumparaturi la parteneri Star Card', np.nan, np.nan],
