@@ -4,20 +4,19 @@ from functools import lru_cache
 from billy_data import LOGGER
 
 DEFAULT_CONFIGS = {
-    'connection_pool_minconn': 30,
-    'connection_pool_maxconn': 40
 }
 
 
 @lru_cache()
 def get_config():
     _config = dict(DEFAULT_CONFIGS)
+    LOGGER.debug(os.environ)
     _config.update({
-        'ddb_table': os.getenv('ddb_table', default='billy-dev'),
+        'ddb_table': os.getenv('ddb_table', default='billy-data-dev'),
         'data_store_path': os.getenv('data_store_path', default=os.path.expanduser('billy_data')),
-        'data_bucket': os.getenv('data_bucket', default='billy-data.adolha'),
+        'data_bucket': os.getenv('data_bucket', default='data_bucket'),
         'yahoo_user': os.getenv('yahoo_user', default='yahoo_user'),
-        'yahoo_password': os.getenv('yahoo_password', default='yahoo_password'),
+        'yahoo_password': os.getenv('yahoo_password', default='yahoo_pwd'),
         'yahoo_host': os.getenv('yahoo_host', default='yahoo_host'),
         'yahoo_port': int(os.getenv('yahoo_port', default='993')),
         'categories_file': os.getenv('categories_file', default='categories.json'),

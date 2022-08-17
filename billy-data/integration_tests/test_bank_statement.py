@@ -2,11 +2,9 @@ import os
 
 import pandas
 
-from billy_data.bank_statements import BankStatementService, SearchCriteria, data_paths
+from billy_data.bank_statements import BankStatementService, SearchCriteria
 from os import listdir
 from os.path import isfile, join
-
-from billy_data.repo import DataRepo
 
 os.environ['env'] = 'test'
 

@@ -343,5 +343,6 @@ Resources:
               - iam:*
               - lambda:*
               - cognito-idp:*
+              - route53:*
             Effect: Allow
             Resource: '*'

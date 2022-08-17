@@ -1,11 +1,6 @@
 import logging
 import os
-import mock
 import pytest
-
-import billy_data.app
-from billy_data import LOGGER
-from billy_data.bank_statements import create_data_paths
 
 
 @pytest.fixture(scope='session')
@@ -23,7 +18,6 @@ def config_valid():
     os.environ['prometheus_metrics'] = 'False'
     print('Config...')
     print(_config)
-    billy_data.app.setup()
     return _config
 
 
@@ -39,4 +33,39 @@ def yahoo_config_valid(config_valid):
 
 @pytest.fixture()
 def app_valid(config_valid):
+    import billy_data.app
+    from billy_data import LOGGER
+
     LOGGER.setLevel(logging.DEBUG)
+    billy_data.app.setup()
+
+
+@pytest.fixture()
+def collect_event_valid():
+    return {'op': 'collect',
+            'username': 'test_user', 'search_criteria':
+                {
+                    'subjects':
+                        [
+                            'Extras de cont Star Gold - Februarie 2022'
+                        ],
+                    'since': '11-Jul-2021'
+                }
+            }
+
+
+@pytest.fixture()
+def transform_event_valid():
+    return {
+        'op': 'transform',
+        'username': 'test_user',
+        'file': 'test_file.json'
+    }
+
+
+@pytest.fixture()
+def tranform_generated_event_valid():
+    return {'op': 'transform',
+            'username': 'test_user',
+            'file': '',
+            }

@@ -13,17 +13,16 @@ class TestBankStatementCategories:
                                              categories,
                                              config_valid,
                                              yahoo_config_valid,
-                                             card_statements_valid):
+                                             card_statements_valid,
+                                             bank_statements_data_repo):
         test_file = 'file_test.pdf'
-        df = self.transform(file_mock, test_file, yahoo_config_valid)
+        df = self.transform(bank_statements_data_repo, test_file, yahoo_config_valid)
         assert len(df.query("category == 'food' and desc.str.contains('Glovo')")) == 1
         assert len(df.query("category == 'phone' and desc.str.contains('ORANGE')")) == 1
 
-    def transform(self, file_mock, test_file, yahoo_config_valid):
-        _mock = MagicMock()
-        file_mock.return_value.__enter__.return_value = _mock
+    def transform(self, bank_statements_data_repo, test_file, yahoo_config_valid):
         card_expenses = BankStatementService(**yahoo_config_valid)
         card_expenses.transform(test_file)
-        _mock.write.assert_called()
-        df = pd.read_json(_mock.write.call_args[0][0].decode('utf-8'))
+        bank_statements_data_repo.save.assert_called()
+        df = pd.read_json(bank_statements_data_repo.save.call_args[0][1].decode('utf-8'))
         return df

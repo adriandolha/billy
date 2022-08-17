@@ -17,7 +17,7 @@ from typing import List
 import re
 
 from billy_data.category import Category, CategoryService
-from billy_data.repo import DataRepo
+from billy_data.repo import DataRepo, data_repo
 from billy_data import LOGGER
 
 
@@ -62,7 +62,7 @@ def data_paths(data_repo: DataRepo) -> DataPaths:
 
 
 def create_data_paths() -> list[str]:
-    repo = DataRepo()
+    repo = data_repo
     paths = data_paths(repo).dirs()
     return repo.create_if_not_exists(*paths)
 
@@ -148,7 +148,7 @@ class BankStatementService:
         self.port = port
         self.mail = ImapClient(user, password, host, port)
         self.search_criteria = SearchCriteria()
-        self.data_repo = DataRepo()
+        self.data_repo = data_repo
         self.card_statement_pdf_password = card_statement_pdf_password
         self.paths = data_paths(self.data_repo)
 

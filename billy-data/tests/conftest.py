@@ -36,7 +36,7 @@ def config_valid():
     os.environ['prometheus_metrics'] = 'False'
     print('Config...')
     print(_config)
-    create_data_paths()
+    # create_data_paths()
 
     return _config
 
@@ -44,6 +44,16 @@ def config_valid():
 @pytest.fixture()
 def app_valid(config_valid):
     LOGGER.setLevel(logging.DEBUG)
+
+
+@pytest.fixture()
+def bank_statements_data_repo(categories):
+    from billy_data.repo import data_repo
+    abs_path = data_repo.abs_path
+    with mock.patch('billy_data.bank_statements.data_repo') as _mock:
+        # _mock.return_value.get.return_value = json.dumps(categories)
+        _mock.abs_path.side_effect = abs_path
+        yield _mock
 
 
 @pytest.fixture()

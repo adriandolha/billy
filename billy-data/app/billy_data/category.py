@@ -8,6 +8,7 @@ from billy_data import LOGGER
 from billy_data.config import get_config
 from billy_data.repo import S3DataRepo
 
+
 @dataclass
 class Category:
     name: str
@@ -68,4 +69,3 @@ class CategoryService:
             self.save(category)
         LOGGER.debug(f'Categories:{categories}')
         return categories
-
