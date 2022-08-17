@@ -14,5 +14,6 @@ logging.getLogger('botocore.credentials').setLevel(logging.ERROR)
 logging.getLogger('botocore.endpoint').setLevel(logging.ERROR)
 logging.getLogger('botocore.httpsession').setLevel(logging.ERROR)
 logging.getLogger('botocore.loaders').setLevel(logging.ERROR)
+
 LOGGER = logging.getLogger('billy')
 LOGGER.setLevel('INFO')
