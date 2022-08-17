@@ -271,13 +271,6 @@ Resources:
       Type: String
       Value: !Sub "${DDBTable.StreamArn}"
 
-  DdbTableSSM:
-    Type: AWS::SSM::Parameter
-    Properties:
-      Name: !Sub "/${Env}/ddb_table"
-      Type: String
-      Value: !Sub "${DDBTable}"
-
 Outputs:
   DdbStreamArn:
     Description: Dynamo db stream ARN.
