@@ -4,7 +4,7 @@ from billy_data import LOGGER
 from billy_data.bank_statements import BankStatementService, SearchCriteria
 from billy_data.config import get_config
 from billy_data.app_context import app_context
-
+from billy_data.provider import bank_statement_provider_service
 
 def lambda_handler(event, context):
     LOGGER.info(event)
@@ -35,7 +35,14 @@ def collect(event, context):
         search_criterias = ' '.join([search_criterias, _search_criteria.since(search_criteria['since'])])
     if search_criterias is None:
         search_criterias = _search_criteria.all_data()
-    downloaded_files = BankStatementService(**yahoo_config).collect(
+    provider = bank_statement_provider_service.get_all()[0]
+
+    downloaded_files = BankStatementService(user=provider.yahoo_user,
+                                            password=provider.yahoo_password,
+                                            host=provider.yahoo_host,
+                                            port=provider.yahoo_port,
+                                            card_statement_pdf_password=provider.card_statement_pdf_password
+                                            ).collect(
         search_criterias)
     return {
         "statusCode": 200,

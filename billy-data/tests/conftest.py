@@ -1,12 +1,16 @@
 import logging
 import json
 import os
+import uuid
+
+from billy_data.provider import BankStatementProvider
 from categories_conftest import *
 import pytest
 from mock import mock, MagicMock
 import pandas as pd
 import numpy as np
 from billy_data.bank_statements import create_data_paths
+from billy_data.config import get_config
 
 LOGGER = logging.getLogger('billy')
 
@@ -36,6 +40,7 @@ def config_valid():
     os.environ['prometheus_metrics'] = 'False'
     print('Config...')
     print(_config)
+    get_config.cache_clear()
     # create_data_paths()
 
     return _config

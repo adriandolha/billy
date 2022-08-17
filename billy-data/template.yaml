@@ -24,16 +24,36 @@ Resources:
       PackageType: Image
       Environment:
         Variables:
-          region: !Sub "{{resolve:ssm:/${Env}/region}}"
           data_bucket: !Sub "{{resolve:ssm:/${Env}/data_bucket}}"
+          ddb_table: !Sub "{{resolve:ssm:/${Env}/ddb_table}}"
       MemorySize: 1024
       Architectures:
         - x86_64
       Policies:
         - Statement:
-            - Sid: S3ReadData
-              Effect: Allow
-              Action:
+            - Action:
                 - s3:Get*
                 - s3:List*
+                - s3:Put*
+              Effect: Allow
               Resource: !Sub 'arn:aws:s3:::{{resolve:ssm:/${Env}/data_bucket}}/*'
+            - Action:
+                - dynamodb:Get*
+                - dynamodb:Query*
+                - dynamodb:PutItem*
+                - dynamodb:Delete*
+                - dynamodb:Update*
+                - dynamodb:DescribeStream*
+                - dynamodb:DescribeTable*
+                - dynamodb:Scan*
+                - dynamodb:BatchWrite*
+                - dynamodb:BatchRead*
+              Effect: Allow
+              Resource: !Sub 'arn:aws:dynamodb:*:*:table/{{resolve:ssm:/${Env}/ddb_table}}'
+      Events:
+        Stream:
+          Type: DynamoDB
+          Properties:
+            Stream: !Sub "{{resolve:ssm:/${Env}/ddb_stream_arn}}"
+            BatchSize: 100
+            StartingPosition: LATEST

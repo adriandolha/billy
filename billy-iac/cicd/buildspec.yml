@@ -16,6 +16,9 @@ phases:
       - cd $CODEBUILD_SRC_DIR/billy-iac
       - sam build
       - sam deploy --config-env $ENV --no-confirm-changeset --no-fail-on-empty-changeset
+      - cd $CODEBUILD_SRC_DIR/billy-data
+      - sam build
+      - sam deploy --config-env $ENV --no-confirm-changeset --no-fail-on-empty-changeset --resolve-image-repos
       - cd $CODEBUILD_SRC_DIR/billy-api
       - sam build
       - sam deploy --config-env $ENV --no-confirm-changeset --no-fail-on-empty-changeset

@@ -1,24 +1,20 @@
+import json
 import logging
-import os
+import uuid
+from datetime import datetime
+from config import load_config
+from billy_data.provider import BankStatementProvider
 import pytest
+import billy_data.app
+from billy_data import LOGGER
+
+from billy_data.job import Job, JobStatus
+from billy_data.app_context import app_context
 
 
 @pytest.fixture(scope='session')
 def config_valid():
-    import json
-    config_file = f"{os.path.expanduser('~')}/.cloud-projects/billy-local-integration.json"
-    print(f'Config file is {config_file}')
-    if os.path.exists(config_file):
-        with open(config_file, "r") as _file:
-            _config = dict(json.load(_file))
-            for k, v in _config.items():
-                os.environ[k] = str(v)
-    else:
-        _config = os.environ
-    os.environ['prometheus_metrics'] = 'False'
-    print('Config...')
-    print(_config)
-    return _config
+    return load_config()
 
 
 @pytest.fixture()
@@ -31,19 +27,18 @@ def yahoo_config_valid(config_valid):
             }
 
 
-@pytest.fixture()
+@pytest.fixture(scope='session')
 def app_valid(config_valid):
-    import billy_data.app
-    from billy_data import LOGGER
-
     LOGGER.setLevel(logging.DEBUG)
+    app_context.username = config_valid['cognito_user']
     billy_data.app.setup()
 
 
 @pytest.fixture()
-def collect_event_valid():
+def collect_event_valid(app_valid, config_valid):
     return {'op': 'collect',
-            'username': 'test_user', 'search_criteria':
+            'username': config_valid['cognito_user'],
+            'search_criteria':
                 {
                     'subjects':
                         [
@@ -55,17 +50,46 @@ def collect_event_valid():
 
 
 @pytest.fixture()
-def transform_event_valid():
+def transform_event_valid(app_valid, config_valid):
     return {
         'op': 'transform',
-        'username': 'test_user',
+        'username': config_valid['cognito_user'],
         'file': 'test_file.json'
     }
 
 
 @pytest.fixture()
-def tranform_generated_event_valid():
+def tranform_generated_event_valid(app_valid, config_valid):
     return {'op': 'transform',
-            'username': 'test_user',
+            'username': config_valid['cognito_user'],
             'file': '',
             }
+
+
+@pytest.fixture()
+def job_valid(collect_event_valid):
+    return Job(id=str(uuid.uuid4()),
+               created_at=datetime.now(),
+               status=JobStatus.CREATED,
+               payload=json.dumps(collect_event_valid)
+               )
+
+
+@pytest.fixture()
+def test_job_valid(collect_event_valid):
+    return Job(id='test_job_1',
+               created_at=datetime.now(),
+               status=JobStatus.CREATED,
+               payload=json.dumps({'op': 'test'})
+               )
+
+
+@pytest.fixture()
+def bank_statement_provider_valid(config_valid):
+    return BankStatementProvider(id=str(uuid.uuid4()),
+                                 provider_type='yahoo',
+                                 yahoo_user=config_valid.get('yahoo_user'),
+                                 yahoo_password=config_valid.get('yahoo_password'),
+                                 yahoo_host=config_valid.get('yahoo_host'),
+                                 yahoo_port=int(config_valid.get('yahoo_port')),
+                                 card_statement_pdf_password=config_valid.get('card_statement_pdf_password'))

@@ -154,6 +154,8 @@ Resources:
     DeletionPolicy: Delete
 
     Properties:
+      StreamSpecification:
+        StreamViewType: NEW_AND_OLD_IMAGES
       TableName: !Sub "${DDBTableName}"
       BillingMode: PAY_PER_REQUEST
       AttributeDefinitions:
@@ -164,6 +166,8 @@ Resources:
         - AttributeName: "gsi1_pk"
           AttributeType: "S"
         - AttributeName: "gsi1_sk"
+          AttributeType: "S"
+        - AttributeName: "lsi1_sk"
           AttributeType: "S"
       KeySchema:
         - AttributeName: "pk"
@@ -179,6 +183,15 @@ Resources:
               KeyType: "RANGE"
           Projection:
             ProjectionType: "ALL"
+      LocalSecondaryIndexes:
+        - IndexName: "lsi1"
+          KeySchema:
+            - AttributeName: "pk"
+              KeyType: "HASH"
+            - AttributeName: "lsi1_sk"
+              KeyType: "RANGE"
+          Projection:
+            ProjectionType: "ALL"
       Tags:
         - Key: App
           Value: billy
@@ -188,7 +201,6 @@ Resources:
   CognitoUserPool:
     Type: AWS::Cognito::UserPool
     Properties:
-
       UserPoolName: !Ref CognitoUserPoolName
       Policies:
         PasswordPolicy:
@@ -251,3 +263,25 @@ Resources:
           AliasTarget:
             HostedZoneId: Z2FDTNDATAQYW2
             DNSName: !GetAtt CFDistribution.DomainName
+
+  DdbStreamArnSSM:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub "/${Env}/ddb_stream_arn"
+      Type: String
+      Value: !Sub "${DDBTable.StreamArn}"
+
+  DdbTableSSM:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub "/${Env}/ddb_table"
+      Type: String
+      Value: !Sub "${DDBTable}"
+
+Outputs:
+  DdbStreamArn:
+    Description: Dynamo db stream ARN.
+    Value: !Sub "${DDBTable.StreamArn}"
+    Export:
+      Name:
+        'Fn::Sub': '${AWS::StackName}-DdbStreamArn'
