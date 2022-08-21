@@ -25,7 +25,7 @@ Resources:
       Environment:
         Variables:
           data_bucket: !Sub "{{resolve:ssm:/${Env}/data_bucket}}"
-          ddb_table: !Sub "{{resolve:ssm:/${Env}/ddb_table}}"
+          ddb_table: !Sub "{{resolve:ssm:/${Env}/data_table}}"
       MemorySize: 1024
       Architectures:
         - x86_64
@@ -49,7 +49,7 @@ Resources:
                 - dynamodb:BatchWrite*
                 - dynamodb:BatchRead*
               Effect: Allow
-              Resource: !Sub 'arn:aws:dynamodb:*:*:table/{{resolve:ssm:/${Env}/ddb_table}}'
+              Resource: !Sub 'arn:aws:dynamodb:*:*:table/{{resolve:ssm:/${Env}/data_table}}'
       Events:
         Stream:
           Type: DynamoDB
