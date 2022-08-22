@@ -14,7 +14,7 @@ phases:
       - cd $CODEBUILD_SRC_DIR/billy-iac
       - sam deploy --config-env $ENV --no-confirm-changeset --no-fail-on-empty-changeset
       - cd $CODEBUILD_SRC_DIR/billy-data
-      - sam deploy --config-env $ENV --no-confirm-changeset --no-fail-on-empty-changeset --resolve-image-repos
+      - sam deploy --config-env $ENV --no-confirm-changeset --no-fail-on-empty-changeset --image-repository "103050589342.dkr.ecr.eu-central-1.amazonaws.com/billydatadev5637eef8/billydatafunction744bc18brepo"
       - cd $CODEBUILD_SRC_DIR/billy-api
       - sam deploy --config-env $ENV --no-confirm-changeset --no-fail-on-empty-changeset
 cache:
