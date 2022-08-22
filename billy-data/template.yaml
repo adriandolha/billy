@@ -22,15 +22,21 @@ Resources:
       Dockerfile: Dockerfile
     Properties:
       PackageType: Image
+      MemorySize: 1024
+      Timeout: 300
       Environment:
         Variables:
           data_bucket: !Sub "{{resolve:ssm:/${Env}/data_bucket}}"
           ddb_table: !Sub "{{resolve:ssm:/${Env}/data_table}}"
-      MemorySize: 1024
+          sns_topic: !Sub "{{resolve:ssm:/${Env}/sns_topic_arn}}"
       Architectures:
         - x86_64
       Policies:
         - Statement:
+            - Action:
+                - SNS:*
+              Effect: Allow
+              Resource: !Sub "{{resolve:ssm:/${Env}/sns_topic_arn}}"
             - Action:
                 - s3:Get*
                 - s3:List*
@@ -57,3 +63,12 @@ Resources:
             Stream: !Sub "{{resolve:ssm:/${Env}/ddb_stream_arn}}"
             BatchSize: 100
             StartingPosition: LATEST
+        DataDomainEvent:
+          Type: SNS
+          Properties:
+            Topic: !Sub "{{resolve:ssm:/${Env}/sns_topic_arn}}"
+            SqsSubscription: true
+            FilterPolicy:
+              event_name:
+                - job.created
+

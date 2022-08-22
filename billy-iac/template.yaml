@@ -8,6 +8,9 @@ Parameters:
   Env:
     Type: String
     Description: Environment.
+  App:
+    Type: String
+    Description: Environment.
   ApiUrl:
     Type: String
     Description: Api Gateway url.
@@ -264,12 +267,31 @@ Resources:
             HostedZoneId: Z2FDTNDATAQYW2
             DNSName: !GetAtt CFDistribution.DomainName
 
+  SnsTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: !Sub '${App}-${Env}'
+
+  SnsTopicArnSSM:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub "/${Env}/sns_topic_arn"
+      Type: String
+      Value: !Sub "${SnsTopic}"
+
   DdbStreamArnSSM:
     Type: AWS::SSM::Parameter
     Properties:
       Name: !Sub "/${Env}/ddb_stream_arn"
       Type: String
       Value: !Sub "${DDBTable.StreamArn}"
+
+  DdbTableSSM:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub "/${Env}/data_table"
+      Type: String
+      Value: !Sub "${DDBTable}"
 
 Outputs:
   DdbStreamArn:

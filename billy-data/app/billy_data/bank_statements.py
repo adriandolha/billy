@@ -5,8 +5,10 @@ import email
 import imaplib
 import logging
 import os.path
+import tempfile
 from dataclasses import dataclass
 from enum import Enum
+from io import BytesIO
 from os import listdir
 from os.path import isfile, join
 
@@ -189,10 +191,14 @@ class BankStatementService:
         return downloaded_files
 
     def save_with_no_password(self, from_file: str):
-        file = pdf.open(from_file, password=self.card_statement_pdf_password)
+        bytes_stream = data_repo.read_stream(from_file)
+        file = pdf.open(bytes_stream, password=self.card_statement_pdf_password)
         destination_file = self.paths.no_pass_file(from_file)
         LOGGER.debug(f'Saved pdf without password: {destination_file}')
-        file.save(destination_file)
+        write_bytes_stream = BytesIO()
+        file.save(write_bytes_stream)
+        write_bytes_stream.seek(0)
+        data_repo.save(file_name=destination_file, data=write_bytes_stream)
         return destination_file
 
     def transform(self, from_file) -> dict:
@@ -222,14 +228,21 @@ class BankStatementService:
 
     def extract_tables(self, from_file):
         destination_file = self.paths.tables_file(from_file.replace('.pdf', '.csv'))
-        tabula.convert_into(from_file, destination_file, output_format="csv", pages='all', stream=True,
-                            guess=False)
+        with tempfile.NamedTemporaryFile() as input_file:
+            with tempfile.NamedTemporaryFile() as output_file:
+                print(input_file.name)
+                input_file.write(data_repo.read(file_name=from_file))
+                input_file.seek(0)
+                tabula.convert_into(input_file.name, output_file.name, output_format="csv", pages='all', stream=True,
+                                    guess=False)
+                output_file.seek(0)
+                data_repo.save(file_name=destination_file, data=output_file.read())
         # tabula.convert_into(from_file, destination_file, output_format="csv", pages='all',  guess=False)
         return destination_file
 
     def extract_data(self, from_file):
         LOGGER.debug(f'Extract data from generated bank statement {from_file}')
-        df = pd.read_csv(from_file)
+        df = pd.read_csv(data_repo.read_stream(from_file))
         statement = bank_statement(df)
         _df = statement.transform()
         info = statement.bank_statement_info

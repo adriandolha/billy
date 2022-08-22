@@ -33,7 +33,7 @@ Resources:
         Variables:
           region: !Sub "{{resolve:ssm:/${Env}/region}}"
           data_bucket: !Sub "{{resolve:ssm:/${Env}/data_bucket}}"
-          cognito_domain: !Sub "{{resolve:ssm:/${Env}/cognito_domain}}"
+          cognito_domain: !Sub "{{resolve:ssm:/${Env}/cognito_pool_domain}}"
           cognito_user_pool_id: !Sub "{{resolve:ssm:/${Env}/cognito_user_pool_id}}"
           cognito_client_id: !Sub "{{resolve:ssm:/${Env}/cognito_client_id}}"
           cognito_redirect_uri: !Sub "{{resolve:ssm:/${Env}/cognito_redirect_uri}}"

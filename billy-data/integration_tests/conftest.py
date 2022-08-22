@@ -35,8 +35,8 @@ def app_valid(config_valid):
 
 
 @pytest.fixture()
-def collect_event_valid(app_valid, config_valid):
-    return {'op': 'collect',
+def process_event_valid(app_valid, config_valid):
+    return {'op': 'process',
             'username': config_valid['cognito_user'],
             'search_criteria':
                 {
@@ -51,11 +51,9 @@ def collect_event_valid(app_valid, config_valid):
 
 @pytest.fixture()
 def transform_event_valid(app_valid, config_valid):
-    return {
-        'op': 'transform',
-        'username': config_valid['cognito_user'],
-        'file': 'test_file.json'
-    }
+    return {'op': 'transform',
+            'username': config_valid['cognito_user'],
+            'files': [f'{config_valid["cognito_user"]}/bank_statements/raw/bank_statement_4724.pdf']}
 
 
 @pytest.fixture()
@@ -67,16 +65,25 @@ def tranform_generated_event_valid(app_valid, config_valid):
 
 
 @pytest.fixture()
-def job_valid(collect_event_valid):
+def job_valid(process_event_valid):
     return Job(id=str(uuid.uuid4()),
                created_at=datetime.now(),
                status=JobStatus.CREATED,
-               payload=json.dumps(collect_event_valid)
+               payload=json.dumps(process_event_valid)
                )
 
 
 @pytest.fixture()
-def test_job_valid(collect_event_valid):
+def job_transform_valid(transform_event_valid):
+    return Job(id=str(uuid.uuid4()),
+               created_at=datetime.now(),
+               status=JobStatus.CREATED,
+               payload=json.dumps(transform_event_valid)
+               )
+
+
+@pytest.fixture()
+def test_job_valid(process_event_valid):
     return Job(id='test_job_1',
                created_at=datetime.now(),
                status=JobStatus.CREATED,

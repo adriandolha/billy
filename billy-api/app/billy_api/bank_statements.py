@@ -9,6 +9,7 @@ from billy_api.repo import DataRepo, S3DataRepo
 import pandas as pd
 from billy_api.app_context import app_context
 
+
 @dataclass
 class DataPaths:
     root: str
@@ -77,14 +78,14 @@ class BankStatementApi:
         self.s3_repo = S3DataRepo(self.config['data_bucket'])
         self.data_file = self.config['bank_statements_data_file']
 
-    def search_for_word(self, word:str, df: pd.DataFrame):
+    def search_for_word(self, word: str, df: pd.DataFrame):
         mask = np.column_stack(
             [df[col].astype(str).str.lower().str.contains(word, na=False) for col in df])
         return df.loc[mask.any(axis=1)]
 
     def search(self, query: str, limit: int = 10, offset: int = 0) -> SearchResult:
         _df = get_data_df()
-        total=len(_df)
+        total = len(_df)
         LOGGER.info(f'query={query}, offset={offset}, limit={limit}')
         # LOGGER.debug(_df.to_string())
 

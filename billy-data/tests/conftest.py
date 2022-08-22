@@ -3,6 +3,7 @@ import json
 import os
 import uuid
 
+from billy_data.app_context import app_context
 from billy_data.provider import BankStatementProvider
 from categories_conftest import *
 import pytest
@@ -24,6 +25,7 @@ def config_valid():
         'yahoo_port': '100',
         'data_bucket': 'test.bucket',
         'card_statement_pdf_password': 'pwd',
+        'cognito_user': 'test_user'
     }
     # config_file = f"{os.path.expanduser('~')}/.cloud-projects/billy-local-integration.json"
     config_file = f"{os.path.expanduser('~')}/config.json"
@@ -62,6 +64,30 @@ def bank_statements_data_repo(categories):
 
 
 @pytest.fixture()
+def bank_statement_provider_valid(config_valid):
+    return BankStatementProvider(id=str(uuid.uuid4()),
+                                 provider_type='yahoo',
+                                 yahoo_user=config_valid.get('yahoo_user'),
+                                 yahoo_password=config_valid.get('yahoo_password'),
+                                 yahoo_host=config_valid.get('yahoo_host'),
+                                 yahoo_port=int(config_valid.get('yahoo_port')),
+                                 card_statement_pdf_password=config_valid.get('card_statement_pdf_password'))
+
+
+@pytest.fixture()
+def events_provider_mock(categories, bank_statement_provider_valid):
+    with mock.patch('billy_data.events_consumers.BankStatementProviderService') as _service:
+        _service.get_all.return_value = [bank_statement_provider_valid]
+        yield _service
+
+
+@pytest.fixture()
+def events_consumers_job_service(categories, events_provider_mock):
+    with mock.patch('billy_data.events_consumers.job_service') as _mock:
+        yield _mock
+
+
+@pytest.fixture()
 def yahoo_config_valid(config_valid):
     return {'user': config_valid['yahoo_user'],
             'password': config_valid['yahoo_password'],
@@ -95,7 +121,7 @@ def pdf_mock():
 
 
 @pytest.fixture()
-def tabula_mock():
+def tabula_mock(temp_file_mock):
     with mock.patch('billy_data.bank_statements.tabula') as _mock:
         yield _mock
 
@@ -110,6 +136,18 @@ def pd_read_csv():
 def pd_read_json():
     with mock.patch('billy_data.bank_statements.pd.read_json') as _pd:
         yield _pd
+
+
+@pytest.fixture()
+def temp_file_mock():
+    with mock.patch('billy_data.bank_statements.tempfile.NamedTemporaryFile') as _mock:
+        yield _mock
+
+
+@pytest.fixture()
+def bank_statements_mocks(config_valid, temp_file_mock, file_mock, tabula_mock, pdf_mock, pd_read_csv, pd_read_json):
+    app_context.username = config_valid['cognito_user']
+    yield ''
 
 
 @pytest.fixture()

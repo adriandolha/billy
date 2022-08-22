@@ -13,6 +13,7 @@ def get_config():
     LOGGER.debug(os.environ)
     _config.update({
         'ddb_table': os.getenv('ddb_table', default='billy-data-dev'),
+        'sns_topic': os.getenv('sns_topic', default='sns_topic'),
         'data_store_path': os.getenv('data_store_path', default=os.path.expanduser('billy_data')),
         'data_bucket': os.getenv('data_bucket', default='data_bucket'),
         'yahoo_user': os.getenv('yahoo_user', default='yahoo_user'),
@@ -27,3 +28,6 @@ def get_config():
         if 'password' not in config_name:
             LOGGER.debug(f'{config_name}={_config[config_name]}')
     return _config
+
+
+CONFIG = get_config()

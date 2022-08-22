@@ -5,24 +5,54 @@ import app
 from billy_data.repo import data_repo
 from billy_data.job import job_service, Job, JobStatus
 from billy_data.provider import bank_statement_provider_service
+from billy_data.events_consumers import transform
+from billy_data.bank_statements import data_paths
+import time
+
 os.environ['env'] = 'test'
 
 
+def wait_until(condition, timeout, period, *args, **kwargs):
+    mustend = time.time() + timeout
+    while time.time() < mustend:
+        if condition(*args, **kwargs):
+            return True
+        time.sleep(period)
+    return False
+
+
 class TestBankStatementAPI:
-    def test_bank_statement_collect(self, config_valid, yahoo_config_valid, collect_event_valid, job_valid):
+    def test_bank_statement_collect(self, config_valid, yahoo_config_valid, process_event_valid, job_valid):
         job_service.save(job_valid)
-        response = app.lambda_handler(collect_event_valid, [])
+        response = app.lambda_handler(process_event_valid, [])
         assert response['statusCode'] == 200
         result = json.loads(response['body'])
-        downloaded_files = result['downloaded_files']
+        downloaded_files = result['collect']['downloaded_files']
         print(downloaded_files)
         assert len(downloaded_files) == 1
         assert all([data_repo.exists(file) for file in downloaded_files])
 
-    def test_bank_statement_collect_ddb_stream_trigger(self, config_valid, yahoo_config_valid, collect_event_valid, job_valid):
+    def test_bank_statement_transform(self, config_valid, yahoo_config_valid, process_event_valid,
+                                      transform_event_valid):
+        result = transform(transform_event_valid)
+        tf_results = result['transform']
+        print(tf_results)
+        assert len(tf_results) > 0
+        assert tf_results[0][transform_event_valid['files'][0]]['status'] == 'success'
+        data_file = tf_results[0][transform_event_valid['files'][0]]['result']['file_data']
+        assert data_file == f'{config_valid["cognito_user"]}/bank_statements/data/bank_statement_4724_feb_2022.json'
+
+    def test_bank_statement_process_ddb_stream_trigger(self, config_valid, yahoo_config_valid, process_event_valid,
+                                                       job_valid):
         job_service.save(job_valid)
 
-    def test_job_get_all(self, config_valid, yahoo_config_valid, collect_event_valid, test_job_valid):
+        def is_job_completed(job_id):
+            job = job_service.get(job_id)
+            return job and job.status == JobStatus.COMPLETED
+
+        assert wait_until(is_job_completed, timeout=10, period=0.5, job_id=job_valid.id)
+
+    def test_job_get_all(self, config_valid, yahoo_config_valid, process_event_valid, test_job_valid):
         job_service.save(test_job_valid)
         jobs = job_service.get_all()
         print(jobs)
@@ -36,7 +66,7 @@ class TestBankStatementAPI:
         assert _job.id == test_job_valid.id
         assert _job.payload == test_job_valid.payload
 
-    def test_provider(self, config_valid, yahoo_config_valid, collect_event_valid, bank_statement_provider_valid):
+    def test_provider(self, config_valid, yahoo_config_valid, process_event_valid, bank_statement_provider_valid):
         providers = bank_statement_provider_service.get_all()
 
         if bank_statement_provider_valid.yahoo_host and len(providers) == 0:

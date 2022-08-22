@@ -1,4 +1,6 @@
 from __future__ import annotations
+
+import json
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
@@ -36,6 +38,9 @@ class Job:
             'result': self.result
         }
 
+    def to_json(self):
+        return json.dumps(self.to_dict())
+
     @staticmethod
     def from_dict(data: dict) -> Job:
         return Job(id=data['id'],
@@ -63,6 +68,15 @@ class JobService:
                                     )
         LOGGER.debug(f'Get all jobs response: {response}')
         return [Job.from_dict(_job) for _job in response['Items']]
+
+    def get(self, job_id: str) -> Job:
+        username = app_context.username
+        LOGGER.info(f'Get job {job_id}')
+        response = self.table.query(KeyConditionExpression=Key('pk').eq(f'user#{username}')
+                                                           & Key('sk').eq(f'job#{job_id}')
+                                    )
+        LOGGER.debug(f'Get job response: {response}')
+        return [Job.from_dict(_job) for _job in response['Items']][0] if len(response['Items']) > 0 else None
 
     def save(self, job: Job):
         item = {

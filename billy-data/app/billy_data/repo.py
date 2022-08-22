@@ -1,6 +1,7 @@
 from __future__ import annotations
 import json
 import os.path
+from io import BytesIO
 from pathlib import Path
 
 import boto3
@@ -26,6 +27,10 @@ class DataRepo(ABC):
 
     @abstractmethod
     def create_if_not_exists(self, *abs_paths):
+        pass
+
+    @abstractmethod
+    def read_stream(self, file_name: str) -> BytesIO:
         pass
 
 
@@ -68,6 +73,16 @@ class S3DataRepo(DataRepo):
         LOGGER.debug(f'Reading file {file_name} from s3.')
         LOGGER.debug(file_content)
         return file_content
+
+    def read_stream(self, file_name: str):
+        s3_file = self.s3.Object(self.bucket_name, file_name)
+        bytes_stream = BytesIO(s3_file.get()['Body'].read())
+        return bytes_stream
+
+    def read(self, file_name: str):
+        s3_file = self.s3.Object(self.bucket_name, file_name)
+        bytes = s3_file.get()['Body'].read()
+        return bytes
 
     def abs_path(self, *paths) -> str:
         return '/'.join([app_context.username, *paths])

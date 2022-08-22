@@ -37,7 +37,7 @@ Resources:
           - Name: data_bucket
             Value: !Sub "{{resolve:ssm:/dev/data_bucket}}"
           - Name: cognito_domain
-            Value: !Sub "{{resolve:ssm:/dev/cognito_domain}}"
+            Value: !Sub "{{resolve:ssm:/dev/cognito_pool_domain}}"
           - Name: cognito_user_pool_id
             Value: !Sub "{{resolve:ssm:/dev/cognito_user_pool_id}}"
           - Name: cognito_client_id
@@ -75,7 +75,7 @@ Resources:
           - Name: data_bucket
             Value: !Sub "{{resolve:ssm:/dev/data_bucket}}"
           - Name: cognito_domain
-            Value: !Sub "{{resolve:ssm:/dev/cognito_domain}}"
+            Value: !Sub "{{resolve:ssm:/dev/cognito_pool_domain}}"
           - Name: cognito_user_pool_id
             Value: !Sub "{{resolve:ssm:/dev/cognito_user_pool_id}}"
           - Name: cognito_client_id
@@ -344,5 +344,8 @@ Resources:
               - lambda:*
               - cognito-idp:*
               - route53:*
+              - dynamodb:*
+              - SNS:*
+              - sqs:*
             Effect: Allow
             Resource: '*'
