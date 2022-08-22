@@ -31,11 +31,11 @@ class Job:
     def to_dict(self):
         return {
             'id': self.id,
-            'status': str(self.status.value),
+            'job_status': str(self.status.value),
             'created_at': self.created_at.isoformat(),
             'completed_at': self.completed_at and self.completed_at.isoformat(),
             'payload': self.payload,
-            'result': self.result
+            'job_result': self.result
         }
 
     def to_json(self):
@@ -44,11 +44,11 @@ class Job:
     @staticmethod
     def from_dict(data: dict) -> Job:
         return Job(id=data['id'],
-                   status=JobStatus[data['status']],
+                   status=JobStatus[data['job_status']],
                    payload=data['payload'],
                    created_at=datetime.fromisoformat(data.get('created_at')),
                    completed_at=datetime.fromisoformat(data.get('created_at')),
-                   result=data.get('result'))
+                   result=data.get('job_result'))
 
     def __eq__(self, other):
         return self.id == other.id if other else False
@@ -79,16 +79,40 @@ class JobService:
         return [Job.from_dict(_job) for _job in response['Items']][0] if len(response['Items']) > 0 else None
 
     def save(self, job: Job):
-        item = {
-            'pk': f'user#{app_context.username}',
-            'sk': f'job#{job.id}',
-            'lsi1_sk': f'status#{str(job.status.value)}',
-            **job.to_dict()
-        }
-        LOGGER.debug(f'Adding job {item}')
-        response = self.table.put_item(
-            Item=item
-        )
+        job_dict = job.to_dict()
+        _pk = f'user#{app_context.username}'
+        _sk = f'job#{job.id}'
+        if not self.get(job.id):
+            item = {
+                'pk': _pk,
+                'sk': _sk,
+                'lsi1_sk': f'status#{str(job.status.value)}',
+                **job_dict
+            }
+            LOGGER.debug(f'Adding job {item}')
+            response = self.table.put_item(
+                Item=item
+            )
+        else:
+            update_expression = "set payload=:payload, " \
+                      "completed_at=:completed_at, " \
+                      "created_at=:created_at, " \
+                      "job_status=:job_status, " \
+                      "job_result=:job_result "
+            print(update_expression)
+            response = self.table.update_item(
+                Key={'pk': _pk,
+                     'sk': _sk},
+                UpdateExpression=update_expression,
+                ExpressionAttributeValues={
+                    ':payload': job_dict['payload'],
+                    ':completed_at': job_dict['completed_at'],
+                    ':created_at': job_dict['created_at'],
+                    ':job_status': job_dict['job_status'],
+                    ':job_result': job_dict['job_result']
+                }
+            )
+
         LOGGER.debug(response)
 
         return job

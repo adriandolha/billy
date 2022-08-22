@@ -57,6 +57,13 @@ def transform_event_valid(app_valid, config_valid):
 
 
 @pytest.fixture()
+def load_event_valid(app_valid, config_valid):
+    return {'op': 'transform',
+            'username': config_valid['cognito_user'],
+            'files': [f'{config_valid["cognito_user"]}/bank_statements/data/bank_statement_4724_feb_2022.json']}
+
+
+@pytest.fixture()
 def tranform_generated_event_valid(app_valid, config_valid):
     return {'op': 'transform',
             'username': config_valid['cognito_user'],
@@ -79,6 +86,15 @@ def job_transform_valid(transform_event_valid):
                created_at=datetime.now(),
                status=JobStatus.CREATED,
                payload=json.dumps(transform_event_valid)
+               )
+
+
+@pytest.fixture()
+def job_load_valid(load_event_valid):
+    return Job(id=str(uuid.uuid4()),
+               created_at=datetime.now(),
+               status=JobStatus.CREATED,
+               payload=json.dumps(load_event_valid)
                )
 
 

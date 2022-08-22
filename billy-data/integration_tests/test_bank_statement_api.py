@@ -1,3 +1,6 @@
+import uuid
+from datetime import datetime
+
 import config
 import json
 import os
@@ -5,7 +8,7 @@ import app
 from billy_data.repo import data_repo
 from billy_data.job import job_service, Job, JobStatus
 from billy_data.provider import bank_statement_provider_service
-from billy_data.events_consumers import transform
+from billy_data.events_consumers import transform, load
 from billy_data.bank_statements import data_paths
 import time
 
@@ -42,6 +45,19 @@ class TestBankStatementAPI:
         data_file = tf_results[0][transform_event_valid['files'][0]]['result']['file_data']
         assert data_file == f'{config_valid["cognito_user"]}/bank_statements/data/bank_statement_4724_feb_2022.json'
 
+    def test_bank_statement_load(self, config_valid, yahoo_config_valid, process_event_valid,
+                                 load_event_valid):
+        result = load(load_event_valid)
+        load_results = result['load']
+        print(load_results)
+        assert len(load_results) > 0
+        assert load_results[0]['status'] == 'success'
+        _result = load_results[0]['result']
+        data_file = _result['data_file']
+        assert data_file == f'{config_valid["cognito_user"]}/bank_statements/data.json'
+        assert _result['df_no'] == 1
+        assert _result['total_bank_statements_entries'] == 76
+
     def test_bank_statement_process_ddb_stream_trigger(self, config_valid, yahoo_config_valid, process_event_valid,
                                                        job_valid):
         job_service.save(job_valid)
@@ -50,7 +66,7 @@ class TestBankStatementAPI:
             job = job_service.get(job_id)
             return job and job.status == JobStatus.COMPLETED
 
-        assert wait_until(is_job_completed, timeout=10, period=0.5, job_id=job_valid.id)
+        assert wait_until(is_job_completed, timeout=30, period=0.5, job_id=job_valid.id)
 
     def test_job_get_all(self, config_valid, yahoo_config_valid, process_event_valid, test_job_valid):
         job_service.save(test_job_valid)
@@ -65,6 +81,20 @@ class TestBankStatementAPI:
         assert _job.status == JobStatus.CREATED
         assert _job.id == test_job_valid.id
         assert _job.payload == test_job_valid.payload
+
+    def test_job_update(self, config_valid, yahoo_config_valid, process_event_valid, test_job_valid):
+        job = Job(id=str(uuid.uuid4()),
+                  created_at=datetime.now(),
+                  status=JobStatus.CREATED,
+                  payload=json.dumps({'op': 'test'})
+                  )
+        job_service.save(job)
+        job = job_service.get(job.id)
+        assert job.status == JobStatus.CREATED
+        job.status = JobStatus.COMPLETED
+        job_service.save(job)
+        job = job_service.get(job.id)
+        assert job.status == JobStatus.COMPLETED
 
     def test_provider(self, config_valid, yahoo_config_valid, process_event_valid, bank_statement_provider_valid):
         providers = bank_statement_provider_service.get_all()

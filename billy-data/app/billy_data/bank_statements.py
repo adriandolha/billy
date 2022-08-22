@@ -210,14 +210,13 @@ class BankStatementService:
             'file_data': self.extract_data(file_tables)
         }
 
-    def load(self) -> dict:
-        data_files_path = self.paths.data
-        data_files = [f for f in listdir(data_files_path) if isfile(join(data_files_path, f))]
+    def load(self, files: str) -> dict:
         dfs = []
-        for file_name in data_files:
-            df = pd.read_json(self.paths.data_file(file_name))
+        for file_name in files:
+            df = pd.read_json(self.data_repo.get(self.paths.data_file(file_name)))
             dfs.append(df)
         df_all = pd.concat(dfs, ignore_index=True)
+        df_all = df_all.drop_duplicates(subset=['category', 'date', 'suma'], ignore_index=True)
         destination_file = self.paths.all_data
         self.data_repo.save(destination_file, bytes(df_all.to_json().encode('utf-8')))
         return {

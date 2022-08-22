@@ -2,13 +2,13 @@ import logging
 import json
 import os
 import uuid
+import pandas as pd
 
 from billy_data.app_context import app_context
 from billy_data.provider import BankStatementProvider
 from categories_conftest import *
 import pytest
 from mock import mock, MagicMock
-import pandas as pd
 import numpy as np
 from billy_data.bank_statements import create_data_paths
 from billy_data.config import get_config
@@ -145,9 +145,20 @@ def temp_file_mock():
 
 
 @pytest.fixture()
-def bank_statements_mocks(config_valid, temp_file_mock, file_mock, tabula_mock, pdf_mock, pd_read_csv, pd_read_json):
+def bank_statements_mocks(config_valid, temp_file_mock, bank_statements_data_repo, file_mock, tabula_mock, pdf_mock,
+                          pd_read_csv):
     app_context.username = config_valid['cognito_user']
     yield ''
+
+
+@pytest.fixture()
+def bank_statement_df_transformed_json_valid(pd_read_csv, categories):
+    df = pd.DataFrame([
+        ['food','2022-06-20', 'glovo entry 1', -1],
+        ['food','2022-06-21', 'glovo entry 2', -2],
+        ['phone', '2022-06-21', 'orange', -2],
+    ], columns=['category','date', 'desc', 'suma'])
+    return df.to_json()
 
 
 @pytest.fixture()

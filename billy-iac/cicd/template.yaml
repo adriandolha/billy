@@ -347,5 +347,6 @@ Resources:
               - dynamodb:*
               - SNS:*
               - sqs:*
+              - ecr:*
             Effect: Allow
             Resource: '*'

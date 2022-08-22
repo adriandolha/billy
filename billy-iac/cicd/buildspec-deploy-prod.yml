@@ -13,6 +13,8 @@ phases:
       - aws s3 sync build s3://www.billy.adolha.com
       - cd $CODEBUILD_SRC_DIR/billy-iac
       - sam deploy --config-env $ENV --no-confirm-changeset --no-fail-on-empty-changeset
+      - cd $CODEBUILD_SRC_DIR/billy-data
+      - sam deploy --config-env $ENV --no-confirm-changeset --no-fail-on-empty-changeset --resolve-image-repos
       - cd $CODEBUILD_SRC_DIR/billy-api
       - sam deploy --config-env $ENV --no-confirm-changeset --no-fail-on-empty-changeset
 cache:

@@ -60,9 +60,29 @@ def transform(payload: dict) -> dict:
     return result
 
 
+def load(payload: dict) -> dict:
+    files = payload['files']
+    provider = BankStatementProviderService().get_all()[0]
+
+    bank_statement_service = BankStatementService(user=provider.yahoo_user, password=provider.yahoo_password,
+                                                  host=provider.yahoo_host,
+                                                  port=provider.yahoo_port,
+                                                  card_statement_pdf_password=provider.card_statement_pdf_password)
+    load_result = []
+    try:
+        load_result.append({'status': 'success',
+                            'result': bank_statement_service.load(files)})
+    except Exception as e:
+        load_result.append({'status': 'failed'})
+        LOGGER.error(e, exc_info=True)
+    result = {'load': load_result}
+    return result
+
+
 SUPPORTED_JOB_OP = {
     'process': process,
-    'transform': transform
+    'transform': transform,
+    'load': load
 }
 
 

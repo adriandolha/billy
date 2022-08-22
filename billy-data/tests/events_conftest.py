@@ -73,6 +73,13 @@ def transform_event_valid(app_valid, config_valid):
 
 
 @pytest.fixture()
+def load_event_valid(app_valid, config_valid):
+    return {'op': 'load',
+            'username': config_valid['cognito_user'],
+            'files': ['test_load.json', 'test_load1.json']}
+
+
+@pytest.fixture()
 def tranform_generated_event_valid(app_valid, config_valid):
     return {'op': 'transform',
             'username': config_valid['cognito_user'],
@@ -99,6 +106,15 @@ def job_transform_valid(transform_event_valid):
 
 
 @pytest.fixture()
+def job_load_valid(load_event_valid):
+    return Job(id=str(uuid.uuid4()),
+               created_at=datetime.now(),
+               status=JobStatus.CREATED,
+               payload=json.dumps(load_event_valid)
+               )
+
+
+@pytest.fixture()
 def sqs_job_created_valid(job_valid):
     body = {'Message': job_valid.to_json(),
             'MessageAttributes': {"event_name": {"Type": "String", "Value": "job.created"}}}
@@ -114,6 +130,19 @@ def sqs_job_created_valid(job_valid):
 @pytest.fixture()
 def sqs_job_created_transform_valid(job_transform_valid):
     body = {'Message': job_transform_valid.to_json(),
+            'MessageAttributes': {"event_name": {"Type": "String", "Value": "job.created"}}}
+    return {
+        'Records': [{
+            'body': json.dumps(body),
+            'eventSource': 'aws:sqs',
+            'eventSourceARN': 'arn:aws:sqs:::billy-data-dev-BillyDataFunctionDataDomainEventQueue',
+        }]
+    }
+
+
+@pytest.fixture()
+def sqs_job_created_load_valid(job_load_valid):
+    body = {'Message': job_load_valid.to_json(),
             'MessageAttributes': {"event_name": {"Type": "String", "Value": "job.created"}}}
     return {
         'Records': [{
