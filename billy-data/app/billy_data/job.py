@@ -31,11 +31,11 @@ class Job:
     def to_dict(self):
         return {
             'id': self.id,
-            'job_status': str(self.status.value),
+            'status': str(self.status.value),
             'created_at': self.created_at.isoformat(),
             'completed_at': self.completed_at and self.completed_at.isoformat(),
             'payload': self.payload,
-            'job_result': self.result
+            'result': self.result
         }
 
     def to_json(self):
@@ -44,11 +44,11 @@ class Job:
     @staticmethod
     def from_dict(data: dict) -> Job:
         return Job(id=data['id'],
-                   status=JobStatus[data['job_status']],
+                   status=JobStatus[data['status']],
                    payload=data['payload'],
                    created_at=datetime.fromisoformat(data.get('created_at')),
                    completed_at=datetime.fromisoformat(data.get('created_at')),
-                   result=data.get('job_result'))
+                   result=data.get('result'))
 
     def __eq__(self, other):
         return self.id == other.id if other else False
@@ -76,10 +76,18 @@ class JobService:
                                                            & Key('sk').eq(f'job#{job_id}')
                                     )
         LOGGER.debug(f'Get job response: {response}')
-        return [Job.from_dict(_job) for _job in response['Items']][0] if len(response['Items']) > 0 else None
+
+        def item_to_job(_job):
+            _job['status'] = _job.pop('job_status')
+            _job['result'] = _job.pop('job_result')
+            return Job.from_dict(_job)
+
+        return [item_to_job(_job) for _job in response['Items']][0] if len(response['Items']) > 0 else None
 
     def save(self, job: Job):
         job_dict = job.to_dict()
+        job_dict['job_status'] = job_dict.pop('status')
+        job_dict['job_result'] = job_dict.pop('result')
         _pk = f'user#{app_context.username}'
         _sk = f'job#{job.id}'
         if not self.get(job.id):
@@ -95,10 +103,10 @@ class JobService:
             )
         else:
             update_expression = "set payload=:payload, " \
-                      "completed_at=:completed_at, " \
-                      "created_at=:created_at, " \
-                      "job_status=:job_status, " \
-                      "job_result=:job_result "
+                                "completed_at=:completed_at, " \
+                                "created_at=:created_at, " \
+                                "job_status=:job_status, " \
+                                "job_result=:job_result "
             print(update_expression)
             response = self.table.update_item(
                 Key={'pk': _pk,

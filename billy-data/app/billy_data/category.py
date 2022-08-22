@@ -56,7 +56,7 @@ class CategoryService:
         response = self.table.put_item(
             Item=item
         )
-        LOGGER.debug(response)
+        # LOGGER.debug(response)
 
         return categories
 
@@ -64,9 +64,9 @@ class CategoryService:
         file_content = self.s3_repo.get(file)
         categories = [Category.from_dict(data) for data in json.loads(file_content)]
         existing_categories = self.get_all()
-        LOGGER.debug(f'Existing categories:{existing_categories}')
+        # LOGGER.debug(f'Existing categories:{existing_categories}')
 
         for category in categories:
             self.save(category)
-        LOGGER.debug(f'Categories:{categories}')
+        # LOGGER.debug(f'Categories:{categories}')
         return categories

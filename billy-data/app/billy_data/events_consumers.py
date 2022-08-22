@@ -32,11 +32,28 @@ def process(payload: dict) -> dict:
     transform_results = []
     for file in downloaded_files:
         try:
-            transform_results.append(bank_statement_service.transform(file))
+            transform_results.append({file: {'status': 'success',
+                                             'result': bank_statement_service.transform(file)}})
+
         except Exception as e:
+            transform_results.append({file: {'status': 'failed'}})
+            LOGGER.error(e)
+    load_result = None
+    for tf_result in transform_results:
+        transformed_files = []
+        for file in tf_result.keys():
+            if tf_result[file]['status'] == 'success':
+                transformed_files.append(file)
+        try:
+            load_result = {'status': 'success',
+                           'result': bank_statement_service.load(transformed_files)}
+
+        except Exception as e:
+            load_result = {'status': 'failed'}
             LOGGER.error(e)
     result = {'collect': {'downloaded_files': downloaded_files},
-              'transform': transform_results}
+              'transform': transform_results,
+              'load': load_result}
     return result
 
 

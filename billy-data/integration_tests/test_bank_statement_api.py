@@ -9,7 +9,7 @@ from billy_data.repo import data_repo
 from billy_data.job import job_service, Job, JobStatus
 from billy_data.provider import bank_statement_provider_service
 from billy_data.events_consumers import transform, load
-from billy_data.bank_statements import data_paths
+from billy_data.events import publish, Event
 import time
 
 os.environ['env'] = 'test'
@@ -95,6 +95,15 @@ class TestBankStatementAPI:
         job_service.save(job)
         job = job_service.get(job.id)
         assert job.status == JobStatus.COMPLETED
+
+    def test_sns_publish(self, config_valid, yahoo_config_valid, process_event_valid, test_job_valid):
+        job = Job(id=str(uuid.uuid4()),
+                  created_at=datetime.now(),
+                  status=JobStatus.CREATED,
+                  payload=json.dumps({'op': 'test'})
+                  )
+        response = publish(Event(name='test.event', payload=job.to_json()))
+        assert response.get('MessageId')
 
     def test_provider(self, config_valid, yahoo_config_valid, process_event_valid, bank_statement_provider_valid):
         providers = bank_statement_provider_service.get_all()

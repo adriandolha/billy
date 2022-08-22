@@ -8,7 +8,8 @@ from billy_data.config import CONFIG
 import boto3
 
 sns = boto3.resource('sns')
-topic = sns.Topic(CONFIG['sns_topic'])
+SNS_TOPIC = CONFIG['sns_topic']
+topic = sns.Topic(SNS_TOPIC)
 
 
 class Events(Enum):
@@ -22,10 +23,10 @@ class Event:
 
 
 def publish(event: Event):
-    LOGGER.info(f'Publishing new event {event.name}...')
+    LOGGER.info(f'Publishing new event {event.name} to topic {SNS_TOPIC}...')
     LOGGER.debug(event)
 
-    topic.publish(
+    response = topic.publish(
         Message=json.dumps({'default': event.payload}),
         Subject='application event',
         MessageStructure='json',
@@ -36,5 +37,6 @@ def publish(event: Event):
             }
         }
     )
-
+    LOGGER.debug(response)
     LOGGER.info(f'Published event {event.name}...')
+    return response

@@ -210,7 +210,7 @@ class BankStatementService:
             'file_data': self.extract_data(file_tables)
         }
 
-    def load(self, files: str) -> dict:
+    def load(self, files: list[str]) -> dict:
         dfs = []
         for file_name in files:
             df = pd.read_json(self.data_repo.get(self.paths.data_file(file_name)))

@@ -71,7 +71,7 @@ class S3DataRepo(DataRepo):
         body = s3_file.get()['Body'].read()
         file_content = body.decode('utf-8')
         LOGGER.debug(f'Reading file {file_name} from s3.')
-        LOGGER.debug(file_content)
+        # LOGGER.debug(file_content)
         return file_content
 
     def read_stream(self, file_name: str):
