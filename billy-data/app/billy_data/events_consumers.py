@@ -27,8 +27,14 @@ def process(payload: dict) -> dict:
                                                   host=provider.yahoo_host,
                                                   port=provider.yahoo_port,
                                                   card_statement_pdf_password=provider.card_statement_pdf_password)
-    downloaded_files = bank_statement_service.collect(
-        search_criterias)
+    try:
+        downloaded_files = bank_statement_service.collect(
+            search_criterias)
+    except Exception as e:
+        LOGGER.error('Failed to collect..')
+        downloaded_files = []
+        LOGGER.error(e, exc_info=True)
+
     transform_results = []
     for file in downloaded_files:
         try:
@@ -37,20 +43,20 @@ def process(payload: dict) -> dict:
 
         except Exception as e:
             transform_results.append({file: {'status': 'failed'}})
-            LOGGER.error(e)
+            LOGGER.error(e, exc_info=True)
     load_result = None
     for tf_result in transform_results:
         transformed_files = []
         for file in tf_result.keys():
             if tf_result[file]['status'] == 'success':
-                transformed_files.append(file)
+                transformed_files.append(tf_result[file]['result']['file_data'])
         try:
             load_result = {'status': 'success',
                            'result': bank_statement_service.load(transformed_files)}
 
         except Exception as e:
             load_result = {'status': 'failed'}
-            LOGGER.error(e)
+            LOGGER.error(e, exc_info=True)
     result = {'collect': {'downloaded_files': downloaded_files},
               'transform': transform_results,
               'load': load_result}

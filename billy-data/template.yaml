@@ -14,6 +14,17 @@ Parameters:
     Description: Environment.
 
 Resources:
+  BillyDataDLQ:
+    Type: AWS::SQS::Queue
+
+  BillyDataSQS:
+    Type: AWS::SQS::Queue
+    Properties:
+      VisibilityTimeout: 1800
+      RedrivePolicy:
+        deadLetterTargetArn: !Sub "${BillyDataDLQ.Arn}"
+        maxReceiveCount: 5
+
   BillyDataFunction:
     Type: AWS::Serverless::Function
     Metadata:
@@ -42,7 +53,9 @@ Resources:
                 - s3:List*
                 - s3:Put*
               Effect: Allow
-              Resource: !Sub 'arn:aws:s3:::{{resolve:ssm:/${Env}/data_bucket}}/*'
+              Resource:
+                - !Sub 'arn:aws:s3:::{{resolve:ssm:/${Env}/data_bucket}}'
+                - !Sub 'arn:aws:s3:::{{resolve:ssm:/${Env}/data_bucket}}/*'
             - Action:
                 - dynamodb:Get*
                 - dynamodb:Query*
@@ -67,7 +80,13 @@ Resources:
           Type: SNS
           Properties:
             Topic: !Sub "{{resolve:ssm:/${Env}/sns_topic_arn}}"
-            SqsSubscription: true
+            SqsSubscription:
+              QueuePolicyLogicalId: BillyDataSQSPolicy
+              QueueArn:
+                Fn::GetAtt: BillyDataSQS.Arn
+              QueueUrl:
+                Ref: BillyDataSQS
+              BatchSize: 1
             FilterPolicy:
               event_name:
                 - job.created

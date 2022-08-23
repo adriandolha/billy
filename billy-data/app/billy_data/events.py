@@ -24,19 +24,20 @@ class Event:
 
 def publish(event: Event):
     LOGGER.info(f'Publishing new event {event.name} to topic {SNS_TOPIC}...')
-    LOGGER.debug(event)
 
-    response = topic.publish(
-        Message=json.dumps({'default': event.payload}),
-        Subject='application event',
-        MessageStructure='json',
-        MessageAttributes={
+    sns_message = {
+        'Subject': 'application event',
+        'MessageStructure': 'json',
+        'MessageAttributes': {
             'event_name': {
                 'DataType': 'String',
                 'StringValue': event.name
             }
-        }
-    )
+        },
+        'Message': json.dumps({'default': event.payload})
+    }
+    LOGGER.debug(sns_message)
+    response = topic.publish(**sns_message)
     LOGGER.debug(response)
     LOGGER.info(f'Published event {event.name}...')
     return response

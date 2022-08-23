@@ -38,8 +38,20 @@ class Job:
             'result': self.result
         }
 
+    def to_dynamo(self):
+        job_dict = self.to_dict()
+        job_dict['job_status'] = job_dict.pop('status')
+        job_dict['job_result'] = job_dict.pop('result')
+        return job_dict
+
     def to_json(self):
         return json.dumps(self.to_dict())
+
+    @staticmethod
+    def from_dynamo(_job):
+        _job['status'] = _job.pop('job_status')
+        _job['result'] = _job.pop('job_result')
+        return Job.from_dict(_job)
 
     @staticmethod
     def from_dict(data: dict) -> Job:
@@ -67,7 +79,7 @@ class JobService:
                                                            & Key('sk').begins_with('job#')
                                     )
         LOGGER.debug(f'Get all jobs response: {response}')
-        return [Job.from_dict(_job) for _job in response['Items']]
+        return [Job.from_dynamo(_job) for _job in response['Items']]
 
     def get(self, job_id: str) -> Job:
         username = app_context.username
@@ -76,18 +88,10 @@ class JobService:
                                                            & Key('sk').eq(f'job#{job_id}')
                                     )
         LOGGER.debug(f'Get job response: {response}')
-
-        def item_to_job(_job):
-            _job['status'] = _job.pop('job_status')
-            _job['result'] = _job.pop('job_result')
-            return Job.from_dict(_job)
-
-        return [item_to_job(_job) for _job in response['Items']][0] if len(response['Items']) > 0 else None
+        return [Job.from_dynamo(_job) for _job in response['Items']][0] if len(response['Items']) > 0 else None
 
     def save(self, job: Job):
-        job_dict = job.to_dict()
-        job_dict['job_status'] = job_dict.pop('status')
-        job_dict['job_result'] = job_dict.pop('result')
+        job_dict = job.to_dynamo()
         _pk = f'user#{app_context.username}'
         _sk = f'job#{job.id}'
         if not self.get(job.id):

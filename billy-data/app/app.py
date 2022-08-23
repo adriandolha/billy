@@ -43,25 +43,33 @@ def handle_dynamo(record, event, context):
         LOGGER.debug(record)
 
         new_image = record.get('dynamodb').get('NewImage')
-        if str(new_image.get('pk')['S']).startswith('user#') and str(new_image.get('sk')['S']).startswith('job#'):
-            handle_ddb_job_created(new_image)
+        try:
+            if str(new_image.get('pk')['S']).startswith('user#') and str(new_image.get('sk')['S']).startswith('job#'):
+                handle_ddb_job_created(new_image)
+        except Exception as e:
+            LOGGER.error('Failed to process ddb insert event...')
+            LOGGER.error(e, exc_info=True)
 
 
 def handle_sqs(record, event, context):
-    body = json.loads(record.get('body'))
-    attrs = body.get('MessageAttributes')
-    LOGGER.info('Message attributes...')
-    LOGGER.info(attrs)
-    if attrs.get('event_name'):
-        event_name = attrs.get('event_name')['Value']
-        LOGGER.info(f'New event {event_name}')
-        payload = body.get('Message')
-        handle(Event(name=event_name, payload=payload))
+    try:
+        body = json.loads(record.get('body'))
+        attrs = body.get('MessageAttributes')
+        LOGGER.info('Message attributes...')
+        LOGGER.info(attrs)
+        if attrs.get('event_name'):
+            event_name = attrs.get('event_name')['Value']
+            LOGGER.info(f'New event {event_name}')
+            payload = body.get('Message')
+            handle(Event(name=event_name, payload=payload))
+    except Exception as e:
+        LOGGER.error(f'Failed to process sqs message...')
+        LOGGER.error(e, exc_info=True)
 
 
 def handle_ddb_job_created(new_image):
     _new_image = {k: deserializer.deserialize(v) for k, v in new_image.items()}
-    job = Job.from_dict(_new_image)
+    job = Job.from_dynamo(_new_image)
     LOGGER.info(job)
     event = Event(name=Events.JOB_CREATED.value, payload=job.to_json())
     publish(event)

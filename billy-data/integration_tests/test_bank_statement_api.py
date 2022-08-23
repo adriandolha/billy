@@ -68,6 +68,25 @@ class TestBankStatementAPI:
 
         assert wait_until(is_job_completed, timeout=30, period=0.5, job_id=job_valid.id)
 
+    def test_bank_statement_load_all_ddb_stream_trigger(self, config_valid, yahoo_config_valid, process_event_valid):
+        all_data_files = data_repo.list_files(f'{config_valid["cognito_user"]}/bank_statements/data/')
+        print(all_data_files)
+
+        job = Job(id=str(uuid.uuid4()),
+                  created_at=datetime.now(),
+                  status=JobStatus.CREATED,
+                  payload=json.dumps({'op': 'load',
+                                      'username': config_valid['cognito_user'], 'files': ['ALL']}
+                                     )
+                  )
+        job_service.save(job)
+
+        def is_job_completed(job_id):
+            job = job_service.get(job_id)
+            return job and job.status == JobStatus.COMPLETED
+
+        assert wait_until(is_job_completed, timeout=30, period=0.5, job_id=job.id)
+
     def test_job_get_all(self, config_valid, yahoo_config_valid, process_event_valid, test_job_valid):
         job_service.save(test_job_valid)
         jobs = job_service.get_all()
@@ -100,9 +119,20 @@ class TestBankStatementAPI:
         job = Job(id=str(uuid.uuid4()),
                   created_at=datetime.now(),
                   status=JobStatus.CREATED,
-                  payload=json.dumps({'op': 'test'})
+                  payload=json.dumps({'op': 'process',
+                                      'username': config_valid['cognito_user'],
+                                      'search_criteria':
+                                          {
+                                              'subjects':
+                                                  [
+                                                      'Extras de cont Star Gold - Februarie 2022'
+                                                  ],
+                                              'since': '11-Jul-2021'
+                                          }
+                                      })
                   )
-        response = publish(Event(name='test.event', payload=job.to_json()))
+        # response = publish(Event(name='test.event', payload=job.to_json()))
+        response = publish(Event(name='job.created', payload=job.to_json()))
         assert response.get('MessageId')
 
     def test_provider(self, config_valid, yahoo_config_valid, process_event_valid, bank_statement_provider_valid):

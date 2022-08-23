@@ -66,11 +66,22 @@ class S3DataRepo(DataRepo):
         s3_file.put(Body=data)
         return file_name
 
+    def list_files(self, key):
+        LOGGER.info(f'Listing files under {key}')
+        if not str(key).endswith('/'):
+            key = f'{key}/'
+        files = []
+        for file in self.bucket.objects.all():
+            # LOGGER.debug(file.key)
+            if key in file.key:
+                files.append(file.key)
+        return files
+
     def get(self, file_name: str):
+        LOGGER.debug(f'Reading file {file_name} from s3.')
         s3_file = self.s3.Object(self.bucket_name, file_name)
         body = s3_file.get()['Body'].read()
         file_content = body.decode('utf-8')
-        LOGGER.debug(f'Reading file {file_name} from s3.')
         # LOGGER.debug(file_content)
         return file_content
 
