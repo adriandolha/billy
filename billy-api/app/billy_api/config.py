@@ -16,6 +16,7 @@ def get_config():
     _config.update({
         'data_store_path': os.getenv('data_store_path', default=os.path.expanduser('billy_data')),
         'data_bucket': os.getenv('data_bucket', default='billy-data.adolha'),
+        'ddb_table': os.getenv('data_table', default='data_table'),
         'bank_statements_data_file': os.getenv('bank_statements_data_file', default='bank_statements/data.json'),
         'cognito_user_pool_id': os.getenv('cognito_user_pool_id'),
         'region': os.getenv('region'),

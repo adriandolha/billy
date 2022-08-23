@@ -34,6 +34,7 @@ def requires_permission():
             payload = jwt.decode(authorization_header, jwk())
             # LOGGER.info(payload)
             app_context.username = payload['cognito:username']
+            LOGGER.info(f'Token user is {app_context.username}')
             LOGGER.info('Decoded jwt...')
             _result = function(*args, **kwargs)
             return _result
