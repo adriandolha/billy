@@ -74,7 +74,6 @@ class JobService:
         self.table = self.ddb.Table(data_table)
         LOGGER.info(f'Data table is {data_table}')
 
-
     def get_all(self) -> list[Job]:
         username = app_context.username
         LOGGER.info(f'Get all jobs for user {username}')
@@ -94,7 +93,6 @@ class JobService:
         return [Job.from_dict(_job) for _job in response['Items']][0] if len(response['Items']) > 0 else None
 
     def delete(self, job: Job) -> str:
-        username = app_context.username
         LOGGER.info(f'Get job {job.id}')
         _pk = f'user#{app_context.username}'
         _sk = f'job#{job.id}'

@@ -12,7 +12,7 @@ from billy_api import LOGGER
 @pytest.fixture(scope='session')
 def config_valid():
     import json
-    config_file = f"{os.path.expanduser('~')}/.cloud-projects/billy-local-integration.json"
+    config_file = f"{os.path.expanduser('~')}/.cloud-projects/billy-local-integratin.json"
     print(f'Config file is {config_file}')
     if os.path.exists(config_file):
         with open(config_file, "r") as _file:

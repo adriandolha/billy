@@ -18,13 +18,13 @@ def get_config():
         'data_bucket': os.getenv('data_bucket', default='billy-data.adolha'),
         'ddb_table': os.getenv('data_table', default='data_table'),
         'bank_statements_data_file': os.getenv('bank_statements_data_file', default='bank_statements/data.json'),
-        'cognito_user_pool_id': os.getenv('cognito_user_pool_id'),
-        'region': os.getenv('region'),
-        'cognito_domain': os.getenv('cognito_domain'),
-        'cognito_client_id': os.getenv('cognito_client_id'),
-        'cognito_user': os.getenv('cognito_user'),
-        'cognito_redirect_uri': os.getenv('cognito_redirect_uri'),
-        'cognito_user_password': os.getenv('cognito_user_password'),
+        'cognito_user_pool_id': os.getenv('cognito_user_pool_id', default='cognito_user_pool_id'),
+        'region': os.getenv('region', default='region'),
+        'cognito_domain': os.getenv('cognito_domain', default='amazoncognito'),
+        'cognito_client_id': os.getenv('cognito_client_id', default='cognito_client_id'),
+        'cognito_user': os.getenv('cognito_user', default='cognito_user'),
+        'cognito_redirect_uri': os.getenv('cognito_redirect_uri', default='cognito_redirect_uri'),
+        'cognito_user_password': os.getenv('cognito_user_password', default='cognito_user_password'),
         'log_level': os.getenv('log_level', default='ERROR'),
     })
     LOGGER.debug('Configuration is:')
@@ -35,3 +35,4 @@ def get_config():
     return _config
 
 
+CONFIG = get_config()

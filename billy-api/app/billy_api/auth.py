@@ -1,13 +1,103 @@
+from __future__ import annotations
+import dataclasses
 import json
+from enum import Enum
 from functools import lru_cache
 import urllib.parse
-
+import boto3
 from authlib.jose import jwt
 import requests
 from billy_api import LOGGER
 from billy_api.config import get_config
 from billy_api.exceptions import AuthenticationException
 from billy_api.app_context import app_context
+from billy_api.config import CONFIG
+
+cognito_idp = boto3.client('cognito-idp')
+
+
+@dataclasses.dataclass
+class Permission:
+    name: str
+    resource: str
+
+    @property
+    def full_name(self):
+        return f'{self.resource}:{self.name}'
+
+    def to_dict(self):
+        return {
+            'name': self.name,
+            'resource': self.resource,
+            'full_name': self.full_name,
+        }
+
+
+class Permissions(Enum):
+    JOB_READ = Permission(resource='job', name='read')
+    JOB_ADD = Permission(resource='job', name='add')
+    JOB_UPDATE = Permission(resource='job', name='update')
+    JOB_DELETE = Permission(resource='job', name='delete')
+    BANK_STATEMENT_READ = Permission(resource='bank_statement', name='read')
+    BANK_STATEMENT_ADD = Permission(resource='bank_statement', name='add')
+    BANK_STATEMENT_UPDATE = Permission(resource='bank_statement', name='update')
+    BANK_STATEMENT_DELETE = Permission(resource='bank_statement', name='delete')
+    CATEGORY_READ = Permission(resource='category', name='read')
+    CATEGORY_ADD = Permission(resource='category', name='add')
+    CATEGORY_UPDATE = Permission(resource='category', name='update')
+    CATEGORY_DELETE = Permission(resource='category', name='delete')
+
+
+def permissions_values(permissions: list[Permissions]) -> list[Permission]:
+    return [p.value for p in permissions]
+
+
+def all_permissions() -> list[Permission]:
+    return [p.value for p in Permissions]
+
+
+def read_permissions() -> list[Permission]:
+    return permissions_values([
+        Permissions.BANK_STATEMENT_READ,
+        Permissions.CATEGORY_READ,
+        Permissions.JOB_READ,
+    ])
+
+
+@dataclasses.dataclass
+class Group:
+    name: str
+    permissions: list[Permission]
+
+
+class Groups(Enum):
+    USERS = Group('Users', permissions=read_permissions())
+    VERIFIED_USERS = Group('VerifiedUsers', permissions=all_permissions())
+    DEMO_USERS = Group('DemoUsers', read_permissions())
+
+    @staticmethod
+    def find_group(group_name: str) -> Group:
+        _groups = [g for g in Groups if g.name == group_name]
+        return _groups[0] if len(_groups) > 0 else None
+
+
+@dataclasses.dataclass
+class User:
+    username: str
+    group: Group
+
+
+def id_token_for_client_credentials(username, password, client_id):
+    response = cognito_idp.initiate_auth(
+        ClientId=client_id,
+        AuthFlow="USER_PASSWORD_AUTH",
+        AuthParameters={"USERNAME": username,
+                        "PASSWORD": password},
+    )
+    LOGGER.debug(response)
+    id_token = response["AuthenticationResult"]["IdToken"]
+    print(f'Cognito id token {id_token}')
+    return id_token
 
 
 @lru_cache()
@@ -32,8 +122,13 @@ def requires_permission():
             if authorization_header is None:
                 raise AuthenticationException()
             payload = jwt.decode(authorization_header, jwk())
-            # LOGGER.info(payload)
-            app_context.username = payload['cognito:username']
+            LOGGER.debug(payload)
+            username_ = payload['cognito:username']
+            app_context.username = username_
+            if payload.get('cognito:groups'):
+                group_name = payload.get('cognito:groups')[0]
+                LOGGER.info(f'Payload user is {username_} and user group is {group_name}')
+                app_context.user = User(username=username_, group=Groups.find_group(group_name))
             LOGGER.info(f'Token user is {app_context.username}')
             LOGGER.info('Decoded jwt...')
             _result = function(*args, **kwargs)

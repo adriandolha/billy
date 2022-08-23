@@ -51,7 +51,22 @@ Resources:
               Action:
                 - s3:Get*
                 - s3:List*
-              Resource: !Sub 'arn:aws:s3:::{{resolve:ssm:/${Env}/data_bucket}}/*'
+              Resource:
+                - !Sub 'arn:aws:s3:::{{resolve:ssm:/${Env}/data_bucket}}'
+                - !Sub 'arn:aws:s3:::{{resolve:ssm:/${Env}/data_bucket}}/*'
+            - Action:
+                - dynamodb:Get*
+                - dynamodb:Query*
+                - dynamodb:PutItem*
+                - dynamodb:Delete*
+                - dynamodb:Update*
+                - dynamodb:DescribeStream*
+                - dynamodb:DescribeTable*
+                - dynamodb:Scan*
+                - dynamodb:BatchWrite*
+                - dynamodb:BatchRead*
+              Effect: Allow
+              Resource: !Sub 'arn:aws:dynamodb:*:*:table/{{resolve:ssm:/${Env}/data_table}}'
       Events:
         BillySearch:
           Type: Api
