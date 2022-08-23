@@ -1,6 +1,6 @@
 FROM public.ecr.aws/lambda/python:3.9
-COPY --from=openjdk:11 /usr/local/openjdk-11 /usr/local/openjdk-11
-ENV JAVA_HOME /usr/local/openjdk-11
+COPY --from=public.ecr.aws/ews-network/amazoncorretto:17 /usr/lib/jvm/java-17-amazon-corretto /usr/lib/jvm/java-17-amazon-corretto
+ENV JAVA_HOME /usr/lib/jvm/java-17-amazon-corretto
 ENV PATH $PATH:$JAVA_HOME/bin
 RUN java --version
 RUN python --version

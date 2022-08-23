@@ -66,7 +66,7 @@ class TestBankStatementAPI:
             job = job_service.get(job_id)
             return job and job.status == JobStatus.COMPLETED
 
-        assert wait_until(is_job_completed, timeout=30, period=0.5, job_id=job_valid.id)
+        assert wait_until(is_job_completed, timeout=60, period=0.5, job_id=job_valid.id)
 
     def test_bank_statement_load_all_ddb_stream_trigger(self, config_valid, yahoo_config_valid, process_event_valid):
         all_data_files = data_repo.list_files(f'{config_valid["cognito_user"]}/bank_statements/data/')
@@ -85,7 +85,7 @@ class TestBankStatementAPI:
             job = job_service.get(job_id)
             return job and job.status == JobStatus.COMPLETED
 
-        assert wait_until(is_job_completed, timeout=30, period=0.5, job_id=job.id)
+        assert wait_until(is_job_completed, timeout=60, period=0.5, job_id=job.id)
 
     def test_job_get_all(self, config_valid, yahoo_config_valid, process_event_valid, test_job_valid):
         job_service.save(test_job_valid)

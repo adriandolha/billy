@@ -5,7 +5,7 @@ from billy_data.bank_statements import BankStatementService, SearchCriteria
 from billy_data.config import get_config
 from billy_data.app_context import app_context
 from billy_data.events_consumers import handle
-from billy_data.job import Job
+from billy_data.job import Job, JobStatus
 from billy_data.provider import bank_statement_provider_service
 from boto3.dynamodb.types import TypeDeserializer
 from billy_data.events import Event, publish, Events
@@ -67,12 +67,25 @@ def handle_sqs(record, event, context):
         LOGGER.error(e, exc_info=True)
 
 
+def is_job_insert(job: Job):
+    """
+    We only want to generate job.created event on job insert, but Dynamo stream adds INSERT event if using put item and
+    we might end up with INSERT even if job status is actually IN_PROGRESS or COMPLETED. Addressed it in job service, but
+    still good to protect.
+
+    :param job: Job from new image.
+    :return: bool
+    """
+    return job.status == JobStatus.CREATED
+
+
 def handle_ddb_job_created(new_image):
     _new_image = {k: deserializer.deserialize(v) for k, v in new_image.items()}
-    job = Job.from_dynamo(_new_image)
+    job = Job.from_dict(_new_image)
     LOGGER.info(job)
-    event = Event(name=Events.JOB_CREATED.value, payload=job.to_json())
-    publish(event)
+    if is_job_insert(job):
+        event = Event(name=Events.JOB_CREATED.value, payload=job.to_json())
+        publish(event)
 
 
 def process(event, context):
