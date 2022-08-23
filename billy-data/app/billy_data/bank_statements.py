@@ -213,19 +213,21 @@ class BankStatementService:
     def load(self, files: list[str]) -> dict:
         destination_file = self.paths.all_data
         dfs = []
+        existing_data_df = None
         if len(files) == 1 and files[0] == 'ALL':
             dfs = []
             files = self.data_repo.list_files(self.paths.data)
         else:
             if data_repo.exists(destination_file):
-                existing_data_df = pd.read_json(self.data_repo.get(self.paths.data_file(destination_file)))
-                dfs.append(existing_data_df)
+                existing_data_df = pd.read_json(self.data_repo.get(destination_file))
+                # dfs.append(existing_data_df)
         LOGGER.info(f'Loading files...')
         LOGGER.info(files)
         for file_name in files:
             df = pd.read_json(self.data_repo.get(self.paths.data_file(file_name)))
             dfs.append(df)
-        df_all = pd.concat(dfs, ignore_index=True)
+        dfs_to_concat = [existing_data_df, *dfs] if existing_data_df is not None else dfs
+        df_all = pd.concat(dfs_to_concat, ignore_index=True)
         df_all = df_all.drop_duplicates(subset=['category', 'date', 'suma'], ignore_index=True)
         self.data_repo.save(destination_file, bytes(df_all.to_json().encode('utf-8')))
         return {

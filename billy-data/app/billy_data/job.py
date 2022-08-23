@@ -90,6 +90,17 @@ class JobService:
         LOGGER.debug(f'Get job response: {response}')
         return [Job.from_dict(_job) for _job in response['Items']][0] if len(response['Items']) > 0 else None
 
+    def delete(self, job: Job) -> str:
+        username = app_context.username
+        LOGGER.info(f'Get job {job.id}')
+        _pk = f'user#{app_context.username}'
+        _sk = f'job#{job.id}'
+
+        response = self.table.delete_item(Key={'pk': _pk,
+                                               'sk': _sk})
+        LOGGER.debug(f'Delete job response: {response}')
+        return job.id
+
     def save(self, job: Job):
         job_dict = job.to_dict()
         _pk = f'user#{app_context.username}'

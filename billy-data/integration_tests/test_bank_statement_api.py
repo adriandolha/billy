@@ -115,6 +115,19 @@ class TestBankStatementAPI:
         job = job_service.get(job.id)
         assert job.status == JobStatus.COMPLETED
 
+    def test_job_delete(self, config_valid, yahoo_config_valid, process_event_valid, test_job_valid):
+        job = Job(id=str(uuid.uuid4()),
+                  created_at=datetime.now(),
+                  status=JobStatus.CREATED,
+                  payload=json.dumps({'op': 'test'})
+                  )
+        job_service.save(job)
+        job = job_service.get(job.id)
+        assert job.status == JobStatus.CREATED
+        job_service.delete(job)
+        job = job_service.get(job.id)
+        assert job is None
+
     def test_sns_publish(self, config_valid, yahoo_config_valid, process_event_valid, test_job_valid):
         job = Job(id=str(uuid.uuid4()),
                   created_at=datetime.now(),
