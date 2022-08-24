@@ -14,6 +14,7 @@ import Sidebar from './pages/sidebar';
 import { ThemeProvider } from "@mui/material/styles";
 import myTheme from "./theme";
 import authService from "./services/auth-service";
+import JobsView from "./pages/jobs-view";
 const drawerWidth = 240;
 
 class App extends Component {
@@ -42,17 +43,14 @@ class App extends Component {
             component="main"
             sx={{ flexGrow: 1, p: 3, width: { sm: `calc(100% - ${drawerWidth}px)` }, marginTop: '70px' }}
           >
-            {/* <Container sx={{ flexGrow: 1, marginTop: "80px", marginRight: "100px" }} > */}
             <Routes>
               <Route path="/home" element={<Home />} />
               <Route path="/login" element={<Login />} />
-              {/* <Route path="/register" element={<Register />} /> */}
-              {/* <Route path="/profile" element={<Profile />} /> */}
+              <Route path="/jobs" element={<JobsView />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/bank-statements" element={<BankStatements />} />
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
-            {/* </Container> */}
           </Box>
         </ThemeProvider>
 

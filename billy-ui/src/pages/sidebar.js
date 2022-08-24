@@ -3,7 +3,6 @@ import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
 import Link from '@mui/material/Link';
 import CssBaseline from '@mui/material/CssBaseline';
-import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import List from '@mui/material/List';
 import Typography from '@mui/material/Typography';
@@ -44,6 +43,14 @@ export default function Sidebar(props) {
                     <ListItemText primary="Bank Statements" />
                 </ListItemButton>
             </ListItem>
+            <ListItem key="jobs" disablePadding component={Link} href="/jobs">
+                <ListItemButton>
+                    <ListItemIcon>
+                        <AccountBalance />
+                    </ListItemIcon>
+                    <ListItemText primary="Jobs" />
+                </ListItemButton>
+            </ListItem>
         </List>
     </>
     const container = window !== undefined ? () => window().document.body : undefined;
@@ -81,19 +88,6 @@ export default function Sidebar(props) {
             >
                 {drawer}
             </Drawer>
-            {/* <Drawer
-                sx={{
-                    width: drawerWidth,
-                    '& .MuiDrawer-paper': {
-                        width: drawerWidth,
-                        boxSizing: 'border-box',
-                    },
-                }}
-                variant="permanent"
-                anchor="left"
-            >
-            </Drawer> */}
-
         </Box>
     );
 }
