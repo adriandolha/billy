@@ -36,8 +36,7 @@ function AppBarMenu({ handleDrawerToggle }) {
                 </Typography>
                 {currentUser ? (
                     <Button color='inherit' onClick={() => {
-                        AuthService.logout();
-                        window.location.reload(false);
+                        AuthService.logout();                        
                     }}>Logout</Button>
                 ) : (
                     <Button color='inherit' onClick={() => { window.location.replace(sign_in_url) }}>Login</Button>

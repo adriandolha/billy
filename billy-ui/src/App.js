@@ -13,6 +13,7 @@ import AppBarMenu from "./pages/app-bar";
 import Sidebar from './pages/sidebar';
 import { ThemeProvider } from "@mui/material/styles";
 import myTheme from "./theme";
+import authService from "./services/auth-service";
 const drawerWidth = 240;
 
 class App extends Component {
@@ -30,11 +31,12 @@ class App extends Component {
 
     };
     const mobileOpen = this.state.mobileOpen;
+    const currentUser = authService.getCurrentUser()
     return (
       <Box sx={{ display: 'flex' }}>
         <meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
-        <AppBarMenu handleDrawerToggle={handleDrawerToggle} />
-        <Sidebar mobileOpen={mobileOpen} handleDrawerToggle={handleDrawerToggle} />
+        {currentUser && <AppBarMenu handleDrawerToggle={handleDrawerToggle} />}
+        {currentUser && <Sidebar mobileOpen={mobileOpen} handleDrawerToggle={handleDrawerToggle} />}
         <ThemeProvider theme={myTheme}>
           <Box
             component="main"

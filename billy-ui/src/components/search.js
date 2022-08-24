@@ -17,7 +17,7 @@ export default function SearchInput({ handleSearch }) {
             label="Search bank statements..."
             InputProps={{
                 endAdornment: (
-                    <InputAdornment>
+                    <InputAdornment position="end">
                         <IconButton >
                             <Search />
                         </IconButton>
