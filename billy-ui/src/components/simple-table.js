@@ -9,7 +9,6 @@ export default function SimpleTable({ columns, rows, rowCount}) {
                 rows={rows}
                 columns={columns}
                 rowCount={rowCount}
-                rowsPerPageOptions={[20]}
                 checkboxSelection={false}
             />
         </div>

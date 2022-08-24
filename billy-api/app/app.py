@@ -5,7 +5,7 @@ from billy_api.bank_statements import BankStatementApi
 from billy_api.auth import requires_permission, sign_in_cognito, get_token
 from billy_api.exceptions import AuthenticationException
 from billy_api.stats import StatsApi
-from billy_api.routes import jobs
+from billy_api.routes import jobs, categories
 
 
 @requires_permission()
@@ -95,4 +95,6 @@ def handle_request(context, event, event_path, result):
         result = get_token(event, context)
     if event_path == '/billy/jobs':
         result = jobs.get_all(event, context)
+    if event_path == '/billy/categories':
+        result = categories.get_all(event, context)
     return result

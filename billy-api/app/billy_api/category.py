@@ -4,10 +4,10 @@ from dataclasses import dataclass
 import boto3
 from boto3.dynamodb.conditions import Key
 
-from billy_data import LOGGER
-from billy_data.app_context import app_context
-from billy_data.config import get_config
-from billy_data.repo import S3DataRepo
+from billy_api import LOGGER
+from billy_api.app_context import app_context
+from billy_api.config import get_config
+from billy_api.repo import S3DataRepo
 
 
 @dataclass
@@ -70,3 +70,6 @@ class CategoryService:
             self.save(category)
         # LOGGER.debug(f'Categories:{categories}')
         return categories
+
+
+category_service = CategoryService()

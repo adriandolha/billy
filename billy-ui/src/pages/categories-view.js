@@ -1,62 +1,42 @@
-import JobService from '../services/jobs';
+import CategoryService from '../services/categories';
 import { useEffect, useState } from 'react';
 import { Box, CircularProgress, Typography, Chip } from '@mui/material';
 import SimpleTable from '../components/simple-table';
 
-const Status = ({ name }) => {
-    if (name === 'CREATED'){
-        return <Chip label={name} color='secondary' />
-    }
-    if (name === 'IN_PROGRESS'){
-        return <Chip label={name} color='info' />
-    }
-    if (name === 'COMPLETED'){
-        return <Chip label={name} color='success' />
-    }
-    return 'n/a'
+const KeyWords = ({ key_words }) => {
+    return key_words.map((kew_word) => <Chip color='secondary' label={kew_word}/>)
 }
 
-
-const TransactionDate = ({ value }) => {
-    return <Typography variant='body' color='primary'>{value}</Typography>
-}
-
-function JobsView({ }) {
+function CategoriesView({ }) {
     const [data, setData] = useState()
-    const [query, setQuery] = useState('')
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState()
-    const [page, setPage] = useState(0);
-    const [pageSize, setPageSize] = useState(20);
 
     const columns = [
-        { field: 'id', headerName: 'ID', width: 200 },
         {
-            field: 'status',
-            headerName: 'Status',
+            field: 'id',
+            headerName: 'ID',
             sortable: false,
             width: 150,
-            renderCell: (params) => <Status name={params.value} />
+            hide: true
         },
         {
-            field: 'created_at',
-            headerName: 'Created at',
+            field: 'name',
+            headerName: 'Name',
             sortable: false,
-            width: 210,
-            renderCell: (params) => <TransactionDate value={params.value} />
+            width: 150
         },
         {
-            field: 'completed_at',
-            headerName: 'Completed at',
-            type: 'number',
+            field: 'key_words',
+            headerName: 'Key Words',
             sortable: false,
-            width: 210,
-            renderCell: (params) => <TransactionDate value={params.value} />
+            width: 400,
+            renderCell: (params) => <KeyWords key_words={params.value} />
         }
     ];
 
 
-    const fetch_jobs = () => JobService.get_all()
+    const fetch_categories = () => CategoryService.get_all()
         .then(res => {
             if (!res.ok) {
                 return res.json().then(message => { setLoading(false); throw new Error(message); })
@@ -70,7 +50,7 @@ function JobsView({ }) {
             setError(error);
         });
     useEffect(() => {
-        fetch_jobs();
+        fetch_categories();
     }, []);
 
     if (loading) {
@@ -83,6 +63,7 @@ function JobsView({ }) {
     }
     if (data) {
         // console.log(data);
+        data.items.map((item) => { item['id'] = item.name })
         const rows = data.items
         const rowCount = data.total
         return (
@@ -100,4 +81,4 @@ function JobsView({ }) {
     return null
 }
 
-export default JobsView;
+export default CategoriesView;

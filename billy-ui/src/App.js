@@ -15,6 +15,7 @@ import { ThemeProvider } from "@mui/material/styles";
 import myTheme from "./theme";
 import authService from "./services/auth-service";
 import JobsView from "./pages/jobs-view";
+import CategoriesView from "./pages/categories-view";
 const drawerWidth = 240;
 
 class App extends Component {
@@ -47,6 +48,7 @@ class App extends Component {
               <Route path="/home" element={<Home />} />
               <Route path="/login" element={<Login />} />
               <Route path="/jobs" element={<JobsView />} />
+              <Route path="/categories" element={<CategoriesView />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/bank-statements" element={<BankStatements />} />
               <Route path="*" element={<NotFoundPage />} />

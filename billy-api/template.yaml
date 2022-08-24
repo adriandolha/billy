@@ -122,3 +122,10 @@ Resources:
             Path: /billy/jobs
             Method: get
             RestApiId: !Ref BillyApi
+
+        BillyCategoriesGet:
+          Type: Api
+          Properties:
+            Path: /billy/categories
+            Method: get
+            RestApiId: !Ref BillyApi

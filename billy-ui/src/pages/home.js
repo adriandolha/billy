@@ -11,12 +11,6 @@ export default function Home() {
     console.log(window.location.origin)
     return (
         <Fragment>
-            {/* <Box
-                component="main"
-                sx={{ flexGrow: 1, bgcolor: 'background.default', p: 3 }}
-            > */}
-            {/* <Toolbar /> */}
-
             <Card sx={{ minWidth: 275 }}>
                 <CardContent>
                     <Typography variant='h6' component="h1" align='center' gutterBottom sx={{
