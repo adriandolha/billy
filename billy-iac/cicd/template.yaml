@@ -34,6 +34,7 @@ Resources:
             Value: ../tests/
           - Name: env
             Value: "dev"
+
   IntegrationTestsProject:
     Type: AWS::CodeBuild::Project
     Properties:
@@ -90,6 +91,8 @@ Resources:
             Value: billy-iac
           - Name: ENV
             Value: dev
+          - Name: cloudfront_distribution_id
+            Value: !Sub "{{resolve:ssm:/dev/cloudfront_distribution_id}}"
 
   DeployProdProject:
     Type: AWS::CodeBuild::Project
@@ -118,6 +121,8 @@ Resources:
             Value: billy-iac
           - Name: ENV
             Value: prod
+          - Name: cloudfront_distribution_id
+            Value: !Sub "{{resolve:ssm:/prod/cloudfront_distribution_id}}"
 
   BuildProjectRole:
     Type: AWS::IAM::Role

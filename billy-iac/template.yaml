@@ -279,6 +279,13 @@ Resources:
       Type: String
       Value: !Sub "${SnsTopic}"
 
+  CloudFrontDistributionIdSSM:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub "/${Env}/cloudfront_distribution_id"
+      Type: String
+      Value: !Sub "${CFDistribution}"
+
   DdbStreamArnSSM:
     Type: AWS::SSM::Parameter
     Properties:

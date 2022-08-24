@@ -13,7 +13,7 @@ export default function DataTable({ columns, rows, rowCount, page, pageSize, set
                 pageSize={pageSize}
                 page={page}
                 rowsPerPageOptions={[20]}
-                // checkboxSelection
+                checkboxSelection={false}
                 paginationMode='server'
                 onPageChange={(newPage) => setPage(newPage)}
                 onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}

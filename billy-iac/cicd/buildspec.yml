@@ -14,6 +14,7 @@ phases:
       - npm install --prefer-offline --no-audit
       - npm run build
       - aws s3 sync build s3://www.dev.billy.adolha.com
+      - aws cloudfront create-invalidation --distribution-id=$cloudfront_distribution_id '/*'
       - cd $CODEBUILD_SRC_DIR/billy-iac
       - sam build
       - sam deploy --config-env $ENV --no-confirm-changeset --no-fail-on-empty-changeset

@@ -11,6 +11,7 @@ phases:
       - ls billy-api
       - cd billy-ui
       - aws s3 sync build s3://www.billy.adolha.com
+      - aws cloudfront create-invalidation --distribution-id=$cloudfront_distribution_id '/*'
       - cd $CODEBUILD_SRC_DIR/billy-iac
       - sam deploy --config-env $ENV --no-confirm-changeset --no-fail-on-empty-changeset
       - cd $CODEBUILD_SRC_DIR/billy-data

@@ -1,9 +1,20 @@
 import BankStatementService from '../services/bank-statements';
 import { useEffect, useState } from 'react';
-import { Box, CircularProgress } from '@mui/material';
+import { Box, CircularProgress, Typography, Chip } from '@mui/material';
 import DataTable from '../components/data-table';
 import SearchInput from '../components/search'
 
+const Category = ({ name }) => {
+    return <Chip label={name} color='secondary' variant='outlined' />
+}
+
+const Amount = ({ value }) => {
+    return <Typography variant='body' sx={{ fontWeight: 'bold' }}>{value}</Typography>
+}
+
+const TransactionDate = ({ value }) => {
+    return <Typography variant='body' color='primary'>{value}</Typography>
+}
 
 function BankStatements({ }) {
     const [data, setData] = useState()
@@ -14,17 +25,32 @@ function BankStatements({ }) {
     const [pageSize, setPageSize] = useState(20);
 
     const columns = [
-        { field: 'id', headerName: 'ID', width: 70 },
-        { field: 'category', headerName: 'Category', width: 130, sortable: false },
-        { field: 'date', headerName: 'Date', width: 130, sortable: false },
-        { field: 'desc', headerName: 'Description', width: 500, sortable: false },
+        { field: 'id', headerName: 'ID', width: 70, hide: true },
+        {
+            field: 'category',
+            headerName: 'Category',
+            sortable: false,
+            renderCell: (params) => <Category name={params.value} />
+        },
+        {
+            field: 'date',
+            headerName: 'Date',
+            sortable: false,
+            renderCell: (params) => <TransactionDate value={params.value} />
+        },
         {
             field: 'suma',
             headerName: 'Amount',
             type: 'number',
-            width: 90,
-            sortable: false
+            sortable: false,
+            renderCell: (params) => <Amount value={params.value} />
         },
+        {
+            field: 'desc',
+            headerName: 'Description',
+            width: 500, 
+            sortable: false
+        }
     ];
 
 
