@@ -32,6 +32,10 @@ class Permission:
             'full_name': self.full_name,
         }
 
+    @staticmethod
+    def from_dict(data: dict) -> Permission:
+        return Permission(name=data['name'], resource=data['resource'])
+
 
 class Permissions(Enum):
     JOB_READ = Permission(resource='job', name='read')
@@ -69,6 +73,16 @@ class Group:
     name: str
     permissions: list[Permission]
 
+    def to_dict(self):
+        return {
+            'name': self.name,
+            'permissions': [permission.to_dict() for permission in self.permissions]
+        }
+
+    @staticmethod
+    def from_dict(data: dict) -> Group:
+        return Group(name=data['name'], permissions=[Permission.from_dict(perm) for perm in data['permissions']])
+
 
 class Groups(Enum):
     USERS = Group('Users', permissions=read_permissions())
@@ -85,6 +99,37 @@ class Groups(Enum):
 class User:
     username: str
     group: Group
+
+
+class AuthService:
+    def __init__(self):
+        self.ddb = boto3.resource('dynamodb')
+        data_table = get_config()['ddb_table']
+        self.table = self.ddb.Table(data_table)
+
+    def add_group(self, group: Group):
+        LOGGER.info(f'Adding group {group.name}...')
+        response = self.table.put_item(
+            Item={
+                'pk': f'group#{group.name}',
+                'sk': 'group',
+                **group.to_dict()
+            }
+        )
+        LOGGER.debug(response)
+        return group
+
+    def get_group(self, name: str):
+        LOGGER.info(f'Get group {name}...')
+        response = self.table.get_item(
+            Key={
+                'pk': f'group#{name}',
+                'sk': 'group'
+            }
+        )
+        LOGGER.debug(response)
+        _group = response.get('Item')
+        return Group.from_dict(_group) if _group is not None else None
 
 
 def id_token_for_client_credentials(username, password, client_id):

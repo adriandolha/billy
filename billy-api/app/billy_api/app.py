@@ -3,7 +3,7 @@ from datetime import datetime
 from functools import lru_cache
 
 from billy_api import LOGGER
-from billy_api.auth import Groups
+from billy_api.auth import Groups, AuthService
 from billy_api.config import CONFIG
 import boto3
 import botocore
@@ -34,12 +34,14 @@ def setup():
         app_setup = AppSetup(ddb_table)
         app_setup.save_app_info()
         app_setup.setup_cognito()
+        app_setup.setup_users()
 
 
 class AppSetup:
     def __init__(self, ddb_table):
         self.ddb_table = ddb_table
         self.cognito_idp = boto3.client('cognito-idp')
+        self.auth_service = AuthService()
 
     def save_app_info(self):
         info = AppInfo()
@@ -50,6 +52,13 @@ class AppSetup:
             **info.to_dict()
         })
         LOGGER.debug(response)
+
+    def setup_users(self):
+        for group in Groups:
+            if not self.auth_service.get_group(group.value.name):
+                self.auth_service.add_group(group.value)
+            else:
+                LOGGER.info(f'Found group {group.value.name}.')
 
     def setup_cognito(self):
         LOGGER.info('Running cognito setup...')

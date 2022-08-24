@@ -7,6 +7,7 @@ ssm = boto3.client('ssm')
 
 def load_config_from_ssm():
     env = 'dev'
+    print('Loading config from SSM...')
     ssm_parameters = {
         'api_url': f'/{env}/api_url',
         'data_bucket': f'/{env}/data_bucket',

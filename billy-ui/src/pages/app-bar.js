@@ -1,12 +1,13 @@
 import Typography from '@mui/material/Typography';
-import { Toolbar, Link, AppBar, Button } from '@mui/material';
+import { Toolbar, Link, AppBar, Button, IconButton } from '@mui/material';
 import { useNavigate } from 'react-router';
 import AuthService from '../services/auth-service'
 import { useState, useEffect } from 'react';
 import { API_URL } from "../pages/config";
+import MenuIcon from '@mui/icons-material/Menu';
 const drawerWidth = 240;
 
-function AppBarMenu({ }) {
+function AppBarMenu({ handleDrawerToggle }) {
 
     const sign_in_url = `${API_URL}/billy/auth/sign_in/cognito`
     const navigate = useNavigate()
@@ -16,8 +17,20 @@ function AppBarMenu({ }) {
         user && setCurrentUser(user);
     }, []);
     return (
-        <AppBar position="fixed" sx={{ width: `calc(100% - ${drawerWidth}px)`, ml: `${drawerWidth}px` }}>
+        <AppBar position="fixed" sx={{
+            width: { sm: `calc(100% - ${drawerWidth}px)` },
+            ml: { sm: `${drawerWidth}px` }
+        }}>
             <Toolbar>
+                <IconButton
+                    color="inherit"
+                    aria-label="open drawer"
+                    edge="start"
+                    onClick={handleDrawerToggle}
+                    sx={{ mr: 2, display: { sm: 'none' } }}
+                >
+                    <MenuIcon />
+                </IconButton>
                 <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                     <Button color='inherit' onClick={() => { navigate('/home') }}>Home</Button>
                 </Typography>

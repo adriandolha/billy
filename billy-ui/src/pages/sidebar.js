@@ -17,11 +17,71 @@ import AccountBalance from '@mui/icons-material/AccountBalance';
 
 const drawerWidth = 240;
 
-export default function Sidebar() {
+export default function Sidebar(props) {
+    const { window, mobileOpen, handleDrawerToggle } = props;
+
+    const drawer = <>
+        <Toolbar sx={{ backgroundColor: 'primary.light' }}>
+            <Typography variant="h6" noWrap component="div" >
+                Billy
+            </Typography>
+        </Toolbar>
+        <Divider />
+        <List>
+            <ListItem key="dashboard" disablePadding component={Link} href="/dashboard">
+                <ListItemButton>
+                    <ListItemIcon>
+                        <Dashboard />
+                    </ListItemIcon>
+                    <ListItemText primary="Dasboard" />
+                </ListItemButton>
+            </ListItem>
+            <ListItem key="bank_statements" disablePadding component={Link} href="/bank-statements">
+                <ListItemButton>
+                    <ListItemIcon>
+                        <AccountBalance />
+                    </ListItemIcon>
+                    <ListItemText primary="Bank Statements" />
+                </ListItemButton>
+            </ListItem>
+        </List>
+    </>
+    const container = window !== undefined ? () => window().document.body : undefined;
+
     return (
         <Box sx={{ display: 'flex' }}>
             <CssBaseline />
             <Drawer
+                container={container}
+                variant="temporary"
+                open={mobileOpen}
+                onClose={handleDrawerToggle}
+                ModalProps={{
+                    keepMounted: true, // Better open performance on mobile.
+                }}
+                sx={{
+                    display: { xs: 'block', sm: 'none' },
+                    '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+                }}
+            >
+                {drawer}
+            </Drawer>
+            <Drawer
+                variant="permanent"
+                sx={{ 
+                    display: { xs: 'none', sm: 'block' },
+                    width: drawerWidth,
+                    '& .MuiDrawer-paper': {
+                        width: drawerWidth,
+                        boxSizing: 'border-box',
+                    },
+                }}
+                open
+                anchor='left'
+            >
+                {drawer}
+            </Drawer>
+            {/* <Drawer
                 sx={{
                     width: drawerWidth,
                     '& .MuiDrawer-paper': {
@@ -32,32 +92,8 @@ export default function Sidebar() {
                 variant="permanent"
                 anchor="left"
             >
-                <Toolbar sx={{backgroundColor:'primary.light'}}>
-                    <Typography variant="h6" noWrap component="div" >
-                        Billy
-                    </Typography>
-                </Toolbar>
-                <Divider />
-                <List>
-                    <ListItem key="dashboard" disablePadding component={Link} href="/dashboard">
-                        <ListItemButton>
-                            <ListItemIcon>
-                                <Dashboard />
-                            </ListItemIcon>
-                            <ListItemText primary="Dasboard" />
-                        </ListItemButton>
-                    </ListItem>
-                    <ListItem key="bank_statements" disablePadding component={Link} href="/bank-statements">
-                        <ListItemButton>
-                            <ListItemIcon>
-                                <AccountBalance />
-                            </ListItemIcon>
-                            <ListItemText primary="Bank Statements" />
-                        </ListItemButton>
-                    </ListItem>
-                </List>
-            </Drawer>
-           
+            </Drawer> */}
+
         </Box>
     );
 }
