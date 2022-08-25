@@ -21,7 +21,6 @@ phases:
 cache:
   paths:
     - '/root/.pip/**/*'
-    - '/root/.pip3/**/*'
     - '/root/.cache/pip/**/*'
     - '/root/.cache/pip3/**/*'
    
