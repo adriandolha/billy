@@ -66,7 +66,7 @@ def lambda_handler(event, context):
 
     result = None
     try:
-        result = handle_request(context, event, event_path, result)
+        result = handle_request(context, event, event_path, http_method)
     except AuthenticationException as auth_exception:
         result = {
             "statusCode": 401,
@@ -82,7 +82,8 @@ def lambda_handler(event, context):
     return cors_response
 
 
-def handle_request(context, event, event_path, result):
+def handle_request(context, event, event_path, http_method: str):
+    result = None
     if event_path == '/billy/bank_statements/search':
         result = search(event, context)
     if event_path == '/billy/stats/expenses_per_month':
@@ -93,8 +94,12 @@ def handle_request(context, event, event_path, result):
         result = sign_in_cognito(event, context)
     if event_path == '/billy/auth/token/cognito':
         result = get_token(event, context)
-    if event_path == '/billy/jobs':
+    if event_path == '/billy/jobs' and http_method == 'GET':
         result = jobs.get_all(event, context)
-    if event_path == '/billy/categories':
+    if event_path == '/billy/jobs' and http_method == 'POST':
+        result = jobs.save(event, context)
+    if event_path == '/billy/categories' and http_method == 'GET':
         result = categories.get_all(event, context)
+    if event_path == '/billy/categories' and http_method == 'POST':
+        result = categories.save(event, context)
     return result

@@ -123,9 +123,23 @@ Resources:
             Method: get
             RestApiId: !Ref BillyApi
 
+        BillyJobsPost:
+          Type: Api
+          Properties:
+            Path: /billy/jobs
+            Method: post
+            RestApiId: !Ref BillyApi
+
         BillyCategoriesGet:
           Type: Api
           Properties:
             Path: /billy/categories
             Method: get
+            RestApiId: !Ref BillyApi
+
+        BillyCategoriesPost:
+          Type: Api
+          Properties:
+            Path: /billy/categories
+            Method: post
             RestApiId: !Ref BillyApi

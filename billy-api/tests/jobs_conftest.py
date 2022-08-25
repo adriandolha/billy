@@ -4,6 +4,7 @@ from datetime import datetime
 import pytest
 from mock import mock
 
+from billy_api.category import CategoryService
 from billy_api.job import JobService, Job, JobStatus
 
 
@@ -29,3 +30,5 @@ def job_service_mock(job_table_mock):
     with mock.patch('billy_api.routes.jobs.job_service', _service) as job_service:
         # job_service.return_value = _service
         yield _service
+
+

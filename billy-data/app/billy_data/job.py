@@ -25,7 +25,9 @@ class Job:
     created_at: datetime
     payload: str
     status: JobStatus
+    job_type: str = 'n/a'
     completed_at: datetime = None
+    started_at: datetime = None
     result: str = None
 
     def to_dict(self):
@@ -34,32 +36,24 @@ class Job:
             'status': str(self.status.value),
             'created_at': self.created_at.isoformat(),
             'completed_at': self.completed_at and self.completed_at.isoformat(),
+            'started_at': self.started_at and self.started_at.isoformat(),
             'payload': self.payload,
-            'result': self.result
+            'result': self.result,
+            'job_type': self.job_type
         }
-
-    def to_dynamo(self):
-        job_dict = self.to_dict()
-        job_dict['job_status'] = job_dict.pop('status')
-        job_dict['job_result'] = job_dict.pop('result')
-        return job_dict
 
     def to_json(self):
         return json.dumps(self.to_dict())
-
-    @staticmethod
-    def from_dynamo(_job):
-        _job['status'] = _job.pop('job_status')
-        _job['result'] = _job.pop('job_result')
-        return Job.from_dict(_job)
 
     @staticmethod
     def from_dict(data: dict) -> Job:
         return Job(id=data['id'],
                    status=JobStatus[data['status']],
                    payload=data['payload'],
+                   job_type=data.get('job_type') or 'n/a',
                    created_at=datetime.fromisoformat(data.get('created_at')),
-                   completed_at=datetime.fromisoformat(data.get('created_at')),
+                   completed_at=datetime.fromisoformat(data.get('completed_at')) if data.get('completed_at') else None,
+                   started_at=datetime.fromisoformat(data.get('started_at')) if data.get('started_at') else None,
                    result=data.get('result'))
 
     def __eq__(self, other):

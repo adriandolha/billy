@@ -22,7 +22,7 @@ class Event:
     payload: str
 
 
-def publish(event: Event):
+def publish(event: Event, attributes: dict = {}):
     LOGGER.info(f'Publishing new event {event.name} to topic {SNS_TOPIC}...')
 
     sns_message = {
@@ -32,7 +32,8 @@ def publish(event: Event):
             'event_name': {
                 'DataType': 'String',
                 'StringValue': event.name
-            }
+            },
+            **attributes
         },
         'Message': json.dumps({'default': event.payload})
     }

@@ -2,12 +2,14 @@ from dataclasses import dataclass
 from functools import lru_cache
 import os
 import numpy as np
-
+import boto3
 from billy_api import LOGGER
 from billy_api.config import get_config
 from billy_api.repo import DataRepo, S3DataRepo
 import pandas as pd
 from billy_api.app_context import app_context
+
+ddb = boto3.resource('dynamodb')
 
 
 @dataclass
@@ -61,15 +63,33 @@ class SearchResult:
         return self.__dict__
 
 
-@lru_cache()
-def get_data_df() -> pd.DataFrame():
+@lru_cache(maxsize=1)
+def get_data_df_cached(last_updated: str = '0') -> pd.DataFrame():
+    LOGGER.debug(f'Caching data for last_update {last_updated}')
     config = get_config()
     s3_repo = S3DataRepo(config['data_bucket'])
-    data_file = config['bank_statements_data_file']
+    data_file = f'{app_context.username}/bank_statements/data.json'
+    if not s3_repo.exists(data_file):
+        return pd.DataFrame(columns=['category', 'date', 'desc', 'suma'], data=[])
     LOGGER.info(f'Reading data from {data_file}')
-    data = s3_repo.get(f'{app_context.username}/{data_file}')
+    data = s3_repo.get(data_file)
     df = pd.read_json(data)
     return df
+
+
+def get_data_df() -> pd.DataFrame():
+    username = app_context.username
+    data_table = get_config()['ddb_table']
+    LOGGER.info(f'Searching bank_statement_data last_update for user {username}...')
+    print(ddb)
+    response = ddb.Table(data_table).get_item(Key={'pk': f'user#{username}', 'sk': 'bank_statement_data'})
+    LOGGER.debug(response)
+    item = response.get('Item')
+    last_updated = '0'
+    if item is not None:
+        last_updated = item.get('last_updated')
+        LOGGER.info(f'Last updated is {last_updated}')
+    return get_data_df_cached(last_updated)
 
 
 class BankStatementApi:
@@ -80,7 +100,7 @@ class BankStatementApi:
 
     def search_for_word(self, word: str, df: pd.DataFrame):
         mask = np.column_stack(
-            [df[col].astype(str).str.lower().str.contains(word, na=False) for col in df])
+            [df[col].astype(str).str.lower().str.contains(word.lower(), na=False) for col in df])
         return df.loc[mask.any(axis=1)]
 
     def search(self, query: str, limit: int = 10, offset: int = 0) -> SearchResult:
@@ -88,7 +108,6 @@ class BankStatementApi:
         total = len(_df)
         LOGGER.info(f'query={query}, offset={offset}, limit={limit}')
         # LOGGER.debug(_df.to_string())
-
         if len(_df) > 0:
             queries = query.split(" ")
             for q in queries:

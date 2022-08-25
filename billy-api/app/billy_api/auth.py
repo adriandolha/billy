@@ -9,7 +9,7 @@ from authlib.jose import jwt
 import requests
 from billy_api import LOGGER
 from billy_api.config import get_config
-from billy_api.exceptions import AuthenticationException
+from billy_api.exceptions import AuthenticationException, AuthorizationException
 from billy_api.app_context import app_context
 from billy_api.config import CONFIG
 
@@ -24,6 +24,12 @@ class Permission:
     @property
     def full_name(self):
         return f'{self.resource}:{self.name}'
+
+    def __eq__(self, other):
+        if other is None:
+            return False
+        LOGGER.debug(f'Compare permission {self} with {other}')
+        return self.full_name == other.full_name
 
     def to_dict(self):
         return {
@@ -79,6 +85,9 @@ class Group:
             'permissions': [permission.to_dict() for permission in self.permissions]
         }
 
+    def has_permission(self, permission):
+        return permission in self.permissions
+
     @staticmethod
     def from_dict(data: dict) -> Group:
         return Group(name=data['name'], permissions=[Permission.from_dict(perm) for perm in data['permissions']])
@@ -99,6 +108,17 @@ class Groups(Enum):
 class User:
     username: str
     group: Group
+
+    def to_dict(self) -> dict:
+        return {
+            'username': self.username,
+            'group': self.group.to_dict()
+        }
+
+    @staticmethod
+    def from_dict(data: dict) -> User:
+        group = Group.from_dict(data['group']) if data.get('group') else Groups.USERS.value
+        return User(data['username'], group)
 
 
 class AuthService:
@@ -131,6 +151,37 @@ class AuthService:
         _group = response.get('Item')
         return Group.from_dict(_group) if _group is not None else None
 
+    def add_user(self, user: User):
+        LOGGER.info(f'Adding user {user.username}...')
+        response = self.table.put_item(
+            Item={
+                'pk': f'user#{user.username}',
+                'sk': 'user',
+                'username': f'{user.username}',
+                'group_name': f'{user.group.name}'
+            }
+        )
+        LOGGER.debug(response)
+        return user
+
+    def get_user(self, username: str):
+        LOGGER.info(f'Get user {username}...')
+        response = self.table.get_item(
+            Key={
+                'pk': f'user#{username}',
+                'sk': 'user'
+            }
+        )
+        LOGGER.debug(response)
+        _user = response.get('Item')
+        if _user is None:
+            return None
+        _group = auth_service.get_group(_user['group_name'])
+        return User(username=_user['username'], group=_group)
+
+
+auth_service = AuthService()
+
 
 def id_token_for_client_credentials(username, password, client_id):
     response = cognito_idp.initiate_auth(
@@ -158,7 +209,7 @@ def jwk():
     return key
 
 
-def requires_permission():
+def requires_permission(*permissions):
     def requires_permission_decorator(function):
         def wrapper(*args, **kwargs):
             event = args[0] if args and len(args) > 0 else kwargs['event']
@@ -170,10 +221,18 @@ def requires_permission():
             LOGGER.debug(payload)
             username_ = payload['cognito:username']
             app_context.username = username_
-            if payload.get('cognito:groups'):
-                group_name = payload.get('cognito:groups')[0]
-                LOGGER.info(f'Payload user is {username_} and user group is {group_name}')
-                app_context.user = User(username=username_, group=Groups.find_group(group_name))
+            LOGGER.debug(f'Cognito user is {username_}')
+            group_name = payload.get('cognito:groups')[0] if payload.get('cognito:groups') else None
+            LOGGER.debug(f'Cognito group is {group_name}')
+            user = auth_service.get_user(username=username_)
+            if not (group_name == user.group.name):
+                LOGGER.debug(f'Cognito user group {group_name}  mismatch existing user group {user.group.name}')
+
+                raise AuthenticationException()
+            for permission in permissions:
+                if not user.group.has_permission(permission.value):
+                    raise AuthorizationException()
+            app_context.user = user
             LOGGER.info(f'Token user is {app_context.username}')
             LOGGER.info('Decoded jwt...')
             _result = function(*args, **kwargs)
@@ -230,8 +289,21 @@ def get_token(event, context):
             "statusCode": 403,
             'body': 'Unauthorized',
         }
+    response_dict = json.loads(response.content.decode('utf-8'))
 
+    payload = jwt.decode(response_dict['id_token'], jwk())
+    username = payload['cognito:username']
+    LOGGER.debug(f'Login user {username}')
+    user = auth_service.get_user(username)
+    if not user:
+        cognito_group_name = payload.get('cognito:groups')
+        group_name = cognito_group_name[0] if cognito_group_name is not None else Groups.USERS.value.name
+        LOGGER.debug(f'Cognito group from token is {cognito_group_name}')
+        LOGGER.debug(f'User group name is {cognito_group_name}')
+        group = auth_service.get_group(group_name)
+        user = auth_service.add_user(User(username=username, group=group))
+    user_dict = user.to_dict()
     return {
         "statusCode": 200,
-        'body': response.content.decode('utf-8'),
+        'body': json.dumps({'user': user_dict, **response_dict})
     }

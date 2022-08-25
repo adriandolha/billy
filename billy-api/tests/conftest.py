@@ -1,12 +1,15 @@
 import json
 import logging
 import os
+from unittest.mock import MagicMock
+
 import boto3
 import pandas as pd
 import pytest
 from mock import mock
 
 from billy_api import LOGGER
+from billy_api.auth import User, Groups
 
 
 @pytest.fixture(scope='session')
@@ -29,7 +32,14 @@ def config_valid():
 
 
 @pytest.fixture()
-def data_mock():
+def data_ddb_mock():
+    _mock = MagicMock()
+    with mock.patch('billy_api.bank_statements.ddb', _mock):
+        yield _mock
+
+
+@pytest.fixture()
+def data_mock(data_ddb_mock):
     with mock.patch('billy_api.bank_statements.S3DataRepo') as _mock:
         yield _mock
 
@@ -41,10 +51,35 @@ def auth_requests():
 
 
 @pytest.fixture()
-def user_valid(auth_requests):
+def user_valid(auth_requests, auth_service_mock, jwk_mock):
     with mock.patch('billy_api.auth.jwt') as _jwt:
-        _jwt.decode.return_value = {'cognito:username': 'adolha'}
+        _jwt.decode.return_value = {'cognito:username': 'adolha', 'cognito:groups': ['Users']}
+        auth_requests.post.return_value.content = json.dumps({'id_token': 'id_token'}).encode('utf-8')
+
+        auth_service_mock.get_user.return_value = User(username='adolha', group=Groups.USERS.value)
         yield _jwt
+
+
+@pytest.fixture()
+def verified_user_valid(auth_requests, auth_service_mock, jwk_mock):
+    with mock.patch('billy_api.auth.jwt') as _jwt:
+        _jwt.decode.return_value = {'cognito:username': 'adolha', 'cognito:groups': ['VerifiedUsers']}
+        auth_requests.post.return_value.content = json.dumps({'id_token': 'id_token'}).encode('utf-8')
+
+        auth_service_mock.get_user.return_value = User(username='adolha', group=Groups.VERIFIED_USERS.value)
+        yield _jwt
+
+
+@pytest.fixture()
+def jwk_mock(auth_requests):
+    with mock.patch('billy_api.auth.jwk') as _jwk:
+        yield _jwk
+
+
+@pytest.fixture()
+def auth_service_mock(auth_requests):
+    with mock.patch('billy_api.auth.auth_service') as _mock:
+        yield _mock
 
 
 @pytest.fixture()
@@ -80,3 +115,21 @@ def stats_valid(data_mock):
         df['suma'] = df['suma'].astype(float)
         _mock.return_value = df
         yield _data
+
+
+@pytest.fixture()
+def job_request_valid():
+    return {
+        'payload': json.dumps({
+            'op': 'test',
+            'attribute': 'attr'
+        })
+    }
+
+
+@pytest.fixture()
+def category_request_valid():
+    return {
+        'name': 'test_category',
+        'key_words': ['key_word1']
+    }

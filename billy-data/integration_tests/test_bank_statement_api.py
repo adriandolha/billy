@@ -1,7 +1,7 @@
+import config
 import uuid
 from datetime import datetime
 
-import config
 import json
 import os
 import app

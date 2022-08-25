@@ -1,3 +1,5 @@
+import json
+
 from config import load_config
 
 import logging
@@ -26,3 +28,13 @@ def api_url(config_valid):
 def id_token(config_valid):
     return id_token_for_client_credentials(config_valid['cognito_user'], config_valid['cognito_user_password'],
                                            config_valid['cognito_client_id'])
+
+
+@pytest.fixture()
+def job_request_valid():
+    return {
+        'payload': json.dumps({
+            'op': 'test',
+            'attribute': 'attr'
+        })
+    }

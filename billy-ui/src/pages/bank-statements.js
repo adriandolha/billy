@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { Box, CircularProgress, Typography, Chip } from '@mui/material';
 import DataTable from '../components/data-table';
 import SearchInput from '../components/search'
+import { Error } from '../components/messages'
 
 const Category = ({ name }) => {
     return <Chip label={name} color='secondary' variant='outlined' />
@@ -48,7 +49,7 @@ function BankStatements({ }) {
         {
             field: 'desc',
             headerName: 'Description',
-            width: 500, 
+            width: 500,
             sortable: false
         }
     ];
@@ -75,6 +76,10 @@ function BankStatements({ }) {
         console.log(q);
         setQuery(q)
     };
+    if (error) {
+        return <Error message={error} />
+    }
+
     if (loading) {
         return (
             <Box sx={{ display: 'flex' }}>

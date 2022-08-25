@@ -85,7 +85,10 @@ def handle_ddb_job_created(new_image):
     LOGGER.info(job)
     if is_job_insert(job):
         event = Event(name=Events.JOB_CREATED.value, payload=job.to_json())
-        publish(event)
+        publish(event, attributes={'job_type': {
+            'DataType': 'String',
+            'StringValue': job.job_type
+        }} if job.job_type else {})
 
 
 def process(event, context):

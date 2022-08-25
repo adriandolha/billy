@@ -1,14 +1,31 @@
 from __future__ import annotations
 import datetime
 import json
+import boto3
 
 from billy_data import LOGGER
+from billy_data.config import CONFIG
 from billy_data.app_context import app_context
 from billy_data.bank_statements import BankStatementService, SearchCriteria
 from billy_data.events import Event, Events
 from billy_data.job import Job, JobStatus, JobService
 from billy_data.provider import BankStatementProviderService
 from billy_data.job import job_service
+
+ddb = boto3.resource('dynamodb')
+
+
+def update_bank_statement_data_metadata(last_updated: str):
+    username = app_context.username
+    data_table = CONFIG['ddb_table']
+    LOGGER.info(f'Update bank statement data last_updated at {last_updated}')
+    response = ddb.Table(data_table).put_item(Item={
+        'pk': f'user#{username}',
+        'sk': 'bank_statement_data',
+        'last_updated': str(last_updated)
+    })
+    LOGGER.debug(response)
+    return last_updated
 
 
 def process(payload: dict) -> dict:
@@ -120,6 +137,7 @@ def handle(event: Event):
         username = job_payload['username']
         app_context.username = username
         job.status = JobStatus.IN_PROGRESS
+        job.started_at = datetime.datetime.now()
         job_service.save(job)
         result = SUPPORTED_JOB_OP[op](json.loads(job.payload))
         job = Job.from_dict(job.to_dict())
@@ -127,4 +145,6 @@ def handle(event: Event):
         job.status = JobStatus.COMPLETED
         job.result = json.dumps(result)
         job_service.save(job)
+        if op in ['process', 'transform', 'load']:
+            update_bank_statement_data_metadata(str(job.completed_at))
         LOGGER.info(f'Completed job {job.id}.')

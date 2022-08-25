@@ -46,7 +46,6 @@ class CategoryService:
         return categories
 
     def save(self, category: Category):
-        categories = []
         item = {
             'pk': f'user#{app_context.username}',
             'sk': f'category#{category.name}',
@@ -58,7 +57,7 @@ class CategoryService:
         )
         # LOGGER.debug(response)
 
-        return categories
+        return category
 
     def load_from_file(self, file: str) -> list[Category]:
         file_content = self.s3_repo.get(file)

@@ -2,6 +2,7 @@ import JobService from '../services/jobs';
 import { useEffect, useState } from 'react';
 import { Box, CircularProgress, Typography, Chip } from '@mui/material';
 import SimpleTable from '../components/simple-table';
+import { Error } from '../components/messages'
 
 const Status = ({ name }) => {
     if (name === 'CREATED'){
@@ -72,6 +73,10 @@ function JobsView({ }) {
     useEffect(() => {
         fetch_jobs();
     }, []);
+
+    if (error) {
+        return <Error message={error} />
+    }
 
     if (loading) {
         return (

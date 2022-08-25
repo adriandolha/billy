@@ -1,10 +1,10 @@
 import CategoryService from '../services/categories';
 import { useEffect, useState } from 'react';
-import { Box, CircularProgress, Typography, Chip } from '@mui/material';
-import SimpleTable from '../components/simple-table';
+import { Box, CircularProgress, Typography, Chip, List, ListItem, Link, Divider, Stack } from '@mui/material';
+import { Error } from '../components/messages'
 
 const KeyWords = ({ key_words }) => {
-    return key_words.map((kew_word) => <Chip color='secondary' key={kew_word} label={kew_word}/>)
+    return key_words.map((kew_word) => <Chip color='secondary' key={kew_word} label={kew_word} />)
 }
 
 function CategoriesView({ }) {
@@ -52,6 +52,9 @@ function CategoriesView({ }) {
     useEffect(() => {
         fetch_categories();
     }, []);
+    if (error) {
+        return <Error message={error} />
+    }
 
     if (loading) {
         return (
@@ -68,11 +71,29 @@ function CategoriesView({ }) {
         const rowCount = data.total
         return (
             <>
-                <SimpleTable
-                    columns={columns}
-                    rows={rows}
-                    rowCount={rowCount}
-                />
+                <List>
+                    {data.items.map((category) => {
+                        return (
+                            <>
+                                <ListItem key="category.name" disablePadding component={Link} href="/dashboard">
+                                    <Stack spacing={2} sx={{ marginBottom: 2 }}>
+                                        <Box>
+                                            <Chip label={category.name} color='primary' variant='outlined' />
+                                        </Box>
+                                        <Divider />
+                                        <Stack spacing={1} direction='row' sx={{ width: '100%' }}>
+                                            {category.key_words.map((kew_word) => {
+                                                return (<Chip color='secondary' key={kew_word} label={kew_word} />)
+
+                                            })}
+                                        </Stack>
+                                    </Stack>
+
+                                </ListItem>
+                            </>
+                        )
+                    })}
+                </List>
             </>
 
         );
