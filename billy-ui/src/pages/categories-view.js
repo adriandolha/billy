@@ -1,6 +1,7 @@
 import CategoryService from '../services/categories';
 import { useEffect, useState } from 'react';
 import { Box, CircularProgress, Typography, Chip, List, ListItem, Link, Divider, Stack } from '@mui/material';
+import { Grid, Paper, Card, CardContent, CardHeader, CardActions } from '@mui/material';
 import { Error } from '../components/messages'
 
 const KeyWords = ({ key_words }) => {
@@ -75,19 +76,27 @@ function CategoriesView({ }) {
                     {data.items.map((category) => {
                         return (
                             <>
-                                <ListItem key="category.name" disablePadding component={Link} href="/dashboard">
-                                    <Stack spacing={2} sx={{ marginBottom: 2 }}>
-                                        <Box>
-                                            <Chip label={category.name} color='primary' variant='outlined' />
-                                        </Box>
-                                        <Divider />
-                                        <Stack spacing={1} direction='row' sx={{ width: '100%' }}>
-                                            {category.key_words.map((kew_word) => {
-                                                return (<Chip color='secondary' key={kew_word} label={kew_word} />)
+                                <ListItem key="category.name" href="/dashboard">
+                                    <Paper elevation={1} sx={{ width: '100%',  padding: 2 }}>
+                                        <Grid container spacing={1}>
+                                            <Grid item xs={12}>
+                                                <Box>
+                                                    <Chip label={category.name} color='primary' variant='outlined' />
+                                                </Box>
+                                            </Grid>
+                                            <Grid item xs={12}>
+                                                <Divider />
+                                            </Grid>
+                                            <Grid item xs={12} >
+                                                {category.key_words.map((kew_word) => {
+                                                    return (<Chip color='secondary' key={kew_word} label={kew_word} sx={{
+                                                        margin: 0.5
+                                                    }}/>)
 
-                                            })}
-                                        </Stack>
-                                    </Stack>
+                                                })}
+                                            </Grid>
+                                        </Grid>
+                                    </Paper>
 
                                 </ListItem>
                             </>
