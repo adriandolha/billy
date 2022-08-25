@@ -15,8 +15,8 @@ const Logo = () => {
         <rect x="63.5558" y="14.4702" width="3.80027" height="26.6941" rx="1.90013" transform="rotate(25 63.5558 14.4702)" fill="#2778C2" />
         <path d="M25.3071 9.31796C25.3071 11.2352 23.7529 12.7894 21.8357 12.7894C19.9185 12.7894 18.3643 11.2352 18.3643 9.31796C18.3643 7.40076 19.9185 5.84656 21.8357 5.84656C23.7529 5.84656 25.3071 7.40076 25.3071 9.31796Z" fill="#2778C2" />
         <defs>
-            <filter id="filter0_d_0_1" x="0.209899" y="0" width="17.5697" height="31.6446" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                <feFlood flood-opacity="0" result="BackgroundImageFix" />
+            <filter id="filter0_d_0_1" x="0.209899" y="0" width="17.5697" height="31.6446" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB">
+                <feFlood floodOpacity="0" result="BackgroundImageFix" />
                 <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha" />
                 <feOffset dy="0.584657" />
                 <feGaussianBlur stdDeviation="0.292328" />

@@ -45,6 +45,7 @@ class App extends Component {
             sx={{ flexGrow: 1, p: 3, width: { sm: `calc(100% - ${drawerWidth}px)` }, marginTop: '70px' }}
           >
             <Routes>
+              <Route path="/" element={<Home />} />
               <Route path="/home" element={<Home />} />
               <Route path="/login" element={<Login />} />
               <Route path="/jobs" element={<JobsView />} />

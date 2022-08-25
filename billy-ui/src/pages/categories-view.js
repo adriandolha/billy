@@ -4,7 +4,7 @@ import { Box, CircularProgress, Typography, Chip } from '@mui/material';
 import SimpleTable from '../components/simple-table';
 
 const KeyWords = ({ key_words }) => {
-    return key_words.map((kew_word) => <Chip color='secondary' label={kew_word}/>)
+    return key_words.map((kew_word) => <Chip color='secondary' key={kew_word} label={kew_word}/>)
 }
 
 function CategoriesView({ }) {
@@ -31,7 +31,7 @@ function CategoriesView({ }) {
             headerName: 'Key Words',
             sortable: false,
             width: 400,
-            renderCell: (params) => <KeyWords key_words={params.value} />
+            renderCell: (params) => <Box ><KeyWords key_words={params.value} /></Box>
         }
     ];
 

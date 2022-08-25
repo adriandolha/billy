@@ -13,7 +13,7 @@ export default function Home() {
         <Fragment>
             <Card sx={{ minWidth: 275 }}>
                 <CardContent>
-                    <Typography variant='h6' component="h1" align='center' gutterBottom sx={{
+                    {currentUser ? <Typography variant='h6' component="h1" align='center' gutterBottom sx={{
                         color: 'white',
                         backgroundColor: 'primary.main',
                         textTransform: 'uppercase',
@@ -22,20 +22,32 @@ export default function Home() {
 
                     }}>
                         Welcome to Billy
-                    </Typography>
-                    <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-                        <Avatar alt="" src={`${window.location.origin}/logo.png`} sx={{ width: 200, height: 100 }} />
-                    </Box>
-                    <Typography variant="h6" sx={{
+                    </Typography> : null}
+                    {currentUser ?
+                        <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                            <Avatar alt="" src={`${window.location.origin}/logo.png`} sx={{ width: 200, height: 100 }} />
+                        </Box> :
+                        <Box sx={{
+                            display: 'flex',
+                            justifyContent: 'center'
+
+                        }}>
+                            <Avatar alt="" src={`${window.location.origin}/logo.png`} sx={{
+                                width: 300,
+                                height: 200,
+                                boxShadow: 1
+                            }} />
+                        </Box>}
+                    {currentUser ? <Typography variant="h6" sx={{
                         borderRadius: '10px',
                         marginTop: 1,
                         marginBottom: 1
                     }}>
-                        Billy is an application for expenses and bills analytics, which collects, processes and analyzes 
-                        bank statements, providing a general view on your expenses. It generates reports that show how much 
+                        Billy is an application for expenses and bills analytics, which collects, processes and analyzes
+                        bank statements, providing a general view on your expenses. It generates reports that show how much
                         you spend on food, travel, etc.
                         Give it a try!
-                    </Typography>
+                    </Typography> : null}
                 </CardContent>
                 <CardActions sx={{ marginBottom: 2 }}>
                     {currentUser ? (
