@@ -100,7 +100,7 @@ Resources:
       ServiceRole: !GetAtt BuildProjectRole.Arn
       Source:
         Type: CODEPIPELINE
-        BuildSpec: "billy-iac/cicd/buildspec.yml"
+        BuildSpec: "billy-iac/cicd/buildspec-deploy-prod.yml"
       Artifacts:
         Type: CODEPIPELINE
       Cache:
