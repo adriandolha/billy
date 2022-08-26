@@ -1,6 +1,6 @@
 import authHeader from "./auth-header";
 import { API_URL } from "../pages/config";
-import fetch from "../components/fetch"
+// import fetch from "../components/fetch"
 
 class BankStatementService {
     search(query, limit, offset) {

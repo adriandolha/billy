@@ -25,16 +25,32 @@ class TestJobsApi:
         assert _job['payload'] == job_dict['payload']
 
     def test_job_save(self, config_valid, verified_user_valid, auth_requests, job_service_mock, job_request_valid):
-        # job_service_mock.table.put_tim.return_value = {'Items':[job_valid.to_dict()]}
-        # print(job_service_mock)
         auth_requests.get.return_value.content = json.dumps('bla')
+        response = self.save_job(job_request_valid)
+        result = json.loads(response['body'])
+        assert response['statusCode'] == 200
+        assert result['status'] == 'CREATED'
+        assert result['created_at']
+        assert result['completed_at'] is None
+
+    def test_delete_job(self, config_valid, verified_user_valid, auth_requests, job_service_mock, job_request_valid):
+        auth_requests.get.return_value.content = json.dumps('bla')
+        response = self.save_job(job_request_valid)
+        assert response['statusCode'] == 200
+        result = json.loads(response['body'])
+
+        event = {'path': f'/billy/jobs/{result["id"]}',
+                 'requestContext': {'httpMethod': 'DELETE'},
+                 'pathParameters': {'job_id': result["id"]},
+                 'headers': {'Authorization': ''}}
+        response = app.lambda_handler(event, [])
+        assert response['statusCode'] == 204
+        job_service_mock.table.delete_item.assert_called()
+
+    def save_job(self, job_request_valid):
         event = {'path': '/billy/jobs',
                  'requestContext': {'httpMethod': 'POST'},
                  'headers': {'Authorization': ''},
                  'body': json.dumps(job_request_valid)}
         response = app.lambda_handler(event, [])
-        assert response['statusCode'] == 200
-        result = json.loads(response['body'])
-        assert result['status'] == 'CREATED'
-        assert result['created_at']
-        assert result['completed_at'] is None
+        return response

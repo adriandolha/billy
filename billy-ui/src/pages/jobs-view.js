@@ -1,40 +1,44 @@
 import JobService from '../services/jobs';
 import { useEffect, useState } from 'react';
 import { Box, CircularProgress, Typography, Chip, Divider } from '@mui/material';
-import { Paper, Grid, List, ListItem } from '@mui/material';
-import { Error } from '../components/messages'
+import { Paper, Grid, List, ListItem, Button } from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { Error, Success } from '../components/messages'
+import { SetMeal } from '@mui/icons-material';
 
 const Status = ({ name }) => {
     if (name === 'CREATED') {
-        return <Chip label={name} color='secondary' />
+        return <Chip size="small" label={name} color='secondary' />
     }
     if (name === 'IN_PROGRESS') {
-        return <Chip label={name} color='info' />
+        return <Chip size="small" label={name} color='info' />
     }
     if (name === 'COMPLETED') {
-        return <Chip label={name} color='success' />
+        return <Chip size="small" label={name} color='success' />
     }
     return 'n/a'
 }
 
 
 const LabelWithValue = ({ label, value }) => {
-    return <Typography variant='body2' sx={{
-        display: 'inline'
-    }}>{label}<Typography variant='body1' color='primary' sx={{
-        margin: 1,
-        display: 'inline'
-    }}>{value}</Typography>
-    </Typography>
+    return <>
+        <Typography variant='body2' sx={{
+            // display: 'inline'
+        }}>{label}
+        </Typography>
+        <Typography variant='body2' color='primary' sx={{
+            // margin: 1,
+            // display: 'inline'
+        }}>{value}</Typography>
+    </>
 }
+
 
 function JobsView({ }) {
     const [data, setData] = useState()
-    const [query, setQuery] = useState('')
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState()
-    const [page, setPage] = useState(0);
-    const [pageSize, setPageSize] = useState(20);
+    const [displayMessage, setDisplayMessage] = useState()
 
     const fetch_jobs = () => JobService.get_all()
         .then(res => {
@@ -44,19 +48,47 @@ function JobsView({ }) {
             return res.json();
         })
         .then(setData)
-        .then(() => setLoading(false))
+        .then(() => {
+            setLoading(false)
+            setError(null)
+            setDisplayMessage(null)
+        })
         .catch((error) => {
             console.log(`Error: ${error}`);
-            setError(error);
+            setError(error.message);
         });
     useEffect(() => {
         fetch_jobs();
     }, []);
 
+    const delete_job = (job_id) => JobService.delete_job(job_id)
+        .then(res => {
+            if (res.ok) {
+                return res;
+            }
+            setLoading(false);
+            return res.text().then(text => { throw new Error(text) })
+        })
+        .then(() => {
+            setLoading(false)
+            setDisplayMessage(`Successfully deleted job ${job_id}`)
+        })
+        .catch((error) => {
+            console.log(`Error: ${error}`);
+            setError(error);
+        });
+
+    useEffect(() => {
+        fetch_jobs();
+    }, [error, displayMessage]);
+
     if (error) {
         return <Error message={error} />
     }
 
+    if (displayMessage) {
+        return <Success message={displayMessage} />
+    }
     if (loading) {
         return (
             <Box sx={{ display: 'flex' }}>
@@ -66,77 +98,119 @@ function JobsView({ }) {
 
     }
     if (data) {
-        // console.log(data);
-        const rows = data.items
-        const rowCount = data.total
         return (
-            <>
-                <Grid container>
-                    <Grid item xs={12}>
-                        <List>
-                            {data.items.map((job) => {
-                                const payload_pretty = JSON.stringify(JSON.parse(job.payload), null, 2)
-                                const result_pretty = job.result && JSON.stringify(JSON.parse(job.result), null, 2)
-                                return (
-                                    <>
-                                        <ListItem key="category.name" >
-                                            <Paper elevation={1} sx={{ width: '100%', margin: 2, padding: 2 }}>
-                                                <Grid container spacing={1} item xs={12}>
-                                                    <Grid item container spacing={1} xs={12} justifyContent='space-between' alignItems='center'>
+            <Grid container >
+                <Grid item xs={12} disableGutters sx={{marginLeft: 0}}>
+                    <List  sx={{marginLeft: 0}}>
+                        {data.items.map((job, index) => {
+                            const payload_pretty = JSON.stringify(JSON.parse(job.payload), null, 2)
+                            const result_pretty = job.result && JSON.stringify(JSON.parse(job.result), null, 2)
+                            return (
+                                <ListItem key={`job_${index}`} disableGutters sx={{marginLeft: 0}}>
+                                    <Paper elevation={1} sx={{ padding: 2, width: '100%', marginBottom: 2, marginLeft: 0 }}>
+                                        <Grid container spacing={1} item xs={12}>
+                                            <Grid item container spacing={1} xs={12} alignItems='center'>
+                                                <Grid item xs={12}>
+                                                    <Typography variant='hsubtitle1' sx={{
+                                                        display: 'inline',
+                                                        fontWeight: 'bold'
+                                                    }}>ID:<Typography variant='subtitle1' color='info.main' sx={{
+                                                        margin: 1,
+                                                        display: 'inline'
+                                                    }}>{job.id}</Typography>
+                                                    </Typography>
 
-                                                        <Typography variant='h5' sx={{
-                                                            display: 'inline',
-                                                            fontWeight: 'bold'
-                                                        }}>ID:<Typography variant='h5' color='info.main' sx={{
-                                                            margin: 1,
-                                                            display: 'inline'
-                                                        }}>{job.id}</Typography>
-                                                        </Typography>
-                                                    </Grid>
-                                                    <Grid item container spacing={1} xs={12} justifyContent='space-between' alignItems='center'>
-                                                        {job.created_at && <LabelWithValue label='Created at:' value={job.created_at} />}
-                                                        {job.started_at && <LabelWithValue label='Started at:' value={job.started_at} />}
-                                                    </Grid>
-                                                    <Grid item container spacing={1} xs={12} justifyContent='space-between' alignItems='center'>
-                                                        {job.status && <LabelWithValue label='Status:' value={<Status name={job.status} />} />}
-                                                        {job.completed_at && <LabelWithValue label='Completed at:' value={job.completed_at} />}
-                                                    </Grid>
-                                                    <Grid item container spacing={1} xs={12} justifyContent='space-between' alignItems='center'>
-                                                        {job.job_type && <LabelWithValue label='Job Type:' value={job.job_type} />}
-                                                    </Grid>
-                                                    {job.payload && <>
-                                                        <Grid item container spacing={1} xs={12} alignItems='center'>
-                                                            <Typography>Payload:</Typography>
-                                                            <Grid item xs={12}>
-                                                                <pre>{payload_pretty}</pre>
-                                                            </Grid>
-
-                                                        </Grid></>
-                                                    }
-                                                    {job.result && <>
-                                                        <Grid item container spacing={1} xs={12} alignItems='center'>
-                                                            <Typography>Result:</Typography>
-                                                            <Grid item xs={12} >
-                                                                <Box component='pre' sx={{
-                                                                    overflow: 'scroll',
-                                                                    height: '200px'
-                                                                }}>{result_pretty}</Box>
-                                                            </Grid>
-
-                                                        </Grid>
-                                                    </>
-                                                    }
                                                 </Grid>
-                                            </Paper>
+                                            </Grid>
+                                            <Grid item container spacing={1} xs={12} alignItems='center' justifyContent='flex-start'>
+                                                <Grid item >
+                                                    {job.created_at && <LabelWithValue label='Created at:' value={job.created_at} />}
+                                                </Grid>
+                                                <Grid item >
+                                                    {job.started_at && <LabelWithValue label='Started at:' value={job.started_at} />}
+                                                </Grid>
+                                            </Grid>
+                                            <Grid item container xs={12} spacing={1} justifyContent='flex-start'>
+                                                <Grid item>
+                                                    <Typography variant='body2' sx={{
+                                                        marginBottom: 0
+                                                    }}>Status:
+                                                    </Typography>
+                                                    <Status name={job.status} />
+                                                </Grid>
+                                                <Grid item>
+                                                    {job.completed_at && <LabelWithValue label='Completed at:' value={job.completed_at} />}
+                                                </Grid>
+                                            </Grid>
+                                            <Grid item container spacing={1} xs={12} justifyContent='space-between' alignItems='center'>
+                                                <Grid item xs={12}>
+                                                    {job.job_type && <LabelWithValue label='Job Type:' value={job.job_type} />}
+                                                </Grid>
+                                            </Grid>
+                                            {job.payload && <>
+                                                <Grid item container spacing={1} xs={12} alignItems='center'>
+                                                    <Grid item xs={12}>
+                                                        <Typography>Payload:</Typography>
+                                                    </Grid>
+                                                    <Grid item xs={12}>
+                                                        <Box
+                                                            paragraph={true}
+                                                            sx={{
+                                                                overflow: 'scroll',
+                                                                '& pre': {
+                                                                    whiteSpace: 'pre-wrap'
+                                                                }
+                                                            }}
+                                                        >
+                                                            <pre>{payload_pretty}</pre>
+                                                        </Box>
 
-                                        </ListItem>
-                                    </>
-                                )
-                            })}
-                        </List>
-                    </Grid>
+                                                    </Grid>
+
+                                                </Grid></>
+                                            }
+                                            {job.result && <>
+                                                <Grid item container spacing={1} xs={12} alignItems='center'>
+                                                    <Grid item xs={12}>
+                                                        <Typography>Result:</Typography>
+                                                    </Grid>
+                                                    <Grid item xs={12} >
+                                                        <Box sx={{
+                                                            display: 'flex',
+                                                            overflow: 'scroll',
+                                                            '& pre': {
+                                                                whiteSpace: 'pre-wrap'
+                                                            }
+                                                        }}
+
+                                                        >
+                                                            <pre>{result_pretty}</pre>
+                                                        </Box>
+                                                    </Grid>
+
+                                                </Grid>
+                                            </>
+                                            }
+                                            <Grid item xs={12}>
+                                                <Button variant="contained" color="primary"
+                                                    startIcon={<DeleteIcon />}
+                                                    onClick={() => {
+                                                        delete_job(job.id);
+                                                    }}
+                                                >
+                                                    Delete
+                                                </Button>
+                                            </Grid>
+
+                                        </Grid>
+                                    </Paper>
+
+                                </ListItem>
+                            )
+                        })}
+                    </List>
                 </Grid>
-            </>
+            </Grid>
 
         );
 

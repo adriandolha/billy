@@ -82,7 +82,7 @@ def lambda_handler(event, context):
     return cors_response
 
 
-def handle_request(context, event, event_path, http_method: str):
+def handle_request(context, event, event_path: str, http_method: str):
     result = None
     if event_path == '/billy/bank_statements/search':
         result = search(event, context)
@@ -98,8 +98,14 @@ def handle_request(context, event, event_path, http_method: str):
         result = jobs.get_all(event, context)
     if event_path == '/billy/jobs' and http_method == 'POST':
         result = jobs.save(event, context)
+    if event_path.startswith('/billy/jobs') and http_method == 'DELETE':
+        result = jobs.delete(event, context)
     if event_path == '/billy/categories' and http_method == 'GET':
         result = categories.get_all(event, context)
     if event_path == '/billy/categories' and http_method == 'POST':
         result = categories.save(event, context)
+    if event_path.startswith('/billy/categories') and http_method == 'DELETE':
+        result = categories.delete(event, context)
+    if event_path.startswith('/billy/categories') and http_method == 'PUT':
+        result = categories.update(event, context)
     return result

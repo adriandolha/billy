@@ -40,3 +40,14 @@ def save(event, context):
         "statusCode": 200,
         "body": json.dumps(job.to_dict())
     }
+
+
+@requires_permission(Permissions.JOB_DELETE)
+def delete(event, context):
+    job_id = event["pathParameters"]['job_id']
+    LOGGER.info(f'Delete job {job_id} request...')
+    job_service.delete(job_id)
+    return {
+        "statusCode": 204,
+        "body": json.dumps('ok')
+    }

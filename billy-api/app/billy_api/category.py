@@ -59,6 +59,16 @@ class CategoryService:
 
         return category
 
+    def delete(self, name: str) -> str:
+        LOGGER.info(f'Delete category {name}')
+        _pk = f'user#{app_context.username}'
+        _sk = f'category#{name}'
+
+        response = self.table.delete_item(Key={'pk': _pk,
+                                               'sk': _sk})
+        LOGGER.debug(f'Delete category response: {response}')
+        return name
+
     def load_from_file(self, file: str) -> list[Category]:
         file_content = self.s3_repo.get(file)
         categories = [Category.from_dict(data) for data in json.loads(file_content)]

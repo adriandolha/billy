@@ -103,16 +103,21 @@ class BankStatementApi:
             [df[col].astype(str).str.lower().str.contains(word.lower(), na=False) for col in df])
         return df.loc[mask.any(axis=1)]
 
+    def search_df(self, df: pd.DataFrame, query: str):
+        _df = df
+        if len(df) > 0:
+            queries = query.split(" ")
+            for q in queries:
+                LOGGER.debug(f'Searching for {q}')
+                _df = self.search_for_word(q, _df)
+        return _df
+
     def search(self, query: str, limit: int = 10, offset: int = 0) -> SearchResult:
         _df = get_data_df()
         total = len(_df)
         LOGGER.info(f'query={query}, offset={offset}, limit={limit}')
         # LOGGER.debug(_df.to_string())
-        if len(_df) > 0:
-            queries = query.split(" ")
-            for q in queries:
-                LOGGER.debug(f'Searching for {q}')
-                _df = self.search_for_word(q, _df)
+        _df = self.search_df(_df, query)
         LOGGER.info(f"Get paginated result...")
         search_count = len(_df)
         _df = _df.sort_values(by='date', ascending=False).iloc[offset:offset + limit]

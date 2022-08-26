@@ -16,7 +16,10 @@ Parameters:
 Resources:
   BillyApi:
     Type: AWS::Serverless::Api
-    Cors: "'*'"
+    Cors:
+      AllowMethods: "'*'"
+      AllowHeaders: "'*'"
+      AllowOrigin: "'*'"
     Properties:
       StageName: Dev
       Auth:
@@ -130,6 +133,13 @@ Resources:
             Method: post
             RestApiId: !Ref BillyApi
 
+        BillyJobsDelete:
+          Type: Api
+          Properties:
+            Path: /billy/jobs/<job_id>
+            Method: delete
+            RestApiId: !Ref BillyApi
+
         BillyCategoriesGet:
           Type: Api
           Properties:
@@ -142,4 +152,18 @@ Resources:
           Properties:
             Path: /billy/categories
             Method: post
+            RestApiId: !Ref BillyApi
+
+        BillyCategoriesDelete:
+          Type: Api
+          Properties:
+            Path: /billy/categories/<category_name>
+            Method: delete
+            RestApiId: !Ref BillyApi
+
+        BillyCategoriesUpdate:
+          Type: Api
+          Properties:
+            Path: /billy/categories/<category_name>
+            Method: put
             RestApiId: !Ref BillyApi

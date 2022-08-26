@@ -28,7 +28,7 @@ class Permission:
     def __eq__(self, other):
         if other is None:
             return False
-        LOGGER.debug(f'Compare permission {self} with {other}')
+        # LOGGER.debug(f'Compare permission {self} with {other}')
         return self.full_name == other.full_name
 
     def to_dict(self):
@@ -227,10 +227,11 @@ def requires_permission(*permissions):
             user = auth_service.get_user(username=username_)
             if not (group_name == user.group.name):
                 LOGGER.debug(f'Cognito user group {group_name}  mismatch existing user group {user.group.name}')
-
                 raise AuthenticationException()
+            LOGGER.debug(f'Required permissions {permissions}')
             for permission in permissions:
                 if not user.group.has_permission(permission.value):
+                    LOGGER.debug(f'User {username_} does not have required permissions.')
                     raise AuthorizationException()
             app_context.user = user
             LOGGER.info(f'Token user is {app_context.username}')

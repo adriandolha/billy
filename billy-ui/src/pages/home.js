@@ -13,7 +13,7 @@ export default function Home() {
         <Fragment>
             <Card sx={{ minWidth: 275 }}>
                 <CardContent>
-                    {currentUser ? <Typography variant='h6' component="h1" align='center' gutterBottom sx={{
+                    {/* {currentUser ? <Typography variant='h6' component="h1" align='center' gutterBottom sx={{
                         color: 'white',
                         backgroundColor: 'primary.main',
                         textTransform: 'uppercase',
@@ -22,7 +22,7 @@ export default function Home() {
 
                     }}>
                         Welcome to Billy
-                    </Typography> : null}
+                    </Typography> : null} */}
                     {currentUser ?
                         <Box sx={{ display: 'flex', justifyContent: 'center' }}>
                             <Avatar alt="" src={`${window.location.origin}/logo.png`} sx={{ width: 200, height: 100 }} />
