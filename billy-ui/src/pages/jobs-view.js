@@ -3,8 +3,9 @@ import { useEffect, useState } from 'react';
 import { Box, CircularProgress, Typography, Chip, Divider } from '@mui/material';
 import { Paper, Grid, List, ListItem, Button } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
+import AddIcon from '@mui/icons-material/Add';
 import { Error, Success } from '../components/messages'
-import { SetMeal } from '@mui/icons-material';
+import AddJob from './add-job';
 
 const Status = ({ name }) => {
     if (name === 'CREATED') {
@@ -39,6 +40,8 @@ function JobsView({ }) {
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState()
     const [displayMessage, setDisplayMessage] = useState()
+    const [open, setOpen] = useState(false);
+
 
     const fetch_jobs = () => JobService.get_all()
         .then(res => {
@@ -100,13 +103,30 @@ function JobsView({ }) {
     if (data) {
         return (
             <Grid container >
-                <Grid item xs={12} disableGutters sx={{marginLeft: 0}}>
-                    <List  sx={{marginLeft: 0}}>
+                <Grid item xs={12}>
+                    <Button variant="contained" color="primary"
+                        startIcon={<AddIcon />}
+                        onClick={() => {
+                            console.log('add job')
+                            setOpen(true)
+                        }}
+                    >
+                        Add
+                    </Button>
+                </Grid>
+                <AddJob open={open} handleClose={() => {
+                    console.log('close')
+                    setOpen(false)
+                }
+                } />
+
+                <Grid item xs={12}  sx={{ marginLeft: 0 }}>
+                    <List sx={{ marginLeft: 0 }}>
                         {data.items.map((job, index) => {
                             const payload_pretty = JSON.stringify(JSON.parse(job.payload), null, 2)
                             const result_pretty = job.result && JSON.stringify(JSON.parse(job.result), null, 2)
                             return (
-                                <ListItem key={`job_${index}`} disableGutters sx={{marginLeft: 0}}>
+                                <ListItem key={`job_${index}`} disableGutters sx={{ marginLeft: 0 }}>
                                     <Paper elevation={1} sx={{ padding: 2, width: '100%', marginBottom: 2, marginLeft: 0 }}>
                                         <Grid container spacing={1} item xs={12}>
                                             <Grid item container spacing={1} xs={12} alignItems='center'>

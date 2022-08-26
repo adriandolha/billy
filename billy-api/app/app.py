@@ -37,6 +37,18 @@ def expenses_per_month(event, context):
 
 
 @requires_permission()
+def avg_expenses_per_category(event, context):
+    LOGGER.info(event)
+    LOGGER.info(context)
+    LOGGER.info(f'Get stats...')
+    result = StatsApi().avg_expenses_per_category()
+    return {
+        "statusCode": 200,
+        "body": json.dumps(result),
+    }
+
+
+@requires_permission()
 def expenses_per_month_and_category(event, context):
     LOGGER.info(event)
     LOGGER.info(context)
@@ -86,6 +98,8 @@ def handle_request(context, event, event_path: str, http_method: str):
     result = None
     if event_path == '/billy/bank_statements/search':
         result = search(event, context)
+    if event_path == '/billy/stats/avg_expenses_per_category':
+        result = avg_expenses_per_category(event, context)
     if event_path == '/billy/stats/expenses_per_month':
         result = expenses_per_month(event, context)
     if event_path == '/billy/stats/expenses_per_month_and_category':

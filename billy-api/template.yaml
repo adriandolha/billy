@@ -119,6 +119,13 @@ Resources:
             Method: get
             RestApiId: !Ref BillyApi
 
+        BillyStatsAvgExpensesPerCategory:
+          Type: Api
+          Properties:
+            Path: /billy/stats/avg_expenses_per_category
+            Method: get
+            RestApiId: !Ref BillyApi
+
         BillyJobsGet:
           Type: Api
           Properties:

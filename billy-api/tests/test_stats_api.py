@@ -20,6 +20,16 @@ class TestDashboardApi:
         assert ['food', 2022, 4, 4] in result['items']
         assert ['phone', 2022, 6, 2] in result['items']
 
+    def test_bank_stats_avg_expenses_per_category(self, config_valid, user_valid, auth_requests, stats_valid):
+        auth_requests.get.return_value.content = json.dumps('bla')
+        event = {'path': '/billy/stats/avg_expenses_per_category',
+                 'requestContext': {'httpMethod': 'GET'},
+                 'headers': {'Authorization': ''}}
+        response = app.lambda_handler(event, [])
+        assert response['statusCode'] == 200
+        result = json.loads(response['body'])
+        print(result)
+
     def test_bank_stats_expenses_per_month_and_category_round_and_abs(self, config_valid, user_valid, auth_requests,
                                                                       stats_valid):
         auth_requests.get.return_value.content = json.dumps('bla')

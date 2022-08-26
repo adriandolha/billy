@@ -23,6 +23,17 @@ class JobService {
             })
         })
     }
+    add_job(job) {
+        return fetch(`${API_URL}/billy/jobs`, {
+            method: 'post',
+            headers: new Headers({
+                ...authHeader(),
+                'Content-Type': 'application/json'
+            }),
+            body: JSON.stringify(job)
+        })
+    }
+
 }
 
 export default new JobService();
