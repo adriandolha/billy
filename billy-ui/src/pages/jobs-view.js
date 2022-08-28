@@ -89,13 +89,6 @@ function JobsView({ }) {
         deleteJobId && delete_job(deleteJobId);
     }, [deleteJobId]);
 
-    if (error) {
-        return <Error message={error} />
-    }
-
-    if (displayMessage) {
-        return <Success message={displayMessage} />
-    }
     if (loading) {
         return (
             <Box sx={{ display: 'flex' }}>
@@ -107,6 +100,8 @@ function JobsView({ }) {
     if (data) {
         return (
             <Grid container >
+                {error && <Error message={error} />}
+                {displayMessage && <Success message={displayMessage} />}
                 <Grid item xs={12}>
                     <Button variant="contained" color="primary"
                         startIcon={<AddIcon />}
@@ -115,7 +110,7 @@ function JobsView({ }) {
                             setOpen(true)
                         }}
                     >
-                        Add
+                        Add Job
                     </Button>
                 </Grid>
                 <AddJob open={open} handleClose={() => {
