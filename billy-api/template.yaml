@@ -143,7 +143,7 @@ Resources:
         BillyJobsDelete:
           Type: Api
           Properties:
-            Path: /billy/jobs/<jobid>
+            Path: /billy/jobs/{jobid}
             Method: delete
             RestApiId: !Ref BillyApi
 
@@ -164,13 +164,13 @@ Resources:
         BillyCategoriesDelete:
           Type: Api
           Properties:
-            Path: /billy/categories/<categoryname>
+            Path: /billy/categories/{categoryname}
             Method: delete
             RestApiId: !Ref BillyApi
 
         BillyCategoriesUpdate:
           Type: Api
           Properties:
-            Path: /billy/categories/<categoryname>
+            Path: /billy/categories/{categoryname}
             Method: put
             RestApiId: !Ref BillyApi
