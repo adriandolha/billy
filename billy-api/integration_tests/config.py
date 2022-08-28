@@ -6,7 +6,7 @@ ssm = boto3.client('ssm')
 
 
 def load_config_from_ssm():
-    env = 'dev'
+    env = 'prod'
     print('Loading config from SSM...')
     ssm_parameters = {
         'api_url': f'/{env}/api_url',
@@ -22,6 +22,7 @@ def load_config_from_ssm():
         'cognito_user_password': f'/{env}/cognito_user_password'
     }
     for env_var_name, ssm_parameter in ssm_parameters.items():
+        print(ssm_parameter)
         ssm_parameter_value = ssm.get_parameter(Name=ssm_parameter, WithDecryption=False)
         # print(ssm_parameter_value)
         os.environ[env_var_name] = ssm_parameter_value['Parameter']['Value']
@@ -30,7 +31,7 @@ def load_config_from_ssm():
 @lru_cache()
 def load_config():
     import json
-    config_file = f"{os.path.expanduser('~')}/.cloud-projects/billy-local-integration.json"
+    config_file = f"{os.path.expanduser('~')}/.cloud-projects/billy-local-integratio.json"
     print(f'Config file is {config_file}')
     if os.path.exists(config_file):
         with open(config_file, "r") as _file:

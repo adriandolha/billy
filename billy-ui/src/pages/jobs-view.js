@@ -38,15 +38,17 @@ const LabelWithValue = ({ label, value }) => {
 function JobsView({ }) {
     const [data, setData] = useState()
     const [loading, setLoading] = useState(true)
+    const [reload, setReload] = useState(false)
     const [error, setError] = useState()
     const [displayMessage, setDisplayMessage] = useState()
     const [open, setOpen] = useState(false);
+    const [deleteJobId, setDeleteJobId] = useState();
 
 
     const fetch_jobs = () => JobService.get_all()
         .then(res => {
             if (!res.ok) {
-                return res.json().then(message => { setLoading(false); throw new Error(message); })
+                return res.text().then(message => { setLoading(false); throw new Error(message); })
             }
             return res.json();
         })
@@ -58,11 +60,11 @@ function JobsView({ }) {
         })
         .catch((error) => {
             console.log(`Error: ${error}`);
-            setError(error.message);
+            setError(JSON.stringify(error, null, 2));
         });
     useEffect(() => {
         fetch_jobs();
-    }, []);
+    }, [reload]);
 
     const delete_job = (job_id) => JobService.delete_job(job_id)
         .then(res => {
@@ -82,8 +84,8 @@ function JobsView({ }) {
         });
 
     useEffect(() => {
-        fetch_jobs();
-    }, [error, displayMessage]);
+        deleteJobId && delete_job(deleteJobId);
+    }, [deleteJobId]);
 
     if (error) {
         return <Error message={error} />
@@ -120,11 +122,13 @@ function JobsView({ }) {
                 }
                 } />
 
-                <Grid item xs={12}  sx={{ marginLeft: 0 }}>
+                <Grid item xs={12} sx={{ marginLeft: 0 }}>
                     <List sx={{ marginLeft: 0 }}>
                         {data.items.map((job, index) => {
-                            const payload_pretty = JSON.stringify(JSON.parse(job.payload), null, 2)
-                            const result_pretty = job.result && JSON.stringify(JSON.parse(job.result), null, 2)
+                            const payload_pretty = (typeof job.payload === 'string' || job.payload instanceof String) &&
+                                JSON.stringify(JSON.parse(job.payload), null, 2)
+                            const result_pretty = (typeof job.result === 'string' || job.result instanceof String) &&
+                                job.result && JSON.stringify(JSON.parse(job.result), null, 2)
                             return (
                                 <ListItem key={`job_${index}`} disableGutters sx={{ marginLeft: 0 }}>
                                     <Paper elevation={1} sx={{ padding: 2, width: '100%', marginBottom: 2, marginLeft: 0 }}>
@@ -215,7 +219,7 @@ function JobsView({ }) {
                                                 <Button variant="contained" color="primary"
                                                     startIcon={<DeleteIcon />}
                                                     onClick={() => {
-                                                        delete_job(job.id);
+                                                        setDeleteJobId(job.id);
                                                     }}
                                                 >
                                                     Delete
