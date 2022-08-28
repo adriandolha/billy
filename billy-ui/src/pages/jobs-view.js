@@ -56,6 +56,7 @@ function JobsView({ }) {
         .then(() => {
             setLoading(false)
             setError(null)
+            setReload(false)
             setDisplayMessage(null)
         })
         .catch((error) => {
@@ -76,6 +77,7 @@ function JobsView({ }) {
         })
         .then(() => {
             setLoading(false)
+            setReload(true)
             setDisplayMessage(`Successfully deleted job ${job_id}`)
         })
         .catch((error) => {
