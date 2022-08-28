@@ -1,6 +1,9 @@
 import json
 import requests
 
+from billy_api.app_context import app_context
+from billy_api.category import CategoryService
+
 
 class TestIntegrationCategoriesApi:
     def test_category_get_all(self, config_valid, id_token, api_url):

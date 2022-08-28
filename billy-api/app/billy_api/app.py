@@ -24,7 +24,7 @@ def setup():
     data_table = CONFIG['ddb_table']
     LOGGER.info(f'Data table is {data_table}')
     ddb_table = ddb.Table(data_table)
-    # ddb_table.delete_item(Key={'pk': 'app', 'sk': 'info'})
+    ddb_table.delete_item(Key={'pk': 'app', 'sk': 'info'})
     response = ddb_table.get_item(Key={'pk': 'app', 'sk': 'info'})
     LOGGER.debug(response)
     if response.get('Item'):

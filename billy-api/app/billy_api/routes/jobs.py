@@ -44,7 +44,7 @@ def save(event, context):
 
 @requires_permission(Permissions.JOB_DELETE)
 def delete(event, context):
-    job_id = event["pathParameters"]['job_id']
+    job_id = event["pathParameters"]['jobid']
     LOGGER.info(f'Delete job {job_id} request...')
     job_service.delete(job_id)
     return {

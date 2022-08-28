@@ -31,7 +31,7 @@ def load_config_from_ssm():
 @lru_cache()
 def load_config():
     import json
-    config_file = f"{os.path.expanduser('~')}/.cloud-projects/billy-local-integratio.json"
+    config_file = f"{os.path.expanduser('~')}/.cloud-projects/billy-local-integration.json"
     print(f'Config file is {config_file}')
     if os.path.exists(config_file):
         with open(config_file, "r") as _file:

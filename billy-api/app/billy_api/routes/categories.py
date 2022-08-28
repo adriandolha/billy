@@ -43,7 +43,7 @@ def save(event, context):
 
 @requires_permission(Permissions.CATEGORY_UPDATE)
 def update(event, context):
-    name = event["pathParameters"]['category_name']
+    name = event["pathParameters"]['categoryname']
 
     body = json.loads(event.get('body'))
     if not (name == body.get('name')):
@@ -76,7 +76,7 @@ def update(event, context):
 
 @requires_permission(Permissions.CATEGORY_DELETE)
 def delete(event, context):
-    name = event["pathParameters"]['category_name']
+    name = event["pathParameters"]['categoryname']
     LOGGER.info(f'Delete category {name} request...')
     category_service.delete(name)
     return {
