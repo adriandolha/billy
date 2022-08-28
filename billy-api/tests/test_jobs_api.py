@@ -41,7 +41,7 @@ class TestJobsApi:
 
         event = {'path': f'/billy/jobs/{result["id"]}',
                  'requestContext': {'httpMethod': 'DELETE'},
-                 'pathParameters': {'job_id': result["id"]},
+                 'pathParameters': {'jobid': result["id"]},
                  'headers': {'Authorization': ''}}
         response = app.lambda_handler(event, [])
         assert response['statusCode'] == 204
