@@ -114,6 +114,7 @@ class JobService:
             update_expression = "set payload=:payload, " \
                                 "completed_at=:completed_at, " \
                                 "created_at=:created_at, " \
+                                "started_at=:started_at, " \
                                 "#status=:status, " \
                                 "#result=:result," \
                                 'lsi1_sk=:lsi1_sk'
@@ -130,6 +131,7 @@ class JobService:
                     ':payload': job_dict['payload'],
                     ':completed_at': job_dict['completed_at'],
                     ':created_at': job_dict['created_at'],
+                    ':started_at': job_dict.get('started_at'),
                     ':status': job_dict['status'],
                     ':result': job_dict['result'],
                     ':lsi1_sk': f'status#{str(job.status.value)}'
