@@ -21,7 +21,7 @@ class TestCategoriesApi:
         auth_requests.get.return_value.content = json.dumps('bla')
         event = {'path': f'/billy/categories/{category_request_valid["name"]}',
                  'requestContext': {'httpMethod': 'PUT'},
-                 'pathParameters': {'category_name': category_request_valid["name"]},
+                 'pathParameters': {'categoryname': category_request_valid["name"]},
                  'headers': {'Authorization': ''},
                  'body': json.dumps(category_request_valid)}
         response = app.lambda_handler(event, [])
@@ -48,7 +48,7 @@ class TestCategoriesApi:
 
         event = {'path': f'/billy/categories/{result["name"]}',
                  'requestContext': {'httpMethod': 'DELETE'},
-                 'pathParameters': {'category_name': result["name"]},
+                 'pathParameters': {'categoryname': result["name"]},
                  'headers': {'Authorization': ''}}
         response = app.lambda_handler(event, [])
         assert response['statusCode'] == 204
