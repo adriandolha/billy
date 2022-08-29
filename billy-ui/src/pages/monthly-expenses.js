@@ -32,14 +32,14 @@ function MonthlyExpenses({ }) {
         {
             field: 'category',
             headerName: 'Category',
-            sortable: false,
+            sortable: true,
             renderCell: (params) => <Category name={params.value} />
         },
         
         {
             field: 'date',
             headerName: 'Date',
-            sortable: false,
+            sortable: true,
             renderCell: (params) => <TransactionDate value={params.value} />
         },
         
@@ -47,7 +47,7 @@ function MonthlyExpenses({ }) {
             field: 'suma',
             headerName: 'Amount',
             type: 'number',
-            sortable: false,
+            sortable: true,
             renderCell: (params) => <Amount value={params.value} />
         }
     ];
