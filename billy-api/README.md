@@ -2,4 +2,4 @@
 Billy API for data, jobs, categories, etc.
 
 ## Deployment
-It uses AWS SAM for deployment.
+It uses AWS SAM for deployment. 
