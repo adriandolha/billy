@@ -18,7 +18,7 @@ phases:
       - sam build
       - sam deploy --config-env $ENV --no-confirm-changeset --no-fail-on-empty-changeset
       - cd $CODEBUILD_SRC_DIR/billy-data
-      - sam build
+      - sam build --parallel --cached
       - sam deploy --config-env $ENV --no-confirm-changeset --no-fail-on-empty-changeset --image-repository "103050589342.dkr.ecr.eu-central-1.amazonaws.com/billy-data"
       - cd $CODEBUILD_SRC_DIR/billy-api
       - sam build
