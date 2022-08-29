@@ -88,6 +88,9 @@ function JobsView({ }) {
     useEffect(() => {
         deleteJobId && delete_job(deleteJobId);
     }, [deleteJobId]);
+    if (error) {
+        return <Error message={error} />
+    }
 
     if (loading) {
         return (
@@ -100,7 +103,6 @@ function JobsView({ }) {
     if (data) {
         return (
             <Grid container >
-                {error && <Error message={error} />}
                 {displayMessage && <Success message={displayMessage} />}
                 <Grid item xs={12}>
                     <Button variant="contained" color="primary"

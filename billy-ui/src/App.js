@@ -16,6 +16,7 @@ import myTheme from "./theme";
 import authService from "./services/auth-service";
 import JobsView from "./pages/jobs-view";
 import CategoriesView from "./pages/categories-view";
+import MonthlyExpenses from "./pages/monthly-expenses";
 const drawerWidth = 240;
 
 class App extends Component {
@@ -52,6 +53,7 @@ class App extends Component {
               <Route path="/categories" element={<CategoriesView />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/bank-statements" element={<BankStatements />} />
+              <Route path="/monthly-expenses" element={<MonthlyExpenses />} />
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </Box>

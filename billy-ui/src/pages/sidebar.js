@@ -42,6 +42,14 @@ export default function Sidebar(props) {
                     <ListItemText primary="Bank Statements" />
                 </ListItemButton>
             </ListItem>
+            <ListItem key="monthly_expenses" disablePadding component={Link} href="/monthly-expenses">
+                <ListItemButton>
+                    <ListItemIcon>
+                        <AccountBalance color={menuColor}/>
+                    </ListItemIcon>
+                    <ListItemText primary="Monthly Expenses" />
+                </ListItemButton>
+            </ListItem>
             <ListItem key="jobs" disablePadding component={Link} href="/jobs">
                 <ListItemButton>
                     <ListItemIcon>

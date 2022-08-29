@@ -12,6 +12,15 @@ class StatsService {
             })
         })
     }
+    expenses_per_month_and_category() {
+        return fetch(`${API_URL}/billy/stats/expenses_per_month_and_category`, {
+            method: 'get',
+            headers: new Headers({
+                'Content-Type': 'application/json',
+                ...authHeader()
+            })
+        })
+    }
     avg_expenses_per_category() {
         return fetch(`${API_URL}/billy/stats/avg_expenses_per_category`, {
             method: 'get',
