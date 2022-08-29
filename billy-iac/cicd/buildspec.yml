@@ -10,7 +10,6 @@ phases:
       - ls $CODEBUILD_SRC_DIR
       - ls $CODEBUILD_SRC_DIR/billy-ui
       - cd billy-ui
-      - ls node_modules
       - npm install --prefer-offline --no-audit
       - npm run build
       - aws s3 sync build s3://www.dev.billy.adolha.com
