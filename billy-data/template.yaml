@@ -28,7 +28,7 @@ Resources:
   BillyDataFunction:
     Type: AWS::Serverless::Function
     Metadata:
-      DockerTag: billy.data-v1
+      DockerTag: !Sub "${Env}.v1"
       DockerContext: ./app
       Dockerfile: Dockerfile
     Properties:
