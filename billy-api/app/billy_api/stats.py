@@ -36,6 +36,7 @@ class StatsApi:
         _df['month'] = pd.DatetimeIndex(_df['date']).month
         _df = _df.groupby(['category', 'year', 'month'], as_index=False).sum()
         _df['suma'] = _df['suma'].round().abs().astype(int)
+        _df = _df.sort_values(by=['year', 'month'], ascending=False)
         LOGGER.info(f"Return result...")
         LOGGER.debug(_df.to_string())
         return {'columns': _df.columns.values.tolist(), 'items': _df.values.tolist()}
