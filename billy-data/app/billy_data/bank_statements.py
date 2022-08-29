@@ -211,8 +211,8 @@ class BankStatementService:
             'file_data': self.extract_data(file_tables)
         }
     
-    def find_category(self, row):
-        _desc = row['desc']
+    def find_category(self, desc):
+        _desc = desc
         _category = 'other'
         for category in self.categories:
             if any([key_word in _desc.lower() for key_word in category.key_words]):
@@ -238,7 +238,7 @@ class BankStatementService:
         dfs_to_concat = [existing_data_df, *dfs] if existing_data_df is not None else dfs
         df_all = pd.concat(dfs_to_concat, ignore_index=True)
         df_all = df_all.drop_duplicates(subset=['category', 'date', 'suma'], ignore_index=True)
-        df_all['category'] = df_all.apply(self.find_category)
+        df_all['category'] = df_all['desc'].apply(lambda desc: self.find_category(desc))
         self.data_repo.save(destination_file, bytes(df_all.to_json().encode('utf-8')))
         return {
             'data_file': destination_file,
