@@ -3,6 +3,7 @@ import StatsService from '../services/stats'
 import { useEffect, useState } from 'react';
 import { Box, CircularProgress, Typography, Chip } from '@mui/material';
 import DataTable from '../components/data-table';
+import SimpleTable from '../components/simple-table'
 import SearchInput from '../components/search'
 import { Error } from '../components/messages'
 
@@ -95,9 +96,8 @@ function MonthlyExpenses({ }) {
         return (
             <>
                 <SearchInput handleSearch={handleSearch} />
-                <DataTable columns={columns} rows={rows} rowCount={rowCount}
-                    page={page} pageSize={pageSize}
-                    setPage={setPage} setPageSize={setPageSize} />
+                <SimpleTable columns={columns} rows={rows} rowCount={rowCount}
+                     />
             </>
 
         );
