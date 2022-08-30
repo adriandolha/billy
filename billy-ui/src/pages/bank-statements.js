@@ -23,7 +23,7 @@ const Desc = ({ desc }) => {
     return (
         <div>
             <Button size='small' variant="outlined" onClick={handleClick} sx={{display:'inline'}}>
-                View Details
+                View
             </Button>
             <Typography sx={{ p: 2, display:'inline' }}>{desc}</Typography>
             
