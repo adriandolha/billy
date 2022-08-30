@@ -51,7 +51,7 @@ function BankStatements({ }) {
             headerName: 'Description',
             width: 500,
             sortable: false,
-            renderCell: (params) => <Typography variant='body' paragraph={true}>{params.value}<Typography>
+            renderCell: (params) => <Typography variant='body' paragraph={true}>{params.value}</Typography>
         }
     ];
 
