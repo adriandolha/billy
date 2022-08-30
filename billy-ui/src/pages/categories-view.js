@@ -8,6 +8,32 @@ const KeyWords = ({ key_words }) => {
     return key_words.map((kew_word) => <Chip color='secondary' key={kew_word} label={kew_word} />)
 }
 
+const Category = ({ category }) => {
+    return <ListItem key={category.name} href="/dashboard">
+        <Paper elevation={1} sx={{ width: '100%', padding: 2 }}>
+            <Grid container spacing={1}>
+                <Grid item xs={12}>
+                    <Box>
+                        <Chip label={category.name} color='primary' variant='outlined' />
+                    </Box>
+                </Grid>
+                <Grid item xs={12}>
+                    <Divider />
+                </Grid>
+                <Grid item xs={12} >
+                    {category.key_words.map((kew_word) => {
+                        return (<Chip color='secondary' key={kew_word} label={kew_word} sx={{
+                            margin: 0.5
+                        }} />)
+
+                    })}
+                </Grid>
+            </Grid>
+        </Paper>
+
+    </ListItem>
+
+}
 function CategoriesView({ }) {
     const [data, setData] = useState()
     const [loading, setLoading] = useState(true)
@@ -75,31 +101,7 @@ function CategoriesView({ }) {
                 <List>
                     {data.items.map((category) => {
                         return (
-                            <>
-                                <ListItem key="category.name" href="/dashboard">
-                                    <Paper elevation={1} sx={{ width: '100%',  padding: 2 }}>
-                                        <Grid container spacing={1}>
-                                            <Grid item xs={12}>
-                                                <Box>
-                                                    <Chip label={category.name} color='primary' variant='outlined' />
-                                                </Box>
-                                            </Grid>
-                                            <Grid item xs={12}>
-                                                <Divider />
-                                            </Grid>
-                                            <Grid item xs={12} >
-                                                {category.key_words.map((kew_word) => {
-                                                    return (<Chip color='secondary' key={kew_word} label={kew_word} sx={{
-                                                        margin: 0.5
-                                                    }}/>)
-
-                                                })}
-                                            </Grid>
-                                        </Grid>
-                                    </Paper>
-
-                                </ListItem>
-                            </>
+                            <Category category={category} />
                         )
                     })}
                 </List>

@@ -6,6 +6,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import { Error, Success } from '../components/messages'
 import AddJob from './add-job';
+import RefreshIcon from '@mui/icons-material/Refresh';
 
 const Status = ({ name }) => {
     if (name === 'CREATED') {
@@ -114,6 +115,9 @@ function JobsView({ }) {
                     >
                         Add Job
                     </Button>
+                    <Button onClick={() => {
+                        setReload(true)
+                    }}><RefreshIcon /></Button>
                 </Grid>
                 <AddJob open={open} handleClose={(message) => {
                     console.log('close')

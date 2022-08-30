@@ -326,6 +326,7 @@ class BankStatementInfo:
     def from_raw_data_requested(df: pd.DataFrame, categories: list[Category]) -> BankStatementInfo:
         date_pattern_from_to = "din (\d{2})/(\d{2})/(\d{4}) - (\d{2})/(\d{2})/(\d{4})"
         date_pattern_from = "din.*(\d{2})/(\d{2})/(\d{4})"
+        # date_row_index = df.loc[df['Unnamed: 0'].str.startswith('EXTRAS CONT')].index.values[0]
         date_row_index = df.loc[df['Unnamed: 0'].str.startswith('EXTRAS CONT Numarul')].index.values[0]
         raw_date = df.iloc[date_row_index]['Unnamed: 2']
         matches = re.match(date_pattern_from_to, raw_date) or re.match(date_pattern_from, raw_date)
@@ -370,6 +371,8 @@ class BankStatementEntry:
     def from_raw_data(date: str, desc: str, suma: str, bank_statement_info: BankStatementInfo):
         LOGGER.debug(f'Creating bank entry from [{date}, {desc}, {suma}]')
         _suma = BankStatementEntry.convert_suma_to_float(suma, bank_statement_info.separator)
+        if _suma and _suma > 0 and bank_statement_info.currency == 'EUR':
+            _suma = _suma * 5
         std_date = local_date_to_standard(date)
         _date = datetime.datetime.strptime(f'{std_date}-{bank_statement_info.year}', '%d-%b-%Y')
         _category = 'other'
@@ -385,7 +388,9 @@ class BankStatementEntry:
         if len(_suma_parts) > 0:
             _suma = _suma_parts[-1]
         LOGGER.debug(f'Suma is {suma}, separator is {separator}')
-        return float(_suma.replace('.', '').replace(',', '.')) if separator == ',' else float(_suma.replace(',', ''))
+        _suma = float(_suma.replace('.', '').replace(',', '.')) if separator == ',' else float(
+            _suma.replace(',', ''))
+        return _suma
 
     @staticmethod
     def find_date(text: str):
@@ -791,14 +796,20 @@ class BankStatementDataRequested:
         tables = []
         while len(section_strt_dfq) > 0:
             start_idx = section_strt_dfq.index.values[0] + 2
+            LOGGER.debug(f'section start index {start_idx}')
             section_end_dfq = df.query(f"`{self.cols[0]}`.str.contains('{section_end_text}')"
                                        f"& index > {start_idx}"
                                        )
-            if len(section_end_dfq) == 0:
-                section_end_dfq = df.query(f"`{self.cols[1]}`.str.contains('{section_end_text}')"
-                                           f"& index > {start_idx}"
-                                           )
-            end_idx = section_end_dfq.index.values[0]
+            LOGGER.debug(f'section end index col 1 {len(section_end_dfq)}')
+            end_idx = start_idx + 1
+            if len(section_end_dfq) > 0:
+                end_idx = section_end_dfq.index.values[0]
+
+            section_end_dfq_col2 = df.query(f"`{self.cols[1]}`.str.contains('{section_end_text}')"
+                                       f"& index > {start_idx}")
+            if len(section_end_dfq_col2) > 0:
+                end_idx = min(end_idx, section_end_dfq_col2.index.values[0])
+            LOGGER.debug(f'section end index {end_idx}')
             section_strt_dfq = df.query(f"`{self.cols[0]}`.str.contains('{section_start_text}')"
                                         f"& index > {end_idx}"
                                         )
@@ -828,7 +839,7 @@ class BankStatementDataRequested:
 
     def transform(self) -> pd.DataFrame:
         LOGGER.debug('Raw df...')
-        LOGGER.debug(self.df.to_string())
+        # LOGGER.debug(self.df.to_string())
         for col in self.cols:
             self.col_to_str(col)
         tables = self.extract_data_tables()
