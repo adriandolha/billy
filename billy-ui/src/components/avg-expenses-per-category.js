@@ -37,8 +37,9 @@ function AvgExpensesPerCategory({ }) {
 
     }
     if (data) {
-        const _categories = data.items.map(item => `${item[0]}`)
-        const _values = data.items.map(item => item[1])
+        const _items = data.items.filter(item => item[0] !== 'other')
+        const _categories = _items.map(item => `${item[0]}`)
+        const _values = _items.map(item => item[1])
         const state = {
             options: {
                 chart: {
