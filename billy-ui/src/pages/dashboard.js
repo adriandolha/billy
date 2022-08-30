@@ -58,9 +58,9 @@ const AvgRecurrentExpenses = () => {
     if (value > 0) {
         console.log(`Display Value is ${value}`)
 
-        return <Grid item container xs={4} spacing={1} sx={{
+        return <Grid item container xs={10} md={4} spacing={1} sx={{
         }}>
-            <Grid item xs={3}>
+            <Grid item xs={5}>
                 <RepeatIcon sx={{
                     backgroundColor: 'success.light',
                     borderRadius: 1,
@@ -70,15 +70,16 @@ const AvgRecurrentExpenses = () => {
                 }} />
 
             </Grid>
-            <Grid item container xs={9} spacing={1} direction='column'>
+            <Grid item container xs={7} spacing={1} direction='column'>
                 <Typography justifyContent='center' sx={{
                     display: 'flex',
                     padding: 1,
+                    fontSize: 10,
                     fontWeight: 'bold'
                 }}>Avg Recurrent Expenses</Typography>
                 <Typography justifyContent='center' sx={{
                     display: 'flex',
-                    fontSize: 50,
+                    fontSize: 40,
                     color: 'success.dark',
                     fontWeight: 'bold'
                 }}>{value}</Typography>
