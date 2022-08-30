@@ -371,7 +371,7 @@ class BankStatementEntry:
     def from_raw_data(date: str, desc: str, suma: str, bank_statement_info: BankStatementInfo):
         LOGGER.debug(f'Creating bank entry from [{date}, {desc}, {suma}]')
         _suma = BankStatementEntry.convert_suma_to_float(suma, bank_statement_info.separator)
-        if _suma and _suma > 0 and bank_statement_info.currency == 'EUR':
+        if _suma and bank_statement_info.currency == 'EUR':
             _suma = _suma * 5
         std_date = local_date_to_standard(date)
         _date = datetime.datetime.strptime(f'{std_date}-{bank_statement_info.year}', '%d-%b-%Y')
