@@ -1,4 +1,5 @@
 import logging
+import os
 
 logging.basicConfig(format='%(name)s %(asctime)s.%(msecs)03dZ %(levelname)s:%(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 logging.getLogger('faker').setLevel(logging.ERROR)
@@ -16,4 +17,5 @@ logging.getLogger('botocore.httpsession').setLevel(logging.ERROR)
 logging.getLogger('botocore.loaders').setLevel(logging.ERROR)
 
 LOGGER = logging.getLogger('billy')
-LOGGER.setLevel('ERROR')
+LOGGER.setLevel(os.getenv('log_level',default='ERROR'))
+

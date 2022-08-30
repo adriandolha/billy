@@ -1,9 +1,47 @@
 import BankStatementService from '../services/bank-statements';
-import { useEffect, useState } from 'react';
-import { Box, CircularProgress, Typography, Chip } from '@mui/material';
+import { useEffect, useState, MouseEvent } from 'react';
+import { Box, CircularProgress, Typography, Chip, Button } from '@mui/material';
 import DataTable from '../components/data-table';
 import SearchInput from '../components/search'
 import { Error } from '../components/messages'
+import Popover from '@mui/material/Popover';
+
+const Desc = ({ desc }) => {
+    const [anchorEl, setAnchorEl] = useState(null);
+
+    const handleClick = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
+
+    const open = Boolean(anchorEl);
+    const id = open ? 'simple-popover' : undefined;
+
+    return (
+        <div>
+            <Button size='small' variant="outlined" onClick={handleClick} sx={{display:'inline'}}>
+                View Details
+            </Button>
+            <Typography sx={{ p: 2, display:'inline' }}>{desc}</Typography>
+            
+            <Popover
+                id={id}
+                open={open}
+                anchorEl={anchorEl}
+                onClose={handleClose}
+                anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'left',
+                }}
+            >
+                <Typography sx={{ p: 2 }}>{desc}</Typography>
+            </Popover>
+        </div>
+    );
+}
 
 const Category = ({ name }) => {
     return <Chip label={name} color='secondary' variant='outlined' />
@@ -51,7 +89,7 @@ function BankStatements({ }) {
             headerName: 'Description',
             width: 500,
             sortable: false,
-            renderCell: (params) => <Typography variant='body' paragraph={true}>{params.value}</Typography>
+            renderCell: (params) => <Desc desc={params.value}></Desc>
         }
     ];
 

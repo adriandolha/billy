@@ -115,9 +115,11 @@ function JobsView({ }) {
                         Add Job
                     </Button>
                 </Grid>
-                <AddJob open={open} handleClose={() => {
+                <AddJob open={open} handleClose={(message) => {
                     console.log('close')
                     setOpen(false)
+                    setReload(true)
+                    message && setDisplayMessage(message)
                 }
                 } />
 

@@ -12,6 +12,9 @@ Parameters:
   Env:
     Type: String
     Description: Environment.
+  LogLevel:
+    Type: String
+    Description: Log level.
 
 Resources:
   BillyDataDLQ:
@@ -40,6 +43,7 @@ Resources:
           data_bucket: !Sub "{{resolve:ssm:/${Env}/data_bucket}}"
           ddb_table: !Sub "{{resolve:ssm:/${Env}/data_table}}"
           sns_topic: !Sub "{{resolve:ssm:/${Env}/sns_topic_arn}}"
+          log_level: !Sub "${LogLevel}"
       Architectures:
         - x86_64
       Policies:

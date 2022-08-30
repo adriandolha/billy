@@ -160,3 +160,19 @@ class TestBankStatementAPI:
         assert provider.yahoo_password == bank_statement_provider_valid.yahoo_password
         assert provider.yahoo_port == bank_statement_provider_valid.yahoo_port
         assert provider.card_statement_pdf_password == bank_statement_provider_valid.card_statement_pdf_password
+
+    def test_bank_statement_transform_(self, config_valid, yahoo_config_valid, process_event_valid,
+                                       transform_event_valid):
+        # files = [f'{config_valid["cognito_user"]}/bank_statements/upload/bank_statement_5101.pdf']
+        files = [f'{config_valid["cognito_user"]}/bank_statements/upload/RO13BTRL01301201C53812XX-2.pdf']
+        tf_payload = {'op': 'transform',
+                      'username': config_valid['cognito_user'],
+                      'files': files}
+        result = transform(tf_payload)
+        tf_results = result['transform']
+        print(tf_results)
+        assert len(tf_results) > 0
+        assert tf_results[0][tf_payload['files'][0]]['status'] == 'success'
+        data_file = tf_results[0][tf_payload['files'][0]]['result']['file_data']
+        print(data_file)
+        # assert data_file == f'{config_valid["cognito_user"]}/bank_statements/data/bank_statement_4724_feb_2022.json'

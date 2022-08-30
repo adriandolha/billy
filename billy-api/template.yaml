@@ -12,6 +12,9 @@ Parameters:
   Env:
     Type: String
     Description: Environment.
+  LogLevel:
+    Type: String
+    Description: Log level.
 
 Resources:
   BillyApi:
@@ -41,6 +44,7 @@ Resources:
           cognito_user_pool_id: !Sub "{{resolve:ssm:/${Env}/cognito_user_pool_id}}"
           cognito_client_id: !Sub "{{resolve:ssm:/${Env}/cognito_client_id}}"
           cognito_redirect_uri: !Sub "{{resolve:ssm:/${Env}/cognito_redirect_uri}}"
+          log_level: !Sub "${LogLevel}"
       CodeUri: app/
       Handler: app.lambda_handler
       Runtime: python3.9

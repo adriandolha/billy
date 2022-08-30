@@ -210,7 +210,7 @@ class BankStatementService:
             'file_tables': file_tables,
             'file_data': self.extract_data(file_tables)
         }
-    
+
     def find_category(self, desc):
         _desc = desc
         _category = 'other'
@@ -250,7 +250,7 @@ class BankStatementService:
         destination_file = self.paths.tables_file(from_file.replace('.pdf', '.csv'))
         with tempfile.NamedTemporaryFile() as input_file:
             with tempfile.NamedTemporaryFile() as output_file:
-                print(input_file.name)
+                # print(input_file.name)
                 input_file.write(data_repo.read(file_name=from_file))
                 input_file.seek(0)
                 tabula.convert_into(input_file.name, output_file.name, output_format="csv", pages='all', stream=True,
@@ -288,6 +288,7 @@ class BankStatementInfo:
     categories: list[Category]
     separator: str = ','
     statement_type: BankStatementType = BankStatementType.GENERATED
+    currency: str = 'RON'
 
     @staticmethod
     def from_raw_data_generated(df: pd.DataFrame, categories: list[Category]) -> BankStatementInfo:
@@ -323,19 +324,25 @@ class BankStatementInfo:
 
     @staticmethod
     def from_raw_data_requested(df: pd.DataFrame, categories: list[Category]) -> BankStatementInfo:
-        date_pattern = "din (\d{2})/(\d{2})/(\d{4}) - (\d{2})/(\d{2})/(\d{4})"
+        date_pattern_from_to = "din (\d{2})/(\d{2})/(\d{4}) - (\d{2})/(\d{2})/(\d{4})"
+        date_pattern_from = "din.*(\d{2})/(\d{2})/(\d{4})"
         date_row_index = df.loc[df['Unnamed: 0'].str.startswith('EXTRAS CONT Numarul')].index.values[0]
         raw_date = df.iloc[date_row_index]['Unnamed: 2']
-        matches = re.match(date_pattern, raw_date)
+        matches = re.match(date_pattern_from_to, raw_date) or re.match(date_pattern_from, raw_date)
         groups = list(matches.groups())
         _year = None
         _month = None
-        if len(groups) == 6:
+        if len(groups) >= 3:
             _year = int(groups[2])
             _month = month_number_to_short_name(groups[1])
             LOGGER.debug(f'Bank statement requested for month {_month} and year {_year}.')
+        currency = 'RON'
+        if len(df.loc[df['Unnamed: 0'].str.contains('EUR Cod IBAN')]) > 0:
+            currency = 'EUR'
+            LOGGER.debug('Found EUR statement.')
+
         return BankStatementInfo(month_short_name=_month, year=_year, separator='.',
-                                 statement_type=BankStatementType.REQUESTED, categories=categories)
+                                 statement_type=BankStatementType.REQUESTED, categories=categories, currency=currency)
 
 
 def local_date_to_standard(date: str):
@@ -377,6 +384,7 @@ class BankStatementEntry:
         _suma_parts = suma.split(' ')
         if len(_suma_parts) > 0:
             _suma = _suma_parts[-1]
+        LOGGER.debug(f'Suma is {suma}, separator is {separator}')
         return float(_suma.replace('.', '').replace(',', '.')) if separator == ',' else float(_suma.replace(',', ''))
 
     @staticmethod
@@ -747,17 +755,17 @@ class BankStatementDataRequested:
         self.df[col].fillna('', inplace=True)
         self.df[col] = self.df[col].astype(str)
 
-    def extract_data_table(self):
-        df = self.df
-        first_row = df.loc[df[self.cols[0]].str.contains(self.data_table_start_pattern)]
-        last_row = df.loc[df[self.cols[1]].str.contains(self.data_table_end_pattern)]
-        df = df.iloc[first_row.index.values[0] + 2:last_row.index.values[0]]
-        page_footer_start_row = df.loc[df[self.cols[0]].str.contains('BANCA TRANSILVANIA S. A.')]
-        start_index = page_footer_start_row.index.values[0]
-        page_header_start_row = df.query(f"`{self.cols[0]}`.str.contains('Data') and index > {start_index}")
-        end_index = page_header_start_row.index.values[0] + 1
-        df.drop(range(start_index, end_index), inplace=True)
-        return df
+    # def extract_data_table(self):
+    #     df = self.df
+    #     first_row = df.loc[df[self.cols[0]].str.contains(self.data_table_start_pattern)]
+    #     last_row = df.loc[df[self.cols[1]].str.contains(self.data_table_end_pattern)]
+    #     df = df.iloc[first_row.index.values[0] + 2:last_row.index.values[0]]
+    #     page_footer_start_row = df.loc[df[self.cols[0]].str.contains('BANCA TRANSILVANIA S. A.')]
+    #     start_index = page_footer_start_row.index.values[0]
+    #     page_header_start_row = df.query(f"`{self.cols[0]}`.str.contains('Data') and index > {start_index}")
+    #     end_index = page_header_start_row.index.values[0] + 1
+    #     df.drop(range(start_index, end_index), inplace=True)
+    #     return df
 
     def is_section_end(self, row: dict) -> bool:
         return ('SOLD FINAL ZI' in row[self.cols[0]]) or ('SOLD FINAL ZI' in row[self.cols[1]])
@@ -771,13 +779,72 @@ class BankStatementDataRequested:
     def is_section_footer(self, row: dict) -> bool:
         return self.is_day_pl(row) or self.is_section_end(row)
 
+    def extract_data_tables(self) -> list[dict]:
+        df = self.df
+        section_start_text = "SOLD ANTERIOR"
+        section_end_text = "RULAJ TOTAL CONT"
+        LOGGER.info('Extracting data tables...')
+
+        section_strt_dfq = df.query(f"`{self.cols[0]}`.str.contains('{section_start_text}')"
+                                    f"& index > 0"
+                                    )
+        tables = []
+        while len(section_strt_dfq) > 0:
+            start_idx = section_strt_dfq.index.values[0] + 2
+            section_end_dfq = df.query(f"`{self.cols[0]}`.str.contains('{section_end_text}')"
+                                       f"& index > {start_idx}"
+                                       )
+            if len(section_end_dfq) == 0:
+                section_end_dfq = df.query(f"`{self.cols[1]}`.str.contains('{section_end_text}')"
+                                           f"& index > {start_idx}"
+                                           )
+            end_idx = section_end_dfq.index.values[0]
+            section_strt_dfq = df.query(f"`{self.cols[0]}`.str.contains('{section_start_text}')"
+                                        f"& index > {end_idx}"
+                                        )
+            if end_idx > start_idx:
+                _df = df.iloc[start_idx:end_idx]
+                remove_page_footer = True
+                while remove_page_footer:
+                    remove_page_footer = False
+                    page_footer_start_row = _df.loc[df[self.cols[0]].str.contains('BANCA TRANSILVANIA S. A.')]
+                    if len(page_footer_start_row) > 0:
+                        start_index = page_footer_start_row.index.values[0]
+                        page_header_start_row = _df.query(
+                            f"`{self.cols[0]}`.str.contains('Data') and index > {start_index}")
+                        if len(page_header_start_row) == 0:
+                            end_index = _df.last_valid_index()
+                        else:
+                            end_index = page_header_start_row.index.values[0] + 1
+
+                        if end_index > start_index:
+                            remove_page_footer = (end_index > start_index)
+                            if remove_page_footer:
+                                LOGGER.debug(f'Remove page footer from {start_index} to {end_index}')
+                                _df.drop(range(start_index, end_index), inplace=True)
+                tables.append({'section': {'start_idx': start_idx, 'end_dx': end_idx},
+                               'table': _df})
+        return tables
+
     def transform(self) -> pd.DataFrame:
+        LOGGER.debug('Raw df...')
+        LOGGER.debug(self.df.to_string())
+        for col in self.cols:
+            self.col_to_str(col)
+        tables = self.extract_data_tables()
+        dfs = []
+        for item in tables:
+            LOGGER.info(f'Processing section {item["section"]}')
+            dfs.append(self.transform_table(item['table']))
+        return pd.concat(dfs, ignore_index=True)
+
+    def transform_table(self, table_df: pd.DataFrame) -> pd.DataFrame:
         for col in self.cols:
             self.col_to_str(col)
         bank_statement_info = self.bank_statement_info
         last_entries = []
         _df = pd.DataFrame(columns=['date', 'desc', 'suma'])
-        df = self.extract_data_table()
+        df = table_df
         date_pattern = "^(\d{2})/(\d{2})/(\d{4})(.*)"
         crt_date = None
         suma = None

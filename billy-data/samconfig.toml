@@ -15,7 +15,8 @@ confirm_changeset = true
 capabilities = "CAPABILITY_IAM"
 disable_rollback = false
 parameter_overrides = [
-    "Env=\"dev\""
+    "Env=\"dev\"",
+    "LogLevel=\"ERROR\""
     ]
 image_repositories = []
 
@@ -28,6 +29,7 @@ confirm_changeset = true
 capabilities = "CAPABILITY_IAM"
 disable_rollback = false
 parameter_overrides = [
-    "Env=\"prod\""
+    "Env=\"prod\"",
+    "LogLevel=\"ERROR\""
     ]
 image_repositories = []

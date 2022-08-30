@@ -17,11 +17,13 @@ import Select, { SelectChangeEvent } from '@mui/material/Select';
 import Switch from '@mui/material/Switch';
 import JobService from '../services/jobs'
 import { Error, Success } from '../components/messages'
+import TextField from '@mui/material/TextField';
 
 function AddJob({ open, handleClose }) {
     const username = AuthService.getCurrentUser().user.username
     const [jobType, setJobType] = useState('LOAD_ALL')
     const [searchCriteria, setSearchCriteria] = useState('Extras de cont Star Gold - ')
+    const [filesText, setFilesText] = useState('ALL')
     const [since, setSince] = useState('11-Jul-2022')
     const [data, setData] = useState()
     const [loading, setLoading] = useState(true)
@@ -45,6 +47,11 @@ function AddJob({ open, handleClose }) {
                     subjects: [searchCriteria],
                     since: since
                 }
+                break;
+            case 'TRANSFORM':
+                payload.username = username
+                payload.op = 'transform'
+                payload.files = filesText.split(/\r?\n/)
                 break;
             case 'LOAD_ALL':
                 payload.username = username
@@ -78,6 +85,7 @@ function AddJob({ open, handleClose }) {
             setLoading(false)
             setError(null)
             setDisplayMessage(null)
+            handleClose('Successfully added job.')
         })
         .catch((error) => {
             console.log(`Error`);
@@ -121,6 +129,7 @@ function AddJob({ open, handleClose }) {
                                         >
                                             <MenuItem value='PROCESS_ALL'>PROCESS_ALL</MenuItem>
                                             <MenuItem value='PROCESS_LAST_THREE'>PROCESS_LAST_THREE</MenuItem>
+                                            <MenuItem value='TRANSFORM'>TRANSFORM</MenuItem>
                                             <MenuItem value='LOAD_ALL'>LOAD_ALL</MenuItem>
                                             <MenuItem value='TEST'>TEST</MenuItem>
                                         </Select>
@@ -151,6 +160,22 @@ function AddJob({ open, handleClose }) {
                                         </FormControl>
                                     </Grid>
                                 }
+                                {jobType === 'TRANSFORM' &&
+                                    <Grid item xs={12} md={12}>
+                                        <TextField
+                                            id="tf-files"
+                                            label=""
+                                            placeholder="Enter files to transform"
+                                            multiline
+                                            fullWidth
+                                            onChange={(e) => {
+                                                console.log(e.target.value)
+                                                const val = e.target.value
+                                                setFilesText(val)
+                                            }}
+                                        />
+                                    </Grid>
+                                }
                             </Grid>
                         </Grid>
                         <Grid item container spacing={1} xs={12}>
@@ -160,7 +185,7 @@ function AddJob({ open, handleClose }) {
                                     onClick={(e) => {
                                         e.preventDefault()
                                         console.log('add new job')
-                                        const job = {job_type: jobType, payload:JSON.stringify(get_payload(jobType))}
+                                        const job = { job_type: jobType, payload: JSON.stringify(get_payload(jobType)) }
                                         console.log(job)
                                         add_job(job)
                                     }}
