@@ -110,7 +110,7 @@ function Dashboard({ }) {
                 }}
                     justifyContent='center'
                 >
-                    <Typography variant='h5' alignContent="center" sx={{ padding: 1 }}>Avg Expenses per Category</Typography>
+                    <Typography variant='h5' alignContent="center" sx={{ padding: 1, fontSize: 14 }}>Avg Expenses per Category</Typography>
                 </Grid>
                 <Grid item>
                     <AvgExpensesPerCategory />
@@ -124,7 +124,7 @@ function Dashboard({ }) {
                 }}
                     justifyContent='center'
                 >
-                    <Typography variant='h5' alignContent="center" sx={{ padding: 1 }}>Expenses per Month</Typography>
+                    <Typography variant='h5' alignContent="center" sx={{ padding: 1, fontSize:14 }}>Expenses per Month</Typography>
                 </Grid>
                 <Grid item>
                     <ExpensesPerMonth />
