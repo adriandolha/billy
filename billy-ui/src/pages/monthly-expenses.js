@@ -88,10 +88,12 @@ function MonthlyExpenses({ }) {
     }
     if (data) {
         // console.log(data);
-        const rows = data.items.map((item, index) => {
+        let rows = data.items.map((item, index) => {
             return { id: index, category: item[0], date: `${item[1]}-${item[2]}`,year: item[1], month: item[2] ,suma: item[3] }
         });
-
+        if (query) {
+            rows = rows.filter(row => query.split(/(\s+)/).some(q => row.category.includes(q) || row.date.includes(q)))
+        }
         const rowCount = data.search_count
         return (
             <>
