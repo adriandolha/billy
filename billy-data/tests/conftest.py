@@ -154,10 +154,10 @@ def bank_statements_mocks(config_valid, temp_file_mock, bank_statements_data_rep
 @pytest.fixture()
 def bank_statement_df_transformed_json_valid(pd_read_csv, categories):
     df = pd.DataFrame([
-        ['food','2022-06-20', 'glovo entry 1', -1],
-        ['food','2022-06-21', 'glovo entry 2', -2],
+        ['food', '2022-06-20', 'glovo entry 1', -1],
+        ['food', '2022-06-21', 'glovo entry 2', -2],
         ['phone', '2022-06-21', 'orange', -2],
-    ], columns=['category','date', 'desc', 'suma'])
+    ], columns=['category', 'date', 'desc', 'suma'])
     return df.to_json()
 
 
@@ -330,6 +330,34 @@ def bank_statement_requested_valid(pd_read_csv, categories):
         [np.nan, 'cv fact. 37634;CHECK66Clinica  Medicala Gynera', np.nan],
         [np.nan, 'SRL;RO16BREL0262980313530190;BRELROBU', np.nan],
         [np.nan, 'REF. F13EACH212080035', np.nan],
+
+        ['27/07/2021', 'RULAJ ZI', '25.01 0.0'],
+        [np.nan, 'SOLD FINAL ZI', '100'],
+        [np.nan, np.nan, np.nan],
+        [np.nan, np.nan, np.nan],
+
+        ['31/07/2021', 'Abonament BT 24', '5.00'],
+        [np.nan, 'REF. F13EACH212080035', np.nan],
+
+        ['31/07/2021', 'RULAJ TOTAL CONT', '100.00 11.01'],
+        [np.nan, 'SOLD FINAL CONT', '100'],
+        [np.nan, np.nan, np.nan],
+    ], columns=['Unnamed: 0', 'Unnamed: 1', 'Unnamed: 2'])
+    pd_read_csv.return_value = df
+    yield df
+
+
+@pytest.fixture()
+def bank_statement_requested_currency_eur(pd_read_csv, categories):
+    df = pd.DataFrame([
+        ['EXTRAS CONT Numarul: 7 EUR Cod IBAN', '', 'din 01/07/2021 - 31/07/2021'],
+        ['Cumparaturi la parteneri Star Card', np.nan, np.nan],
+        ['DATA DESCRIERE', np.nan, 'Debit Credit'],
+        ['SOLD ANTERIOR', np.nan, '1.0'],
+        [np.nan, np.nan, np.nan],
+
+        ['07/07/2021 test currency entry', np.nan, '1.0'],
+
 
         ['27/07/2021', 'RULAJ ZI', '25.01 0.0'],
         [np.nan, 'SOLD FINAL ZI', '100'],

@@ -324,6 +324,8 @@ class BankStatementInfo:
 
     @staticmethod
     def from_raw_data_requested(df: pd.DataFrame, categories: list[Category]) -> BankStatementInfo:
+        LOGGER.debug('Finding bank statement info...')
+        LOGGER.debug(df.to_string())
         date_pattern_from_to = "din (\d{2})/(\d{2})/(\d{4}) - (\d{2})/(\d{2})/(\d{4})"
         date_pattern_from = "din.*(\d{2})/(\d{2})/(\d{4})"
         # date_row_index = df.loc[df['Unnamed: 0'].str.startswith('EXTRAS CONT')].index.values[0]
@@ -785,45 +787,53 @@ class BankStatementDataRequested:
         while len(section_strt_dfq) > 0:
             start_idx = section_strt_dfq.index.values[0] + 2
             LOGGER.debug(f'section start index {start_idx}')
-            section_end_dfq = df.query(f"`{self.cols[0]}`.str.contains('{section_end_text}')"
+            section_end_dfq = df.query(f"(`{self.cols[0]}`.str.contains('{section_end_text}')"
+                                       f" | `{self.cols[1]}`.str.contains('{section_end_text}'))"
                                        f"& index > {start_idx}"
                                        )
             LOGGER.debug(f'section end index col 1 {len(section_end_dfq)}')
-            end_idx = start_idx + 1
+            # end_idx = start_idx + 1
             if len(section_end_dfq) > 0:
                 end_idx = section_end_dfq.index.values[0]
+            else:
+                end_idx = df.last_valid_index()
 
-            section_end_dfq_col2 = df.query(f"`{self.cols[1]}`.str.contains('{section_end_text}')"
-                                            f"& index > {start_idx}")
-            if len(section_end_dfq_col2) > 0:
-                end_idx = min(end_idx, section_end_dfq_col2.index.values[0])
+            # section_end_dfq_col2 = df.query(f"`{self.cols[1]}`.str.contains('{section_end_text}')"
+            #                                 f"& index > {start_idx}")
+            # if len(section_end_dfq_col2) > 0:
+            #     end_idx = min(end_idx, section_end_dfq_col2.index.values[0])
             LOGGER.debug(f'section end index {end_idx}')
             section_strt_dfq = df.query(f"`{self.cols[0]}`.str.contains('{section_start_text}')"
                                         f"& index > {end_idx}"
                                         )
             if end_idx > start_idx:
                 _df = df.iloc[start_idx:end_idx]
-                remove_page_footer = True
-                while remove_page_footer:
-                    remove_page_footer = False
-                    page_footer_start_row = _df.loc[df[self.cols[0]].str.contains('BANCA TRANSILVANIA S. A.')]
-                    if len(page_footer_start_row) > 0:
-                        start_index = page_footer_start_row.index.values[0]
-                        page_header_start_row = _df.query(
-                            f"`{self.cols[0]}`.str.contains('Data') and index > {start_index}")
-                        if len(page_header_start_row) == 0:
-                            end_index = _df.last_valid_index()
-                        else:
-                            end_index = page_header_start_row.index.values[0] + 1
-
-                        if end_index > start_index:
-                            remove_page_footer = (end_index > start_index)
-                            if remove_page_footer:
-                                LOGGER.debug(f'Remove page footer from {start_index} to {end_index}')
-                                _df.drop(range(start_index, end_index), inplace=True)
+                _df = self.remove_header_footer_between_pages(_df)
                 tables.append({'section': {'start_idx': start_idx, 'end_dx': end_idx},
                                'table': _df})
         return tables
+
+    def remove_header_footer_between_pages(self, df: pd.DataFrame) -> pd.DataFrame:
+        _df = df
+        remove_page_footer = True
+        while remove_page_footer:
+            remove_page_footer = False
+            page_footer_start_row = _df.loc[_df[self.cols[0]].str.contains('BANCA TRANSILVANIA S. A.')]
+            if len(page_footer_start_row) > 0:
+                start_index = page_footer_start_row.index.values[0]
+                page_header_start_row = _df.query(
+                    f"`{self.cols[0]}`.str.contains('Data') and index > {start_index}")
+                if len(page_header_start_row) == 0:
+                    end_index = _df.last_valid_index()
+                else:
+                    end_index = page_header_start_row.index.values[0] + 1
+
+                if end_index > start_index:
+                    remove_page_footer = (end_index > start_index)
+                    if remove_page_footer:
+                        LOGGER.debug(f'Remove page footer from {start_index} to {end_index}')
+                        _df.drop(range(start_index, end_index), inplace=True)
+        return _df
 
     def transform(self) -> pd.DataFrame:
         LOGGER.debug('Raw df...')

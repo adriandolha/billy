@@ -35,6 +35,15 @@ class TestBankStatementRequested:
         # print(df.to_string())
         assert len(df.query("date == '2021-07-07' and suma == -31.00 and desc.str.contains('RCS')")) == 1
 
+    def test_bank_statements_transform_currency_eur(self, bank_statements_mocks, temp_file_mock,
+                                                    bank_statement_requested_currency_eur, bank_statements_data_repo,
+                                                    yahoo_config_valid,
+                                                    card_statements_valid):
+        test_file = 'file_test.pdf'
+        df = self.transform(temp_file_mock, test_file, yahoo_config_valid, bank_statements_data_repo)
+        # print(df.to_string())
+        assert len(df.query("date == '2021-07-07' and suma == -5.00 and desc.str.contains('currency')")) == 1
+
     def test_bank_statements_transform_day_with_multiple_entries(self, bank_statements_mocks, temp_file_mock,
                                                                  bank_statement_requested_valid,
                                                                  bank_statements_data_repo,
