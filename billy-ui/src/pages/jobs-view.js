@@ -44,6 +44,7 @@ function JobsView({ }) {
     const [displayMessage, setDisplayMessage] = useState()
     const [open, setOpen] = useState(false);
     const [deleteJobId, setDeleteJobId] = useState();
+    const [retryJob, setRetryJob] = useState();
 
 
     const fetch_jobs = () => JobService.get_all()
@@ -64,9 +65,35 @@ function JobsView({ }) {
             console.log(`Error: ${error}`);
             setError(JSON.stringify(error, null, 2));
         });
+
+    const retry_job = (job) => JobService.add_job(job)
+        .then(res => {
+            if (!res.ok) {
+                return res.text().then(message => { setLoading(false); throw new Error(message); })
+            }
+            return res.json();
+        })
+        .then(setData)
+        .then(() => {
+            setReload(true)
+            setError(null)
+            setReload(false)
+            setDisplayMessage(null)
+        })
+        .catch((error) => {
+            console.log(`Error: ${error}`);
+            setError(JSON.stringify(error, null, 2));
+        });
     useEffect(() => {
         fetch_jobs();
     }, [reload]);
+
+    useEffect(() => {
+        if (retryJob) {
+            setLoading(true)
+            retry_job(retryJob);
+        }
+    }, [retryJob]);
 
     const delete_job = (job_id) => JobService.delete_job(job_id)
         .then(res => {
@@ -220,14 +247,29 @@ function JobsView({ }) {
                                                 </Grid>
                                             </>
                                             }
-                                            <Grid item xs={12}>
+                                            <Grid item container xs={12}>
                                                 <Button variant="contained" color="primary"
                                                     startIcon={<DeleteIcon />}
                                                     onClick={() => {
                                                         setDeleteJobId(job.id);
                                                     }}
+                                                    sx={{
+                                                        display: 'flex',
+                                                        marginRight: 1
+                                                    }}
                                                 >
                                                     Delete
+                                                </Button>
+                                                <Button variant="contained" color="secondary"
+                                                    startIcon={<RefreshIcon />}
+                                                    onClick={() => {
+                                                        setRetryJob(job)
+                                                    }}
+                                                    sx={{
+                                                        display: 'flex'
+                                                    }}
+                                                >
+                                                    Retry
                                                 </Button>
                                             </Grid>
 
