@@ -74,7 +74,7 @@ const AvgRecurrentExpenses = () => {
                 <Typography justifyContent='center' sx={{
                     display: 'flex',
                     padding: 1,
-                    fontSize: 16,
+                    fontSize: 14,
                     fontWeight: 'bold'
                 }}>Avg Recurrent Expenses</Typography>
                 <Typography justifyContent='center' sx={{
