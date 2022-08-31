@@ -760,18 +760,6 @@ class BankStatementDataRequested:
         self.df[col].fillna('', inplace=True)
         self.df[col] = self.df[col].astype(str)
 
-    # def extract_data_table(self):
-    #     df = self.df
-    #     first_row = df.loc[df[self.cols[0]].str.contains(self.data_table_start_pattern)]
-    #     last_row = df.loc[df[self.cols[1]].str.contains(self.data_table_end_pattern)]
-    #     df = df.iloc[first_row.index.values[0] + 2:last_row.index.values[0]]
-    #     page_footer_start_row = df.loc[df[self.cols[0]].str.contains('BANCA TRANSILVANIA S. A.')]
-    #     start_index = page_footer_start_row.index.values[0]
-    #     page_header_start_row = df.query(f"`{self.cols[0]}`.str.contains('Data') and index > {start_index}")
-    #     end_index = page_header_start_row.index.values[0] + 1
-    #     df.drop(range(start_index, end_index), inplace=True)
-    #     return df
-
     def is_section_end(self, row: dict) -> bool:
         return ('SOLD FINAL ZI' in row[self.cols[0]]) or ('SOLD FINAL ZI' in row[self.cols[1]])
 
@@ -806,7 +794,7 @@ class BankStatementDataRequested:
                 end_idx = section_end_dfq.index.values[0]
 
             section_end_dfq_col2 = df.query(f"`{self.cols[1]}`.str.contains('{section_end_text}')"
-                                       f"& index > {start_idx}")
+                                            f"& index > {start_idx}")
             if len(section_end_dfq_col2) > 0:
                 end_idx = min(end_idx, section_end_dfq_col2.index.values[0])
             LOGGER.debug(f'section end index {end_idx}')
@@ -839,7 +827,7 @@ class BankStatementDataRequested:
 
     def transform(self) -> pd.DataFrame:
         LOGGER.debug('Raw df...')
-        # LOGGER.debug(self.df.to_string())
+        LOGGER.debug(self.df.to_string())
         for col in self.cols:
             self.col_to_str(col)
         tables = self.extract_data_tables()
