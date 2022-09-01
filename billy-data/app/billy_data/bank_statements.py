@@ -253,12 +253,25 @@ class BankStatementService:
                 # print(input_file.name)
                 input_file.write(data_repo.read(file_name=from_file))
                 input_file.seek(0)
+                # area = self.get_area()
                 tabula.convert_into(input_file.name, output_file.name, output_format="csv", pages='all', stream=True,
                                     guess=False)
                 output_file.seek(0)
                 data_repo.save(file_name=destination_file, data=output_file.read())
         # tabula.convert_into(from_file, destination_file, output_format="csv", pages='all',  guess=False)
         return destination_file
+
+    def get_area(self):
+        """
+        Tabula area coordintates: [top, left, left+width, top+height]. We're setting height for 10 pages, the other
+        coordinates are exact and calculated with Mac preview (https://github.com/tabulapdf/tabula-java/wiki/Using-the-command-line-tabula-extractor-tool#grab-coordinates-of-the-table-you-want)
+        If we don't set coordinates the results are unpredictable on some bank statements requested exports, moving data
+        on 8th or more columns, making it impossible to extract.
+
+        :return:
+        """
+        area = [300, 11.39, 10000, 582 ]
+        return area
 
     def extract_data(self, from_file):
         LOGGER.debug(f'Extract data from generated bank statement {from_file}')
@@ -797,11 +810,6 @@ class BankStatementDataRequested:
                 end_idx = section_end_dfq.index.values[0]
             else:
                 end_idx = df.last_valid_index()
-
-            # section_end_dfq_col2 = df.query(f"`{self.cols[1]}`.str.contains('{section_end_text}')"
-            #                                 f"& index > {start_idx}")
-            # if len(section_end_dfq_col2) > 0:
-            #     end_idx = min(end_idx, section_end_dfq_col2.index.values[0])
             LOGGER.debug(f'section end index {end_idx}')
             section_strt_dfq = df.query(f"`{self.cols[0]}`.str.contains('{section_start_text}')"
                                         f"& index > {end_idx}"
@@ -862,6 +870,8 @@ class BankStatementDataRequested:
         for index, row in df.iterrows():
             if self.is_day_pl(row):
                 debit, credit = row[self.cols[2]].split(' ')
+                # LOGGER.debug(f'Debit credit text at {index} is {debit_credit_text}')
+                # debit, credit = debit_credit
                 credit = BankStatementEntry.convert_suma_to_float(f'-{credit}', bank_statement_info.separator)
                 if credit and credit < 0:
                     credit_list.append(credit)

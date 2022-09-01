@@ -89,6 +89,10 @@ def transform(payload: dict) -> dict:
                                                   port=provider.yahoo_port,
                                                   card_statement_pdf_password=provider.card_statement_pdf_password)
     transform_results = []
+    if len(files) == 1:
+        _files = bank_statement_service.data_repo.list_files(files[0])
+        if len(_files) > 0:
+            files = _files
     for file in files:
         try:
             transform_results.append({file: {'status': 'success',
