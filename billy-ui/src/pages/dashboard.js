@@ -97,7 +97,7 @@ const AvgRecurrentExpenses = () => {
 }
 function Dashboard({ }) {
     return (
-        <Grid container spacing={2} sx={{ marginTop: 3 }}>
+        <Grid container spacing={2} >
             <Grid item container xs={12} spacing={2} justifyContent='center'>
                 <AvgRecurrentExpenses />
             </Grid>
