@@ -67,6 +67,7 @@ const Category = ({ category, handleSave }) => {
                             label=""
                             placeholder="Key word..."
                             size="small"
+                            value={keyWord}
                             onChange={(e) => {
                                 const val = e.target.value
                                 console.log(e.target.value)
@@ -89,6 +90,7 @@ const Category = ({ category, handleSave }) => {
                                 console.log(`Adding key word ${keyWord}...`)
                                 const _keyWords = [keyWord, ...keyWords]
                                 console.log(_keyWords)
+                                setKeyWord(null)
                                 setKeyWords(_keyWords)
                             } else {
                                 console.log('Empty key word.')
