@@ -6,7 +6,13 @@ from billy_api.bank_statements import get_data_df
 
 class StatsApi:
     def expenses_per_month(self) -> dict:
-        _df = get_data_df().query('suma < 0')
+        exclude_list = [
+            'Schimb valutar',
+            'Incasare OP',
+            'Transfer intern'
+        ]
+        exclude_query = ' and '.join([f"~desc.str.contains('{exp}')" for exp in exclude_list]
+        _df = get_data_df().query(f'suma < 0 and {exclude_query}')
         LOGGER.debug(_df.to_string())
         _df['year'] = pd.DatetimeIndex(_df['date']).year
         _df['month'] = pd.DatetimeIndex(_df['date']).month
