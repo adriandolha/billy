@@ -9,7 +9,8 @@ class StatsApi:
         exclude_list = [
             'Schimb valutar',
             'Incasare OP',
-            'Transfer intern'
+            'Transfer intern',
+            'P2P BTPay'
         ]
         exclude_query = ' and '.join([f"~desc.str.contains('{exp}')" for exp in exclude_list])
         _df = get_data_df().query(f'suma < 0 and {exclude_query}')
