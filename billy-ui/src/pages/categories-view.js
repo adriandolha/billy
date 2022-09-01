@@ -89,8 +89,8 @@ const Category = ({ category, handleSave }) => {
                             if (keyWord) {
                                 console.log(`Adding key word ${keyWord}...`)
                                 const _keyWords = [keyWord, ...keyWords]
-                                console.log(_keyWords)
-                                setKeyWord(null)
+                                // console.log(_keyWords)
+                                setKeyWord('')
                                 setKeyWords(_keyWords)
                             } else {
                                 console.log('Empty key word.')

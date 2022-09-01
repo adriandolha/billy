@@ -163,7 +163,7 @@ function JobsView({ }) {
                                 job.result && JSON.stringify(JSON.parse(job.result), null, 2)
                             return (
                                 <ListItem key={`job_${index}`} disableGutters sx={{ marginLeft: 0 }}>
-                                    <Paper elevation={1} sx={{ padding: 2, width: '100%', marginBottom: 2, marginLeft: 0 }}>
+                                    <Paper elevation={3} sx={{ padding: 2, width: '100%', marginBottom: 1, marginLeft: 0 }}>
                                         <Grid container spacing={1} item xs={12}>
                                             <Grid item container spacing={1} xs={12} alignItems='center'>
                                                 <Grid item xs={12}>
@@ -203,49 +203,39 @@ function JobsView({ }) {
                                                     {job.job_type && <LabelWithValue label='Job Type:' value={job.job_type} />}
                                                 </Grid>
                                             </Grid>
-                                            {job.payload && <>
-                                                <Grid item container spacing={1} xs={12} alignItems='center' wrap="wrap">
+                                            {job.payload &&
+                                                <Grid item container spacing={1} xs={12} alignItems='baseline' wrap="wrap">
                                                     <Grid item xs={12}>
-                                                        <Typography>Payload:</Typography>
+                                                        <Typography sx={{fontWeight: 'bold'}}>Payload:</Typography>
                                                     </Grid>
-                                                    <Grid item xs={12}>
-                                                        <Box
-                                                            paragraph={true}
-                                                            sx={{
-                                                                overflow: 'scroll',
-                                                                '& pre': {
-                                                                    whiteSpace: 'pre-wrap'
-                                                                }
-                                                            }}
-                                                        >
-                                                            <pre>{payload_pretty}</pre>
-                                                        </Box>
+                                                    <Grid item container xs={10} wrap='wrap' sx={{
+                                                        '& pre': {
+                                                            whiteSpace: 'pre-wrap',
+                                                            fontSize: 12
 
+                                                        }
+                                                    }}>
+                                                        <pre>{payload_pretty}</pre>
                                                     </Grid>
-
-                                                </Grid></>
+                                                </Grid>
                                             }
-                                            {job.result && <>
-                                                <Grid item container spacing={1} xs={12} alignItems='center' wrap="wrap">
+                                            {job.result &&
+                                                <Grid item container spacing={1} xs={12} alignItems='baseline' wrap="wrap">
                                                     <Grid item xs={12}>
-                                                        <Typography>Result:</Typography>
+                                                        <Typography sx={{fontWeight: 'bold'}}>Result:</Typography>
                                                     </Grid>
-                                                    <Grid item xs={12} >
-                                                        <Box sx={{
-                                                            display: 'flex',
-                                                            overflow: 'scroll',
-                                                            '& pre': {
-                                                                whiteSpace: 'pre-wrap'
-                                                            }
-                                                        }}
-
-                                                        >
-                                                            <pre>{result_pretty}</pre>
-                                                        </Box>
+                                                    <Grid item container xs={12} wrap='wrap' sx={{
+                                                        overflow: 'scroll',
+                                                        '& pre': {
+                                                            whiteSpace: 'pre-wrap',
+                                                            fontSize: 12
+                                                        }
+                                                    }}>
+                                                        <pre>{result_pretty}</pre>
                                                     </Grid>
 
                                                 </Grid>
-                                            </>
+
                                             }
                                             <Grid item container xs={12}>
                                                 <Button variant="contained" color="primary"
