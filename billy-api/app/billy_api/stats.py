@@ -11,7 +11,7 @@ class StatsApi:
             'Incasare OP',
             'Transfer intern'
         ]
-        exclude_query = ' and '.join([f"~desc.str.contains('{exp}')" for exp in exclude_list]
+        exclude_query = ' and '.join([f"~desc.str.contains('{exp}')" for exp in exclude_list])
         _df = get_data_df().query(f'suma < 0 and {exclude_query}')
         LOGGER.debug(_df.to_string())
         _df['year'] = pd.DatetimeIndex(_df['date']).year
