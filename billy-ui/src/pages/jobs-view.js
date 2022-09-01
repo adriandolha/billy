@@ -204,7 +204,7 @@ function JobsView({ }) {
                                                 </Grid>
                                             </Grid>
                                             {job.payload && <>
-                                                <Grid item container spacing={1} xs={12} alignItems='center'>
+                                                <Grid item container spacing={1} xs={12} alignItems='center' wrap="wrap">
                                                     <Grid item xs={12}>
                                                         <Typography>Payload:</Typography>
                                                     </Grid>
@@ -226,7 +226,7 @@ function JobsView({ }) {
                                                 </Grid></>
                                             }
                                             {job.result && <>
-                                                <Grid item container spacing={1} xs={12} alignItems='center'>
+                                                <Grid item container spacing={1} xs={12} alignItems='center' wrap="wrap">
                                                     <Grid item xs={12}>
                                                         <Typography>Result:</Typography>
                                                     </Grid>
