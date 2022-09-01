@@ -341,8 +341,8 @@ class BankStatementInfo:
         LOGGER.debug(df.to_string())
         date_pattern_from_to = "din (\d{2})/(\d{2})/(\d{4}) - (\d{2})/(\d{2})/(\d{4})"
         date_pattern_from = "din.*(\d{2})/(\d{2})/(\d{4})"
-        # date_row_index = df.loc[df['Unnamed: 0'].str.startswith('EXTRAS CONT')].index.values[0]
-        date_row_index = df.loc[df['Unnamed: 0'].str.startswith('EXTRAS CONT Numarul')].index.values[0]
+        date_row_index = df.loc[df['Unnamed: 0'].str.startswith('EXTRAS CONT')].index.values[0]
+        # date_row_index = df.loc[df['Unnamed: 0'].str.startswith('EXTRAS CONT Numarul')].index.values[0]
         raw_date = df.iloc[date_row_index]['Unnamed: 2']
         matches = re.match(date_pattern_from_to, raw_date) or re.match(date_pattern_from, raw_date)
         groups = list(matches.groups())
