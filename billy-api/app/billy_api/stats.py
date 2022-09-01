@@ -10,7 +10,8 @@ class StatsApi:
             'Schimb valutar',
             'Incasare OP',
             'Transfer intern',
-            'P2P BTPay'
+            'P2P BTPay',
+            'Debitare automata carduri de credit'
         ]
         exclude_query = ' and '.join([f"~desc.str.contains('{exp}')" for exp in exclude_list])
         _df = get_data_df().query(f'suma < 0 and {exclude_query}')
