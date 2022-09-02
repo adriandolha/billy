@@ -237,8 +237,8 @@ class BankStatementService:
             dfs.append(df)
         dfs_to_concat = [existing_data_df, *dfs] if existing_data_df is not None else dfs
         df_all = pd.concat(dfs_to_concat, ignore_index=True)
-        df_all = df_all.drop_duplicates(subset=['category', 'date', 'suma'], ignore_index=True)
         df_all['category'] = df_all['desc'].apply(lambda desc: self.find_category(desc))
+        df_all = df_all.drop_duplicates(subset=['category', 'date', 'suma'], ignore_index=True)
         self.data_repo.save(destination_file, bytes(df_all.to_json().encode('utf-8')))
         return {
             'data_file': destination_file,
