@@ -109,6 +109,11 @@ def stats_valid(data_mock):
         ['2022-06-14', 'Orange entr1', '-1.0', 'phone'],
         ['2022-06-12', 'Gas entr1', '-1.0123456', 'gas'],
         ['2022-06-12', 'Glovo entr1', '-1.0', 'food'],
+        ['2022-06-12', 'Schimb valutar r123', '-1.0', 'other'],
+        ['2022-06-12', 'Incasare OP', '-1.0', 'other'],
+        ['2022-06-12', 'Transfer intern', '-1.0', 'other'],
+        ['2022-06-12', 'P2P BTPay r123', '-1.0', 'other'],
+        ['2022-06-12', 'Debitare automata carduri de credit', '-1.0', 'other'],
     ]
     with mock.patch('billy_api.stats.get_data_df') as _mock:
         df = pd.DataFrame(data=_data, columns=['date', 'desc', 'suma', 'category'])

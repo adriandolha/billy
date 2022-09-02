@@ -270,7 +270,7 @@ class BankStatementService:
 
         :return:
         """
-        area = [300, 11.39, 10000, 582 ]
+        area = [300, 11.39, 10000, 582]
         return area
 
     def extract_data(self, from_file):
@@ -287,6 +287,10 @@ class BankStatementService:
 def month_number_to_short_name(month: str):
     datetime_object = datetime.datetime.strptime(month, "%m")
     return datetime_object.strftime("%b")
+
+
+def find_next_value(row, condition):
+    return next(iter([item for item in row if condition(item)]), None)
 
 
 class BankStatementType(Enum):
@@ -343,7 +347,7 @@ class BankStatementInfo:
         date_pattern_from = "din.*(\d{2})/(\d{2})/(\d{4})"
         date_row_index = df.loc[df['Unnamed: 0'].str.startswith('EXTRAS CONT')].index.values[0]
         # date_row_index = df.loc[df['Unnamed: 0'].str.startswith('EXTRAS CONT Numarul')].index.values[0]
-        raw_date = df.iloc[date_row_index]['Unnamed: 2']
+        raw_date = find_next_value(df.iloc[date_row_index], lambda val: 'din ' in str(val))
         matches = re.match(date_pattern_from_to, raw_date) or re.match(date_pattern_from, raw_date)
         groups = list(matches.groups())
         _year = None
@@ -383,13 +387,14 @@ class BankStatementEntry:
         return self.__dict__
 
     @staticmethod
-    def from_raw_data(date: str, desc: str, suma: str, bank_statement_info: BankStatementInfo):
+    def from_raw_data(date: str, desc: str, suma: str, bank_statement_info: BankStatementInfo, year=None):
         LOGGER.debug(f'Creating bank entry from [{date}, {desc}, {suma}]')
         _suma = BankStatementEntry.convert_suma_to_float(suma, bank_statement_info.separator)
         if _suma and bank_statement_info.currency == 'EUR':
             _suma = _suma * 5
         std_date = local_date_to_standard(date)
-        _date = datetime.datetime.strptime(f'{std_date}-{bank_statement_info.year}', '%d-%b-%Y')
+        _year = year or bank_statement_info.year
+        _date = datetime.datetime.strptime(f'{std_date}-{_year}', '%d-%b-%Y')
         _category = 'other'
         for category in bank_statement_info.categories:
             if any([key_word in desc.lower() for key_word in category.key_words]):
@@ -754,6 +759,25 @@ class BankStatementData:
         return _df
 
 
+def is_float(val):
+    if val is None:
+        return False
+    _val = str(val).replace(',', '')
+    try:
+        float(_val)
+        return True
+    except ValueError:
+        return False
+
+
+def is_debit_credit(val):
+    if not val:
+        return False
+    _val = str(val).split(' ')
+    LOGGER.debug(_val)
+    return True if len(_val) == 2 and is_float(_val[0]) and is_float(_val[1]) else False
+
+
 class BankStatementDataRequested:
     """
     Handles generated bank statements sent automatically over email, usually card statements in PDF format.
@@ -776,13 +800,13 @@ class BankStatementDataRequested:
         self.df[col] = self.df[col].astype(str)
 
     def is_section_end(self, row: dict) -> bool:
-        return ('SOLD FINAL ZI' in row[self.cols[0]]) or ('SOLD FINAL ZI' in row[self.cols[1]])
+        return find_next_value(row, lambda val: 'SOLD FINAL ZI' in val)
 
     def is_desc_first_column(self, row: dict) -> bool:
         return len(row[self.cols[1]]) == 0
 
     def is_day_pl(self, row: dict):
-        return ('RULAJ ZI' in row[self.cols[0]]) or ('RULAJ ZI' in row[self.cols[1]])
+        return find_next_value(row, lambda val: 'RULAJ ZI' in val)
 
     def is_section_footer(self, row: dict) -> bool:
         return self.is_day_pl(row) or self.is_section_end(row)
@@ -864,35 +888,37 @@ class BankStatementDataRequested:
         df = table_df
         date_pattern = "^(\d{2})/(\d{2})/(\d{4})(.*)"
         crt_date = None
+        year = bank_statement_info.year
         suma = None
-        is_desc_first_column = True
         credit_list = []
         for index, row in df.iterrows():
+            # LOGGER.debug(row)
+            debit_credit_text = find_next_value(row, is_debit_credit)
             if self.is_day_pl(row):
-                debit, credit = row[self.cols[2]].split(' ')
-                # LOGGER.debug(f'Debit credit text at {index} is {debit_credit_text}')
-                # debit, credit = debit_credit
+                LOGGER.debug(f'Debit credit text is {debit_credit_text}')
+                debit, credit = debit_credit_text.split(' ') if debit_credit_text is not None else None
                 credit = BankStatementEntry.convert_suma_to_float(f'-{credit}', bank_statement_info.separator)
                 if credit and credit < 0:
                     credit_list.append(credit)
 
-            is_debit_or_credit = len(row[self.cols[2]]) > 0
-            if is_debit_or_credit and not (self.is_section_footer(row)):
+            suma_text = find_next_value(row, lambda val: is_float(val))
+            if suma_text and not (self.is_section_footer(row)):
                 if len(last_entries) > 0:
                     bank_statement_entry = self.extract_bank_statement_from_last_entries(bank_statement_info, crt_date,
                                                                                          date_pattern, last_entries,
-                                                                                         suma)
+                                                                                         suma, year)
                     _df = _df.append(bank_statement_entry.to_df(), ignore_index=True)
                     last_entries = []
+                year = self.find_year(date_pattern, row)
                 crt_date = self.find_date(date_pattern, row) or crt_date
-                suma = f'-{row[self.cols[2]]}' if len(row[self.cols[2]]) > 0 else None
+                suma = f'-{suma_text}' if suma_text else None
             if not (self.is_section_footer(row)):
                 last_entries.append(row)
         # don't miss the last one
         if len(last_entries) > 0:
             bank_statement_entry = self.extract_bank_statement_from_last_entries(bank_statement_info, crt_date,
                                                                                  date_pattern, last_entries,
-                                                                                 suma)
+                                                                                 suma, year)
             _df = _df.append(bank_statement_entry.to_df(), ignore_index=True)
         self.update_credit_entries(_df, credit_list)
         return _df
@@ -913,14 +939,15 @@ class BankStatementDataRequested:
             LOGGER.debug(f'credit is{credit}')
             _df["suma"] = _df["suma"].apply(lambda val: abs(val) if val == credit else val)
 
-    def extract_bank_statement_from_last_entries(self, bank_statement_info, crt_date, date_pattern, last_entries, suma):
+    def extract_bank_statement_from_last_entries(self, bank_statement_info, crt_date, date_pattern, last_entries, suma,
+                                                 year=None):
         desc = ''
         for entry in last_entries:
             first_col_desc = self.remove_date_from_desc(date_pattern, entry[self.cols[0]])
             second_col_desc = self.remove_date_from_desc(date_pattern, entry[self.cols[1]])
             desc += ' ' + (first_col_desc or second_col_desc)
         bank_statement_entry = BankStatementEntry.from_raw_data(desc=desc, date=crt_date, suma=suma,
-                                                                bank_statement_info=bank_statement_info)
+                                                                bank_statement_info=bank_statement_info, year=year)
         return bank_statement_entry
 
     def remove_date_from_desc(self, date_pattern, desc):
@@ -939,3 +966,12 @@ class BankStatementDataRequested:
                 _month = month_number_to_short_name(groups[1])
                 crt_date = f'{groups[0]}-{_month}'
         return crt_date
+
+    def find_year(self, date_pattern, row):
+        year = None
+        match = re.match(date_pattern, row[self.cols[0]])
+        if match:
+            groups = list(match.groups())
+            if len(groups) >= 3:
+               year = groups[2]
+        return year

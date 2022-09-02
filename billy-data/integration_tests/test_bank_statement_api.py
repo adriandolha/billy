@@ -164,14 +164,16 @@ class TestBankStatementAPI:
     def test_bank_statement_transform_(self, config_valid, yahoo_config_valid, process_event_valid,
                                        transform_event_valid):
         # files = [f'{config_valid["cognito_user"]}/bank_statements/upload/bank_statement_5101.pdf']
-        files = [f'{config_valid["cognito_user"]}/bank_statements/upload/RO13BTRL01301201C53812XX-5.pdf']
+        # files = [f'{config_valid["cognito_user"]}/bank_statements/upload/RO13BTRL01301201C53812XX-5.pdf']
+        files = [f'{config_valid["cognito_user"]}/bank_statements/upload']
+
         tf_payload = {'op': 'transform',
                       'username': config_valid['cognito_user'],
                       'files': files}
         result = transform(tf_payload)
         tf_results = result['transform']
         print(tf_results)
-        # assert len(tf_results) > 0
-        # assert tf_results[0][tf_payload['files'][0]]['status'] == 'success'
+        assert len(tf_results) > 0
+        assert tf_results[0][tf_payload['files'][0]]['status'] == 'success'
         # data_file = tf_results[0][tf_payload['files'][0]]['result']['file_data']
         # print(data_file)

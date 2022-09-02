@@ -358,7 +358,6 @@ def bank_statement_requested_currency_eur(pd_read_csv, categories):
 
         ['07/07/2021 test currency entry', np.nan, '1.0'],
 
-
         ['27/07/2021', 'RULAJ ZI', '25.01 0.0'],
         [np.nan, 'SOLD FINAL ZI', '100'],
         [np.nan, np.nan, np.nan],
@@ -371,6 +370,34 @@ def bank_statement_requested_currency_eur(pd_read_csv, categories):
         [np.nan, 'SOLD FINAL CONT', '100'],
         [np.nan, np.nan, np.nan],
     ], columns=['Unnamed: 0', 'Unnamed: 1', 'Unnamed: 2'])
+    pd_read_csv.return_value = df
+    yield df
+
+
+@pytest.fixture()
+def bank_statement_requested_empty_columns_between_data_columns(pd_read_csv, categories):
+    df = pd.DataFrame([
+        ['EXTRAS CONT Numarul:', np.nan, np.nan, np.nan, 'din 01/07/2021 - 31/07/2021'],
+        ['Cumparaturi la parteneri Star Card', np.nan, np.nan, np.nan, np.nan],
+        ['DATA DESCRIERE', np.nan, np.nan, np.nan, 'Debit Credit'],
+        ['SOLD ANTERIOR', np.nan, np.nan, np.nan, '1.0'],
+        [np.nan, np.nan, np.nan, np.nan, np.nan],
+
+        ['01/01/2021 test entry', np.nan, np.nan, np.nan, '1.0'],
+        [np.nan, 'desc line 2', np.nan, np.nan, np.nan],
+        ['desc line 3', np.nan, np.nan, np.nan, np.nan],
+
+        ['01/01/2022 test entry with different date than extract', np.nan, np.nan, np.nan, '2.0'],
+
+        ['01/01/2021', 'RULAJ ZI', np.nan, np.nan, '5,000.00 0.00'],
+        [np.nan, 'SOLD FINAL ZI', '100'],
+        [np.nan, np.nan, np.nan, np.nan, np.nan],
+        [np.nan, np.nan, np.nan, np.nan, np.nan],
+
+        ['31/07/2021', 'RULAJ TOTAL CONT', '100.00 11.01'],
+        [np.nan, 'SOLD FINAL CONT', np.nan, np.nan, '100'],
+        [np.nan, np.nan, np.nan, np.nan, np.nan],
+    ], columns=['Unnamed: 0', 'Unnamed: 1', 'Unnamed: 2', 'Unnamed: 3', 'Unnamed: 4'])
     pd_read_csv.return_value = df
     yield df
 

@@ -44,6 +44,30 @@ class TestBankStatementRequested:
         # print(df.to_string())
         assert len(df.query("date == '2021-07-07' and suma == -5.00 and desc.str.contains('currency')")) == 1
 
+    def test_bank_statements_transform_with_empty_columns_between_data_columns(self, bank_statements_mocks,
+                                                                               temp_file_mock,
+                                                                               bank_statement_requested_empty_columns_between_data_columns,
+                                                                               bank_statements_data_repo,
+                                                                               yahoo_config_valid,
+                                                                               card_statements_valid):
+        test_file = 'file_test.pdf'
+        df = self.transform(temp_file_mock, test_file, yahoo_config_valid, bank_statements_data_repo)
+        print(df.to_string())
+        assert len(df.query("date == '2021-01-01' and suma == -1.00 "
+                            "and desc.str.contains('test entry desc line 2 desc line 3')")) == 1
+
+    def test_bank_statements_transform_entry_different_date_than_statement(self, bank_statements_mocks,
+                                                                           temp_file_mock,
+                                                                           bank_statement_requested_empty_columns_between_data_columns,
+                                                                           bank_statements_data_repo,
+                                                                           yahoo_config_valid,
+                                                                           card_statements_valid):
+        test_file = 'file_test.pdf'
+        df = self.transform(temp_file_mock, test_file, yahoo_config_valid, bank_statements_data_repo)
+        print(df.to_string())
+        assert len(df.query("date == '2022-01-01' and suma == -2.00 "
+                            "and desc.str.contains('test entry with different date than extract')")) == 1
+
     def test_bank_statements_transform_day_with_multiple_entries(self, bank_statements_mocks, temp_file_mock,
                                                                  bank_statement_requested_valid,
                                                                  bank_statements_data_repo,
