@@ -11,9 +11,11 @@ class StatsApi:
             'Incasare OP',
             'Transfer intern',
             'P2P BTPay',
-            'Debitare automata carduri de credit'
+            'Debitare automata carduri de credit',
+            'Revolut'
         ]
         exclude_query = ' and '.join([f"~desc.str.contains('{exp}')" for exp in exclude_list])
+        LOGGER.info(exclude_query)
         _df = get_data_df().query(f'suma < 0 and {exclude_query}')
         LOGGER.debug(_df.to_string())
         _df['year'] = pd.DatetimeIndex(_df['date']).year
