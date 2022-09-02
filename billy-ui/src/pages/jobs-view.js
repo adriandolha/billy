@@ -212,7 +212,7 @@ function JobsView({ }) {
                                                         '& pre': {
                                                             whiteSpace: 'pre-wrap',
                                                             wordWrap: 'break-word',
-                                                            fontSize: 12
+                                                            fontSize: 12, overflow:'auto'
 
                                                         }
                                                     }}>
@@ -230,7 +230,7 @@ function JobsView({ }) {
                                                         '& pre': {
                                                             whiteSpace: 'pre-wrap',
                                                             wordWrap: 'break-word',
-                                                            fontSize: 12
+                                                            fontSize: 12, overflow: 'auto'
                                                         }
                                                     }}>
                                                         <pre>{result_pretty}</pre>
