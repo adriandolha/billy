@@ -211,6 +211,7 @@ function JobsView({ }) {
                                                     <Grid item container xs={10} wrap='wrap' sx={{
                                                         '& pre': {
                                                             whiteSpace: 'pre-wrap',
+                                                            wordWrap: 'break-word',
                                                             fontSize: 12
 
                                                         }
@@ -228,6 +229,7 @@ function JobsView({ }) {
                                                         overflow: 'scroll',
                                                         '& pre': {
                                                             whiteSpace: 'pre-wrap',
+                                                            wordWrap: 'break-word',
                                                             fontSize: 12
                                                         }
                                                     }}>
