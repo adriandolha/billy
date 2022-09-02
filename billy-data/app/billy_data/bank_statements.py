@@ -911,7 +911,7 @@ class BankStatementDataRequested:
                     last_entries = []
                 year = self.find_year(date_pattern, row)
                 crt_date = self.find_date(date_pattern, row) or crt_date
-                suma = f'-{suma_text}' if suma_text else None
+                suma = f'-{suma_text}'.replace('--','-') if suma_text else None
             if not (self.is_section_footer(row)):
                 last_entries.append(row)
         # don't miss the last one
