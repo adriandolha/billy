@@ -204,11 +204,11 @@ function JobsView({ }) {
                                                 </Grid>
                                             </Grid>
                                             {job.payload &&
-                                                <Grid item container spacing={1} xs={12} alignItems='baseline' wrap="wrap">
+                                                <Grid item container spacing={1} xs={12} alignItems='baseline' wrap="wrap" sx={{flexGrow:1}} >
                                                     <Grid item xs={12}>
                                                         <Typography sx={{fontWeight: 'bold'}}>Payload:</Typography>
                                                     </Grid>
-                                                    <Grid item container xs={10} wrap='wrap' sx={{
+                                                    <Grid item xs={10} sx={{ overflow: 'scroll',
                                                         '& pre': {
                                                             whiteSpace: 'pre-wrap',
                                                             wordWrap: 'break-word',
@@ -221,11 +221,11 @@ function JobsView({ }) {
                                                 </Grid>
                                             }
                                             {job.result &&
-                                                <Grid item container spacing={1} xs={12} alignItems='baseline' wrap="wrap">
+                                                <Grid item container spacing={1} xs={12} alignItems='baseline' wrap="wrap" sx={{flexGrow:1}}>
                                                     <Grid item xs={12}>
                                                         <Typography sx={{fontWeight: 'bold'}}>Result:</Typography>
                                                     </Grid>
-                                                    <Grid item container xs={12} wrap='wrap' sx={{
+                                                    <Grid item xs={12} sx={{
                                                         overflow: 'scroll',
                                                         '& pre': {
                                                             whiteSpace: 'pre-wrap',
