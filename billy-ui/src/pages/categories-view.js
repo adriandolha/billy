@@ -54,7 +54,7 @@ const Category = ({ category, handleSave }) => {
             <Grid container spacing={1}>
                 <Grid item xs={12}>
                     <Box>
-                        <Chip label={category.name} color='primary' variant='outlined' />
+                        <Chip label={category.name} color='primary' variant='contained' />
                     </Box>
                 </Grid>
                 <Grid item xs={12}>
@@ -80,7 +80,7 @@ const Category = ({ category, handleSave }) => {
 
                     </Grid>
 
-                    <Button variant="contained" size="small" color="secondary"
+                    <Button variant="outlined" size="small" color="secondary"
                         startIcon={<AddIcon />}
                         onClick={(e) => {
                             e.preventDefault()
@@ -114,7 +114,7 @@ const Category = ({ category, handleSave }) => {
                         }} onDelete={() => {
                             console.log(`Removing key word ${_key_word}`)
                             setKeyWords(keyWords.filter(kw => kw !== _key_word))
-                        }} />)
+                        }} variant='outlined' />)
 
                     })}
                 </Grid>
@@ -122,7 +122,7 @@ const Category = ({ category, handleSave }) => {
                     <Divider />
                 </Grid>
                 <Grid item xs={12}>
-                    <Button variant="outlined" size="small" color="primary"
+                    <Button variant="contained" size="small" color="primary"
                         startIcon={<SaveIcon />}
                         onClick={(e) => {
                             e.preventDefault()
