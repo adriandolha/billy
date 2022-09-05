@@ -275,7 +275,7 @@ class BankStatementService:
 
     def extract_data(self, from_file):
         LOGGER.debug(f'Extract data from generated bank statement {from_file}')
-        df = pd.read_csv(data_repo.read_stream(from_file))
+        df = pd.read_csv(data_repo.read_stream(from_file), header=None)
         statement = bank_statement(df)
         _df = statement.transform()
         info = statement.bank_statement_info
