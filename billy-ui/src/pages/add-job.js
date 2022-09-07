@@ -18,6 +18,7 @@ import Switch from '@mui/material/Switch';
 import JobService from '../services/jobs'
 import { Error, Success } from '../components/messages'
 import TextField from '@mui/material/TextField';
+import BankStatementService from '../services/bank-statements';
 
 function AddJob({ open, handleClose }) {
     const username = AuthService.getCurrentUser().user.username
@@ -26,6 +27,7 @@ function AddJob({ open, handleClose }) {
     const [filesText, setFilesText] = useState('ALL')
     const [since, setSince] = useState('11-Jul-2022')
     const [data, setData] = useState()
+    const [uploadFile, setUploadFile] = useState()
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState()
     const [displayMessage, setDisplayMessage] = useState()
@@ -174,6 +176,46 @@ function AddJob({ open, handleClose }) {
                                                 setFilesText(val)
                                             }}
                                         />
+                                        <TextField
+                                            id="outlined-basic"
+                                            label="Outlined"
+                                            variant="outlined"
+                                            type="file"
+                                            sx={{ marginTop: 2, marginBottom: 1 }}
+                                            onChange={(e) => {
+                                                console.log(e.target.value)
+                                                const val = e.target.value
+                                                setUploadFile(val)
+                                            }}
+                                        />
+                                        <Button type="submit" variant="contained" color="primary"
+                                            startIcon={<AddIcon />}
+                                            onClick={(e) => {
+                                                e.preventDefault()
+                                                console.log('upload file new job')
+                                                console.log(uploadFile)
+                                                BankStatementService.upload_url().then(res => {
+                                                    if (!res.ok) {
+                                                        return res.json().then(message => { throw new Error(message); })
+                                                    }
+                                                    return res.json();
+                                                })
+                                                    .then((data) => {
+                                                        console.log(data.upload_url)
+                                                        fetch(data.upload_url, {
+                                                            method: 'POST',
+                                                            body: uploadFile
+                                                        })
+                                                    })
+                                                    .catch((error) => {
+                                                        console.log(`Error: ${error}`);
+                                                        setError(error);
+                                                    });
+                                            }}
+                                            sx={{ margin: 2 }}
+                                        >
+                                            Upload
+                                        </Button>
                                     </Grid>
                                 }
                             </Grid>
@@ -192,6 +234,7 @@ function AddJob({ open, handleClose }) {
                                 >
                                     Add
                                 </Button>
+
                             </Grid>
                             <Grid item>
                                 <Button type="secondary" variant="contained" color="secondary"

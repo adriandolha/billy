@@ -85,3 +85,13 @@ class TestBankStatementsApi:
                  'headers': {'Authorization': ''}}
         result = app.lambda_handler(event, [])
         assert result['statusCode'] == 200
+
+    def test_bank_statement_upload_url(self, config_valid, data_valid, data_mock, verified_user_valid, auth_requests):
+        auth_requests.get.return_value.content = json.dumps('bla')
+        data_mock.return_value.presigned_url.return_value = 'presigned_url'
+        event = {'path': '/billy/bank_statements/upload_url',
+                 'requestContext': {'httpMethod': 'GET'},
+                 'headers': {'Authorization': ''}}
+        result = app.lambda_handler(event, [])
+        assert result['statusCode'] == 200
+        assert json.loads(result['body'])['upload_url'] == 'presigned_url'

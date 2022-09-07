@@ -2,7 +2,7 @@ import json
 
 from billy_api import LOGGER
 from billy_api.bank_statements import BankStatementApi
-from billy_api.auth import requires_permission, sign_in_cognito, get_token
+from billy_api.auth import requires_permission, sign_in_cognito, get_token, Permissions
 from billy_api.exceptions import AuthenticationException
 from billy_api.stats import StatsApi
 from billy_api.routes import jobs, categories
@@ -21,6 +21,18 @@ def search(event, context):
     return {
         "statusCode": 200,
         "body": json.dumps(search_result.to_dict()),
+    }
+
+
+@requires_permission(Permissions.BANK_STATEMENT_ADD)
+def upload_url(event, context):
+    LOGGER.info(event)
+    LOGGER.info(context)
+    upload_url = BankStatementApi().upload_url()
+    LOGGER.info(f'Upload url is {upload_url}')
+    return {
+        "statusCode": 200,
+        "body": json.dumps({'upload_url': upload_url}),
     }
 
 
@@ -98,6 +110,8 @@ def handle_request(context, event, event_path: str, http_method: str):
     result = None
     if event_path == '/billy/bank_statements/search':
         result = search(event, context)
+    if event_path == '/billy/bank_statements/upload_url':
+        result = upload_url(event, context)
     if event_path == '/billy/stats/avg_expenses_per_category':
         result = avg_expenses_per_category(event, context)
     if event_path == '/billy/stats/expenses_per_month':

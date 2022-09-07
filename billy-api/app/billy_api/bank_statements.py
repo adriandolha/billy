@@ -1,3 +1,4 @@
+import uuid
 from dataclasses import dataclass
 from functools import lru_cache
 import os
@@ -126,3 +127,9 @@ class BankStatementApi:
         LOGGER.info(f"Return result...")
         return SearchResult(columns=_df.columns.values.tolist(), items=_df.values.tolist(), total=total,
                             search_count=search_count)
+
+    def upload_url(self):
+        key_id = str(uuid.uuid4())
+        key = f'{app_context.username}/upload/{key_id}.pdf'
+        LOGGER.info(f'Presigned key is {key}')
+        return self.s3_repo.presigned_url(key=key)

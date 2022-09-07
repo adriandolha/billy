@@ -13,6 +13,16 @@ class BankStatementService {
             })
         })
     }
+    upload_url() {
+        console.log(API_URL)
+        return fetch(`${API_URL}/billy/bank_statements/upload_url`, {
+            method: 'get',
+            headers: new Headers({
+                'Content-Type': 'application/json',
+                ...authHeader()
+            })
+        })
+    }
 }
 
 export default new BankStatementService();

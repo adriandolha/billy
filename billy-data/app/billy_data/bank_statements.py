@@ -275,8 +275,13 @@ class BankStatementService:
 
     def extract_data(self, from_file):
         LOGGER.debug(f'Extract data from generated bank statement {from_file}')
-        column_names = [f'Unnamed: {i}' for i in range(0, 10)]
-        df = pd.read_csv(data_repo.read_stream(from_file), header=None, names=column_names)
+        try:
+            df = pd.read_csv(data_repo.read_stream(from_file), header=None)
+        except pd.errors.ParserError as e:
+            LOGGER.error(e, exc_info=True)
+            column_names = [f'Unnamed: {i}' for i in range(0, 10)]
+            df = pd.read_csv(data_repo.read_stream(from_file), header=None, names=column_names)
+
         statement = bank_statement(df)
         _df = statement.transform()
         info = statement.bank_statement_info
@@ -912,7 +917,7 @@ class BankStatementDataRequested:
                     last_entries = []
                 year = self.find_year(date_pattern, row)
                 crt_date = self.find_date(date_pattern, row) or crt_date
-                suma = f'-{suma_text}'.replace('--','-') if suma_text else None
+                suma = f'-{suma_text}'.replace('--', '-') if suma_text else None
             if not (self.is_section_footer(row)):
                 last_entries.append(row)
         # don't miss the last one
@@ -974,5 +979,5 @@ class BankStatementDataRequested:
         if match:
             groups = list(match.groups())
             if len(groups) >= 3:
-               year = groups[2]
+                year = groups[2]
         return year

@@ -82,6 +82,13 @@ Resources:
             Method: get
             RestApiId: !Ref BillyApi
 
+        BillyUploadUrl:
+          Type: Api
+          Properties:
+            Path: /billy/bank_statements/upload_url
+            Method: get
+            RestApiId: !Ref BillyApi
+
         BillyAuthTokenCognito:
           Type: Api
           Properties:

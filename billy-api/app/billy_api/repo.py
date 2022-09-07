@@ -5,6 +5,7 @@ from io import BytesIO
 from pathlib import Path
 
 import boto3
+from botocore.exceptions import ClientError
 
 from billy_api import LOGGER
 from billy_api.config import get_config
@@ -104,6 +105,15 @@ class S3DataRepo(DataRepo):
     def exists(self, path) -> bool:
         objs = list(self.bucket.objects.filter(Prefix=path))
         return any([w.key == path for w in objs])
+
+    def presigned_url(self, key: str, expiration: int = 3600):
+        s3_client = boto3.client('s3')
+        response = s3_client.generate_presigned_url('put_object',
+                                                    Params={'Bucket': self.bucket_name,
+                                                            'Key': key},
+                                                    ExpiresIn=expiration)
+        LOGGER.debug(response)
+        return response
 
 
 config = get_config()
