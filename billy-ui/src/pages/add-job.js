@@ -205,7 +205,20 @@ function AddJob({ open, handleClose }) {
                                                         fetch(data.upload_url, {
                                                             method: 'POST',
                                                             body: uploadFile
-                                                        })
+                                                        }).then(res => {
+                                                    if (!res.ok) {
+                                                        return res.json().then(message => { throw new Error(message); })
+                                                    }
+                                                    return res.json();
+                                                })
+                                                    .then((data) => {
+                                                        console.log(data)
+                                                        
+                                                    })
+                                                    .catch((error) => {
+                                                        console.log(`Error: ${error}`);
+                                                        setError(error);
+                                                    });
                                                     })
                                                     .catch((error) => {
                                                         console.log(`Error: ${error}`);
