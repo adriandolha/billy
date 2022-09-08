@@ -208,7 +208,7 @@ function AddJob({ open, handleClose }) {
                                                             body: uploadFile
                                                         }).then(res => {
                                                     if (!res.ok) {
-                                                        return res.text().then(message => { throw new Error(message); })
+                                                        return res.text().then(message => { throw new Error(`${res.status}:${res.statusText}:${message}`); })
                                                     }
                                                     return res.text();
                                                 })
