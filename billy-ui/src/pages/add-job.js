@@ -185,7 +185,7 @@ function AddJob({ open, handleClose }) {
                                             onChange={(e) => {
                                                 console.log(e.target.value)
                                                 const val = e.target.value
-                                                setUploadFile(val)
+                                                setUploadFile(e.target.files[0])
                                             }}
                                             sx={{display:"none"}}
                                         /></Button>
@@ -217,13 +217,13 @@ function AddJob({ open, handleClose }) {
                                                         
                                                     })
                                                     .catch((error) => {
-                                                        console.log(`Error: ${error}`);
-                                                        setError(error);
+                                                        console.log(`Error: ${error.message}`);
+                                                        setError(error.message);
                                                     });
                                                     })
                                                     .catch((error) => {
-                                                        console.log(`Error: ${error}`);
-                                                        setError(error);
+                                                        console.log(`Error: ${error.message}`);
+                                                        setError(error.message);
                                                     });
                                             }}
                                             sx={{ margin: 2 }}
