@@ -176,7 +176,7 @@ function AddJob({ open, handleClose }) {
                                                 setFilesText(val)
                                             }}
                                         />
-                                        <Button variant="contained">Choose File<TextField
+                                        <Button variant="contained" component="label">Choose File<TextField
                                             id="outlined-basic"
                                             label="Outlined"
                                             variant="outlined"
