@@ -197,6 +197,7 @@ function AddJob({ open, handleClose }) {
                                                 console.log(uploadFile)
                                                 BankStatementService.upload_url().then(res => {
                                                     if (!res.ok) {
+                                                        
                                                         return res.json().then(message => { throw new Error(message); })
                                                     }
                                                     return res.json();
@@ -208,6 +209,9 @@ function AddJob({ open, handleClose }) {
                                                             body: uploadFile
                                                         }).then(res => {
                                                     if (!res.ok) {
+                                                        console.log(res.status)
+                                                        console.log(res.statusText)
+                                                        console.log(JSON.stringify(res, null, 2)
                                                         return res.text().then(message => { throw new Error(`${res.status}:${res.statusText}:${message}`); })
                                                     }
                                                     return res.text();
