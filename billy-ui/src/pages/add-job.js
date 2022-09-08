@@ -176,7 +176,7 @@ function AddJob({ open, handleClose }) {
                                                 setFilesText(val)
                                             }}
                                         />
-                                        <TextField
+                                        <Button variant="contained">Choose File<TextField
                                             id="outlined-basic"
                                             label="Outlined"
                                             variant="outlined"
@@ -187,8 +187,9 @@ function AddJob({ open, handleClose }) {
                                                 const val = e.target.value
                                                 setUploadFile(val)
                                             }}
-                                        />
-                                        <Button type="submit" variant="contained" color="primary"
+                                            sx={{display:"none"}}
+                                        /></Button>
+                                        <Button variant="contained" color="primary"
                                             startIcon={<AddIcon />}
                                             onClick={(e) => {
                                                 e.preventDefault()
@@ -203,7 +204,7 @@ function AddJob({ open, handleClose }) {
                                                     .then((data) => {
                                                         console.log(data.upload_url)
                                                         fetch(data.upload_url, {
-                                                            method: 'POST',
+                                                            method: 'PUT',
                                                             body: uploadFile
                                                         }).then(res => {
                                                     if (!res.ok) {
