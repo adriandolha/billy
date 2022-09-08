@@ -110,7 +110,7 @@ class S3DataRepo(DataRepo):
         s3_client = boto3.client('s3')
         response = s3_client.generate_presigned_url('put_object',
                                                     Params={'Bucket': self.bucket_name,
-                                                            'Key': key},
+                                                            'Key': key, 'ContentType': 'application/pdf'},
                                                     ExpiresIn=expiration)
         LOGGER.debug(response)
         return response
