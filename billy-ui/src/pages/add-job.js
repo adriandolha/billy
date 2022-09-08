@@ -211,7 +211,7 @@ function AddJob({ open, handleClose }) {
                                                     if (!res.ok) {
                                                         console.log(res.status)
                                                         console.log(res.statusText)
-                                                        console.log(JSON.stringify(res, null, 2)
+                                                        console.log(JSON.stringify(res, null, 2))
                                                         return res.text().then(message => { throw new Error(`${res.status}:${res.statusText}:${message}`); })
                                                     }
                                                     return res.text();
