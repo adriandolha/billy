@@ -28,11 +28,11 @@ def search(event, context):
 def upload_url(event, context):
     LOGGER.info(event)
     LOGGER.info(context)
-    upload_url = BankStatementApi().upload_url()
+    result = BankStatementApi().upload_url()
     LOGGER.info(f'Upload url is {upload_url}')
     return {
         "statusCode": 200,
-        "body": json.dumps({'upload_url': upload_url}),
+        "body": json.dumps(result),
     }
 
 
