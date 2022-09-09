@@ -132,4 +132,5 @@ class BankStatementApi:
         key_id = str(uuid.uuid4())
         key = f'{app_context.username}/upload/{key_id}.pdf'
         LOGGER.info(f'Presigned key is {key}')
-        return self.s3_repo.presigned_url(key=key)
+        _upload_url = self.s3_repo.presigned_url(key=key)
+        return {'upload_url': _upload_url, 'key': key}
