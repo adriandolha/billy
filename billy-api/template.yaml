@@ -58,6 +58,7 @@ Resources:
               Action:
                 - s3:Get*
                 - s3:List*
+                - s3:Put*
               Resource:
                 - !Sub 'arn:aws:s3:::{{resolve:ssm:/${Env}/data_bucket}}'
                 - !Sub 'arn:aws:s3:::{{resolve:ssm:/${Env}/data_bucket}}/*'
