@@ -205,6 +205,7 @@ function AddJob({ open, handleClose }) {
                                                 })
                                                     .then((data) => {
                                                         console.log(data.upload_url); console.log(uploadFile.type)
+                                                        console.log(data.key)
                                                         fetch(data.upload_url, {
                                                             method: 'PUT',
                                                             body: uploadFile,
@@ -220,7 +221,7 @@ function AddJob({ open, handleClose }) {
                                                     return res.text();
                                                 })
                                                     .then((uploadData) => {
-                                                        console.log(uploadData)
+                                                        console.log(uploadData); console.log(data.key)
                                                         setFilesText(data.key)
                                                     })
                                                     .catch((error) => {
