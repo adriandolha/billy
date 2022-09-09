@@ -203,10 +203,12 @@ function AddJob({ open, handleClose }) {
                                                     return res.json();
                                                 })
                                                     .then((data) => {
-                                                        console.log(data.upload_url)
+                                                        console.log(data.upload_url); console.log(uploadFile.type)
                                                         fetch(data.upload_url, {
                                                             method: 'PUT',
-                                                            body: uploadFile
+                                                            body: uploadFile,
+                                                            headers: {
+                                                              'Content-Type': uploadFile.type}
                                                         }).then(res => {
                                                     if (!res.ok) {
                                                         console.log(res.status)
