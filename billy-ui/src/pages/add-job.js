@@ -95,6 +95,7 @@ function AddJob({ open, handleClose }) {
             setError(error.message);
         });
     console.log(username)
+    console.log(`files text ${filesText}`)
     if (error) {
         return <Error message={error} />
     }
@@ -166,7 +167,7 @@ function AddJob({ open, handleClose }) {
                                     <Grid item xs={12} md={12}>
                                         <TextField
                                             id="tf-files"
-                                            label=""
+                                            label="Transform Files"
                                             placeholder="Enter files to transform"
                                             multiline
                                             fullWidth
@@ -221,7 +222,7 @@ function AddJob({ open, handleClose }) {
                                                     return res.text();
                                                 })
                                                     .then((uploadData) => {
-                                                        console.log(uploadData); console.log(data.key)
+                                                        console.log(uploadData); console.log(data.key);console.log(filesText)
                                                         setFilesText(data.key)
                                                     })
                                                     .catch((error) => {
