@@ -170,6 +170,7 @@ function AddJob({ open, handleClose }) {
                                             placeholder="Enter files to transform"
                                             multiline
                                             fullWidth
+                                            value={filesText}
                                             onChange={(e) => {
                                                 console.log(e.target.value)
                                                 const val = e.target.value
@@ -218,9 +219,9 @@ function AddJob({ open, handleClose }) {
                                                     }
                                                     return res.text();
                                                 })
-                                                    .then((data) => {
-                                                        console.log(data)
-                                                        
+                                                    .then((uploadData) => {
+                                                        console.log(uploadData)
+                                                        setFilesText(data.key)
                                                     })
                                                     .catch((error) => {
                                                         console.log(`Error: ${error.message}`);
