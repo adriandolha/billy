@@ -1,2 +1,2 @@
-#Deploys infrastructure
-Deploys infrastructure using terraform.
+# Deploys infrastructure
+Deploys infrastructure using AWS SAM, CodePipeline, CodeBuild.
