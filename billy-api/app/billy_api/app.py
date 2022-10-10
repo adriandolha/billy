@@ -4,6 +4,7 @@ from functools import lru_cache
 
 from billy_api import LOGGER
 from billy_api.auth import Groups, AuthService
+from billy_api.cognito import CognitoClient
 from billy_api.config import CONFIG
 import boto3
 import botocore
@@ -41,6 +42,7 @@ class AppSetup:
     def __init__(self, ddb_table):
         self.ddb_table = ddb_table
         self.cognito_idp = boto3.client('cognito-idp')
+        self.cognito_client = CognitoClient()
         self.auth_service = AuthService()
 
     def save_app_info(self):

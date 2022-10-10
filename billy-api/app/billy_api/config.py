@@ -26,6 +26,8 @@ def get_config():
         'cognito_redirect_uri': os.getenv('cognito_redirect_uri', default='cognito_redirect_uri'),
         'cognito_user_password': os.getenv('cognito_user_password', default='cognito_user_password'),
         'log_level': os.getenv('log_level', default='ERROR'),
+        'demo_user': os.getenv('demo_user', default='demo@billy.com'),
+        'demo_user_password': os.getenv('demo_user_password', default='demo@123456'),
     })
     LOGGER.debug('Configuration is:')
     for config_name in _config.keys():

@@ -1,3 +1,31 @@
+# Demo
+Go to https://www.billy.adolha.com and login with:
+username: demo@billy.com
+password: demo@123456
+## Achitecture diagrams
+<details>
+  <summary>UI Screenshots (Mobile)</summary>
+  
+### Sidebar
+![](billy-design/sidebar.png)
+
+### Home
+![](billy-design/home.png)
+
+### Dashboard
+![](billy-design/dashboard.png)
+
+### Bank Statements
+![](billy-design/bank_statements.png)
+
+### Categories
+![](billy-design/categories.png)
+
+### Jobs
+![](billy-design/jobs.png)
+</details>
+
+
 # Billy
 Ever wondered where your $ goes? Nowaday there are many apps and tools that give an overview
 of expenses and bills, but they are not personalized and it's difficult to answer questions like:
@@ -18,3 +46,6 @@ Example provider:
 * Internet bills (scraping rcs rds site)
 * Phone bills (scraping orange site)
 
+## Architecture
+
+![](billy-design/billy_architecture.png)  

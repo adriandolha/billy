@@ -4,3 +4,4 @@
 pandas==1.4.3
 authlib==1.0.1
 requests
+faker==15.0.0

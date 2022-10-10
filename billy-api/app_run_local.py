@@ -6,11 +6,6 @@ from datetime import datetime
 from os import listdir
 from os.path import isfile, join
 
-from billy_data.bank_statements import create_data_paths, SearchCriteria, BankStatement, data_paths
-from billy_data.repo import DataRepo
-
-LOGGER = logging.getLogger('billy')
-
 
 def load_config_to_env():
     global _config, k, v
@@ -29,46 +24,13 @@ def load_config_to_env():
     return _config
 
 
-def yahoo_config(config):
-    return {'user': config['yahoo_user'],
-            'password': config['yahoo_password'],
-            'host': config['yahoo_host'],
-            'port': config['yahoo_port'],
-            'card_statement_pdf_password': config['card_statement_pdf_password']
-            }
+load_config_to_env()
 
-
-def search_criteria_star_gold():
-    search_criteria = SearchCriteria()
-    search_criterias = ' '.join([search_criteria.subject(['Extras de cont Star Gold - '])])
-    return search_criterias
-
-
-def search_criteria_star_forte():
-    search_criteria = SearchCriteria()
-    search_criterias = ' '.join([search_criteria.subject(['Extras de cont Star Forte - '])])
-    return search_criterias
-
+from billy_api.demo import configure_demo_user
+from billy_api.config import CONFIG
 
 if __name__ == "__main__":
-    config = load_config_to_env()
-    LOGGER.setLevel(logging.ERROR)
-    print(LOGGER.level)
-    create_data_paths()
-    paths = data_paths(DataRepo())
-    raw_files_path = paths.raw
-    raw_files = [f for f in listdir(raw_files_path) if isfile(join(raw_files_path, f))]
-    failed_files = []
-    print(datetime.now().strftime("%H:%M:%S"))
-    for file_name in raw_files:
-        print(f'Processing {file_name}...')
-        print(datetime.now().strftime("%H:%M:%S"))
-        try:
-            tf_result = BankStatement(**yahoo_config(config)).transform(paths.raw_file(file_name))
-            print(tf_result)
-        except:
-            failed_files.append(file_name)
-            print("Oops!", sys.exc_info()[0], "occurred.")
-    print(datetime.now().strftime("%H:%M:%S"))
-    print(failed_files)
-    # downloaded_files = BankStatement(**yahoo_config(config)).collect(search_criteria_star_forte())
+    configure_demo_user(CONFIG['demo_user'], CONFIG['demo_user_password'])
+
+
+
