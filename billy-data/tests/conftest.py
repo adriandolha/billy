@@ -375,6 +375,40 @@ def bank_statement_requested_currency_eur(pd_read_csv, categories):
 
 
 @pytest.fixture()
+def bank_statement_requested_ref_no_full_col(pd_read_csv, categories):
+    df = pd.DataFrame([
+        ['EXTRAS CONT Numarul: 7 RON Cod IBAN', '', 'din 01/07/2021 - 31/07/2021'],
+        ['Cumparaturi la parteneri Star Card', np.nan, np.nan],
+        ['DATA DESCRIERE', np.nan, 'Debit Credit'],
+        ['SOLD ANTERIOR', np.nan, '1.0'],
+        [np.nan, np.nan, np.nan],
+
+        ['07/07/2021 test currency entry', np.nan, '1.0'],
+
+        ['27/07/2021', 'RULAJ ZI', '25.01 0.0'],
+        [np.nan, 'SOLD FINAL ZI', '100'],
+        [np.nan, np.nan, np.nan],
+        [np.nan, np.nan, np.nan],
+
+        ['28/10/2021 Plata la POS', np.nan, '5.00'],
+        ['POS LidL', np.nan, np.nan],
+        ['230105113057', np.nan, np.nan],
+        ['REF. 043POSP2230100DH', np.nan, np.nan],
+
+        ['28/07/2021', 'RULAJ ZI', '25.01 0.0'],
+        [np.nan, 'SOLD FINAL ZI', '100'],
+        [np.nan, np.nan, np.nan],
+        [np.nan, np.nan, np.nan],
+
+        ['31/07/2021', 'RULAJ TOTAL CONT', '100.00 11.01'],
+        [np.nan, 'SOLD FINAL CONT', '100'],
+        [np.nan, np.nan, np.nan],
+    ], columns=['Unnamed: 0', 'Unnamed: 1', 'Unnamed: 2'])
+    pd_read_csv.return_value = df
+    yield df
+
+
+@pytest.fixture()
 def bank_statement_requested_empty_columns_between_data_columns(pd_read_csv, categories):
     df = pd.DataFrame([
         ['EXTRAS CONT Numarul:', np.nan, np.nan, np.nan, 'din 01/07/2021 - 31/07/2021'],

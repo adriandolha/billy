@@ -165,7 +165,7 @@ class TestBankStatementAPI:
                                        transform_event_valid):
         # files = [f'{config_valid["cognito_user"]}/bank_statements/upload/bank_statement_5101.pdf']
         # files = [f'{config_valid["cognito_user"]}/bank_statements/upload/RO13BTRL01301201C53812XX-26.pdf']
-        files = [f'{config_valid["cognito_user"]}/bank_statements/upload']
+        files = [f'{config_valid["cognito_user"]}/bank_statements/upload/14470820-48a3-4f0e-9410-26a7509d9d3c.pdf']
         # files = [f'{config_valid["cognito_user"]}/bank_statements/no_pass/bank_statement_5212.pdf']
         # files = [f'{config_valid["cognito_user"]}/bank_statements/upload']
 

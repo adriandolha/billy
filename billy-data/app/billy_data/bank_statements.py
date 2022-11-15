@@ -770,8 +770,8 @@ def is_float(val):
         return False
     _val = str(val).replace(',', '')
     try:
-        float(_val)
-        return True
+        _num_val = float(_val)
+        return True if abs(_num_val) < 1000000 else False
     except ValueError:
         return False
 
@@ -907,7 +907,7 @@ class BankStatementDataRequested:
                 if credit and credit < 0:
                     credit_list.append(credit)
 
-            suma_text = find_next_value(row, lambda val: is_float(val))
+            suma_text = find_next_value(row, lambda val: is_float(val) )
             if suma_text and not (self.is_section_footer(row)):
                 if len(last_entries) > 0:
                     bank_statement_entry = self.extract_bank_statement_from_last_entries(bank_statement_info, crt_date,
